@@ -1,0 +1,15 @@
+# 服务器配置
+server:
+  servlet:
+    context-path: /iw-auth
+  port: 18001
+
+# spring 配置
+spring:
+  application:
+    name: iw-auth-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/iw_mixes
+    username: iw_root
+    password: iw@2024
