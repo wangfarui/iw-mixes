@@ -1,23 +1,10 @@
 package com.itwray.iw.auth.core;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.spring.web.plugins.WebFluxRequestHandlerProvider;
-import springfox.documentation.spring.web.plugins.WebMvcRequestHandlerProvider;
-
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Swagger 配置
@@ -29,56 +16,12 @@ import java.util.stream.Collectors;
 public class SwaggerConfig {
 
     @Bean
-    public Docket createRestApi() {
-        return new Docket(DocumentationType.OAS_30)
-                .apiInfo(apiInfo())
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.itwray.iw.auth.controller"))
-                .paths(PathSelectors.any())
-                .build();
-    }
-
-    /**
-     * 增加如下配置可解决Spring Boot 6.x 与Swagger 3.0.0 不兼容问题
-     **/
-    @Bean
-    public static BeanPostProcessor springfoxHandlerProviderBeanPostProcessor() {
-        return new BeanPostProcessor() {
-
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-                if (bean instanceof WebMvcRequestHandlerProvider || bean instanceof WebFluxRequestHandlerProvider) {
-                    customizeSpringfoxHandlerMappings(getHandlerMappings(bean));
-                }
-                return bean;
-            }
-
-            private <T extends RequestMappingInfoHandlerMapping> void customizeSpringfoxHandlerMappings(List<T> mappings) {
-                List<T> copy = mappings.stream()
-                        .filter(mapping -> mapping.getPatternParser() == null)
-                        .collect(Collectors.toList());
-                mappings.clear();
-                mappings.addAll(copy);
-            }
-
-            @SuppressWarnings("unchecked")
-            private List<RequestMappingInfoHandlerMapping> getHandlerMappings(Object bean) {
-                try {
-                    Field field = ReflectionUtils.findField(bean.getClass(), "handlerMappings");
-                    field.setAccessible(true);
-                    return (List<RequestMappingInfoHandlerMapping>) field.get(bean);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        };
-    }
-
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("IW-AUTH API")
-                .description("授权服务API文档")
-                .version("0.0.1")
-                .build();
+    public OpenAPI springShopOpenAPI() {
+        return new OpenAPI()
+                .info(new Info().title("IW-AUTH API")
+                        .description("IW auth service api.")
+                        .version("v0.0.1")
+                        .license(new License().name("SpringDoc").url("http://springdoc.org"))
+                );
     }
 }

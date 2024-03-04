@@ -1,7 +1,6 @@
 package com.itwray.iw.auth.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -11,12 +10,12 @@ import lombok.Data;
  * @since 2024/3/2
  */
 @Data
-@ApiModel("登录-账号密码方式DTO")
+@Schema(name = "登录-账号密码方式DTO")
 public class LoginPasswordDto {
 
-    @ApiModelProperty("账号")
+    @Schema(title = "账号")
     private String account;
 
-    @ApiModelProperty("密码")
+    @Schema(title = "密码")
     private String password;
 }

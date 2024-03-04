@@ -13,3 +13,10 @@ spring:
     url: jdbc:mysql://localhost:3306/iw_mixes
     username: iw_root
     password: iw@2024
+
+# springdoc 配置
+springdoc:
+  swagger-ui:
+    path: /doc.html
+  packages-to-scan:
+    - com.itwray.iw.auth.controller

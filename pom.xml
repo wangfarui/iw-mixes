@@ -23,17 +23,18 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- spring properties -->
+        <spring.version>6.1.4</spring.version> <!-- see spring-framework-bom -->
         <spring.boot.version>3.2.3</spring.boot.version>
+        <springdoc.version>2.3.0</springdoc.version>
 
         <!-- database properties -->
         <mysql.version>8.3.0</mysql.version>
         <mysql.driver.version>8.0.33</mysql.driver.version>
-
-        <!-- orm properties -->
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
 
         <!-- other properties -->
         <springfox.version>3.0.0</springfox.version>
+        <javax.servlet.version>4.0.1</javax.servlet.version>
     </properties>
 
     <dependencyManagement>
@@ -41,7 +42,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.2.3</version>
+                <version>${spring.boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -54,14 +55,26 @@
 
             <dependency>
                 <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-boot-starter</artifactId>
-                <version>${springfox.version}</version>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
