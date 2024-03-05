@@ -1,5 +1,6 @@
 package com.itwray.iw.auth.service.impl;
 
+import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.dao.AuthUserDao;
 import com.itwray.iw.auth.dto.LoginPasswordDto;
 import com.itwray.iw.auth.dto.RegisterFormDto;
@@ -28,10 +29,10 @@ public class AuthUserServiceImpl implements AuthUserService {
         AuthUser authUser = authUserDao.queryOneByAccount(dto.getAccount());
         if (authUser == null) {
             // 为防止用户恶意猜测账号，异常信息同密码错误一样
-            throw new RuntimeException("账号或密码错误");
+            throw new AuthServiceException("账号或密码错误");
         }
         if (!authUser.getPassword().equals(dto.getPassword())) {
-            throw new RuntimeException("账号或密码错误");
+            throw new AuthServiceException("账号或密码错误");
         }
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(authUser, userInfoVo);
@@ -45,7 +46,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         AuthUser authUser = authUserDao.queryOneByAccount(dto.getAccount());
         if (authUser != null) {
             // TODO 为防止用户恶意猜测账号，需要增加注册次数限制
-            throw new RuntimeException("账号已注册");
+            throw new AuthServiceException("账号已注册");
         }
         AuthUser addUser = new AuthUser();
         BeanUtils.copyProperties(dto, addUser);

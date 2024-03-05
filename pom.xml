@@ -35,6 +35,7 @@
         <!-- other properties -->
         <springfox.version>3.0.0</springfox.version>
         <javax.servlet.version>4.0.1</javax.servlet.version>
+        <hutool.version>5.8.26</hutool.version>
     </properties>
 
     <dependencyManagement>
@@ -75,6 +76,12 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${javax.servlet.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
