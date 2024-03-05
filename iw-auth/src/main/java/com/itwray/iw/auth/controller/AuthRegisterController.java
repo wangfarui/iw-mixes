@@ -1,6 +1,6 @@
 package com.itwray.iw.auth.controller;
 
-import com.itwray.iw.auth.dto.RegisterFormDto;
+import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.service.AuthUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

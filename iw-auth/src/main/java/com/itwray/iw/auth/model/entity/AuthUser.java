@@ -1,4 +1,4 @@
-package com.itwray.iw.auth.entity;
+package com.itwray.iw.auth.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

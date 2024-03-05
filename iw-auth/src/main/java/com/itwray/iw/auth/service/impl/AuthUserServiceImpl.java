@@ -2,11 +2,11 @@ package com.itwray.iw.auth.service.impl;
 
 import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.dao.AuthUserDao;
-import com.itwray.iw.auth.dto.LoginPasswordDto;
-import com.itwray.iw.auth.dto.RegisterFormDto;
-import com.itwray.iw.auth.entity.AuthUser;
+import com.itwray.iw.auth.model.dto.LoginPasswordDto;
+import com.itwray.iw.auth.model.dto.RegisterFormDto;
+import com.itwray.iw.auth.model.entity.AuthUser;
 import com.itwray.iw.auth.service.AuthUserService;
-import com.itwray.iw.auth.vo.UserInfoVo;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

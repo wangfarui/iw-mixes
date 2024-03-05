@@ -1,7 +1,7 @@
 package com.itwray.iw.auth.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.itwray.iw.auth.entity.AuthUser;
+import com.itwray.iw.auth.model.entity.AuthUser;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

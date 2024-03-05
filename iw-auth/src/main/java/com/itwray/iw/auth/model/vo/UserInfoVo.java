@@ -1,4 +1,4 @@
-package com.itwray.iw.auth.vo;
+package com.itwray.iw.auth.model.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;

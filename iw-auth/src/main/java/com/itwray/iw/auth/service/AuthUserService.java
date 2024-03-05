@@ -1,8 +1,8 @@
 package com.itwray.iw.auth.service;
 
-import com.itwray.iw.auth.dto.LoginPasswordDto;
-import com.itwray.iw.auth.dto.RegisterFormDto;
-import com.itwray.iw.auth.vo.UserInfoVo;
+import com.itwray.iw.auth.model.dto.LoginPasswordDto;
+import com.itwray.iw.auth.model.dto.RegisterFormDto;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 
 /**
  * 用户接口服务

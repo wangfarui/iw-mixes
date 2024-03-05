@@ -1,8 +1,8 @@
 package com.itwray.iw.auth.controller;
 
-import com.itwray.iw.auth.dto.LoginPasswordDto;
+import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.service.AuthUserService;
-import com.itwray.iw.auth.vo.UserInfoVo;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
