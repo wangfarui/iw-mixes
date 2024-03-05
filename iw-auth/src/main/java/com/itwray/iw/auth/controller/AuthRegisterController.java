@@ -1,8 +1,7 @@
 package com.itwray.iw.auth.controller;
 
-import com.itwray.iw.auth.dto.LoginPasswordDto;
+import com.itwray.iw.auth.dto.RegisterFormDto;
 import com.itwray.iw.auth.service.AuthUserService;
-import com.itwray.iw.auth.vo.UserInfoVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,23 +13,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 授权登录的接口控制层
+ * 授权注册的接口控制层
  *
  * @author wangfarui
- * @since 2024/3/2
+ * @since 2024/3/5
  */
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/register")
 @AllArgsConstructor
 @Validated
-@Tag(name = "授权登录接口")
-public class AuthLoginController {
+@Tag(name = "授权注册接口")
+public class AuthRegisterController {
 
     private final AuthUserService authUserService;
 
-    @PostMapping("/password")
-    @Operation(summary = "根据账号密码登录")
-    public UserInfoVo loginByPassword(@RequestBody @Valid LoginPasswordDto dto) {
-        return authUserService.loginByPassword(dto);
+    @PostMapping("/form")
+    @Operation(summary = "根据表单注册")
+    public void registerByForm(@RequestBody @Valid RegisterFormDto dto) {
+        authUserService.registerByForm(dto);
     }
 }

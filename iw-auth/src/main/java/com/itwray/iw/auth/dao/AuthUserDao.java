@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.auth.entity.AuthUser;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,17 +16,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUser> {
 
-    public @NonNull AuthUser queryOneByAccount(String account) {
+    public @Nullable AuthUser queryOneByAccount(String account) {
         if (StringUtils.isBlank(account)) {
             throw new RuntimeException("账号不能为空");
         }
-        AuthUser authUser = this.lambdaQuery()
+        return this.lambdaQuery()
                 .eq(AuthUser::getAccount, account)
                 .last("limit 1")
                 .one();
-        if (authUser == null) {
-            throw new RuntimeException("用户不存在");
-        }
-        return authUser;
     }
 }

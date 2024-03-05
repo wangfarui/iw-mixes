@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.service;
 
 import com.itwray.iw.auth.dto.LoginPasswordDto;
+import com.itwray.iw.auth.dto.RegisterFormDto;
 import com.itwray.iw.auth.vo.UserInfoVo;
 
 /**
@@ -18,4 +19,11 @@ public interface AuthUserService {
      * @return 用户信息
      */
     UserInfoVo loginByPassword(LoginPasswordDto dto);
+
+    /**
+     * 用户注册-通过表单方式注册
+     *
+     * @param dto 用户注册信息
+     */
+    void registerByForm(RegisterFormDto dto);
 }

@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -14,8 +15,10 @@ import lombok.Data;
 public class LoginPasswordDto {
 
     @Schema(title = "账号")
+    @NotBlank(message = "账号不能为空")
     private String account;
 
     @Schema(title = "密码")
+    @NotBlank(message = "密码不能为空")
     private String password;
 }
