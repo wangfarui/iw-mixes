@@ -3,7 +3,7 @@ package com.itwray.iw.auth.model;
 /**
  * 通用接口编码
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/5
  */
 public enum GeneralApiCode implements ApiCode {

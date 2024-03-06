@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * IW授权服务应用程序
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 @SpringBootApplication

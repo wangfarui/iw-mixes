@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 授权服务的 Mapper 配置类
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 @Configuration(proxyBeanMethods = false)

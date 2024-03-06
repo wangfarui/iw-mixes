@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * 用户
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 @TableName("iw_auth_user")

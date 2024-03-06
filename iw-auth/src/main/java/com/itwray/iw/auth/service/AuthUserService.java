@@ -7,7 +7,7 @@ import com.itwray.iw.auth.model.vo.UserInfoVo;
 /**
  * 用户接口服务
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 public interface AuthUserService {

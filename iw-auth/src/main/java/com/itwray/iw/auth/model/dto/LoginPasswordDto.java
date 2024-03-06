@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * 登录-账号密码方式 DTO
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 @Data

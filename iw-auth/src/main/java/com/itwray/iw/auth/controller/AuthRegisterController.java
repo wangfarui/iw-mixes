@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 授权注册的接口控制层
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/5
  */
 @RestController

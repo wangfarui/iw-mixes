@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * 通用响应对象
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/5
  */
 @Data

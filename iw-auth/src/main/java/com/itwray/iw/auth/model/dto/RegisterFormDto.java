@@ -8,7 +8,7 @@ import lombok.Data;
 /**
  * 注册-表单填写方式 DTO
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/5
  */
 @Data

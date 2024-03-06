@@ -8,7 +8,7 @@ import lombok.Data;
 /**
  * 用户信息 VO
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 @Data

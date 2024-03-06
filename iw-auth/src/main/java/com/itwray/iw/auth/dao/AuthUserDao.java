@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 /**
  * 用户 DAO
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 @Component

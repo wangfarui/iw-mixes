@@ -6,7 +6,7 @@ import com.itwray.iw.auth.model.GeneralApiCode;
 /**
  * 授权服务异常
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/5
  */
 public class AuthServiceException extends RuntimeException implements ApiCode {

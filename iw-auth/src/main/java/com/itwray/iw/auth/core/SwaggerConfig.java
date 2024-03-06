@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Swagger 配置
  *
- * @author wangfarui
+ * @author wray
  * @since 2024/3/2
  */
 @Configuration
