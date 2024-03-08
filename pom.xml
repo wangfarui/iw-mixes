@@ -25,16 +25,12 @@
         <!-- spring properties -->
         <spring.version>6.1.4</spring.version> <!-- see spring-framework-bom -->
         <spring.boot.version>3.2.3</spring.boot.version>
+        <spring-security.version>6.2.2</spring-security.version>
         <springdoc.version>2.3.0</springdoc.version>
 
-        <!-- database properties -->
-        <mysql.version>8.3.0</mysql.version>
-        <mysql.driver.version>8.0.33</mysql.driver.version>
-        <mybatis-plus.version>3.5.5</mybatis-plus.version>
-
         <!-- other properties -->
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <springfox.version>3.0.0</springfox.version>
-        <javax.servlet.version>4.0.1</javax.servlet.version>
         <hutool.version>5.8.26</hutool.version>
     </properties>
 
@@ -49,33 +45,15 @@
             </dependency>
 
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>${mysql.driver.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-                <version>${mybatis-plus.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${javax.servlet.version}</version>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
             </dependency>
 
             <dependency>
