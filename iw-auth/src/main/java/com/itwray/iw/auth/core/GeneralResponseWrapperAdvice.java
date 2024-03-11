@@ -1,6 +1,5 @@
 package com.itwray.iw.auth.core;
 
-import cn.hutool.json.JSONUtil;
 import com.itwray.iw.auth.model.GeneralResponse;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.core.MethodParameter;
@@ -33,6 +32,11 @@ public class GeneralResponseWrapperAdvice implements ResponseBodyAdvice<Object> 
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request, ServerHttpResponse response) {
+        // 只对 application/json 数据进行封装
+        if (!MediaType.APPLICATION_JSON.toString().equals(selectedContentType.toString())) {
+            return body;
+        }
+        // 跳过符合规则的uri
         if (this.isSkipUri(request.getURI().getPath())) {
             return body;
         }
@@ -49,9 +53,6 @@ public class GeneralResponseWrapperAdvice implements ResponseBodyAdvice<Object> 
             } else {
                 baseResponse = GeneralResponse.success(body);
             }
-        }
-        if (selectedContentType.isCompatibleWith(MediaType.TEXT_PLAIN)) {
-            return JSONUtil.toJsonStr(baseResponse);
         }
         return baseResponse;
     }
