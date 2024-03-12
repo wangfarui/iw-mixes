@@ -48,7 +48,6 @@ public class DefaultSecurityConfig {
                 .build();
     }
 
-
     static class DefaultAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
         @Override

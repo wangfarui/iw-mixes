@@ -15,11 +15,6 @@ import lombok.Data;
 @Schema(name = "注册-表单填写方式DTO")
 public class RegisterFormDto {
 
-    @Schema(title = "账号")
-    @NotBlank(message = "账号不能为空")
-    @Size(max = 32, message = "账号不能超过32位")
-    private String account;
-
     @Schema(title = "用户名")
     @NotBlank(message = "用户名不能为空")
     @Size(max = 64, message = "用户名不能超过64位")
@@ -29,4 +24,8 @@ public class RegisterFormDto {
     @NotBlank(message = "密码不能为空")
     @Size(max = 64, message = "密码不能超过64位")
     private String password;
+
+    @Schema(title = "姓名")
+    @Size(max = 32, message = "姓名不能超过32位")
+    private String name;
 }
