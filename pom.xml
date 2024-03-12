@@ -8,6 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>iw-auth</module>
+        <module>iw-note</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
