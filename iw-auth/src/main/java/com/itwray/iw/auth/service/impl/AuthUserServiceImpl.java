@@ -11,10 +11,12 @@ import com.itwray.iw.auth.model.entity.AuthRole;
 import com.itwray.iw.auth.model.entity.AuthUser;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +29,16 @@ import java.util.List;
  * @since 2024/3/2
  */
 @Service
-@AllArgsConstructor
 public class AuthUserServiceImpl implements UserDetailsService, AuthUserService {
 
     private final AuthUserDao authUserDao;
+
+    @Autowired
+    public AuthUserServiceImpl(AuthUserDao authUserDao) {
+        this.authUserDao = authUserDao;
+    }
+
+    private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     /**
      * 通过 {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#formLogin} 方式访问
@@ -63,7 +71,7 @@ public class AuthUserServiceImpl implements UserDetailsService, AuthUserService 
             // 为防止用户恶意猜测用户名，异常信息同密码错误一样
             throw new AuthServiceException("用户名或密码错误");
         }
-        if (!authUser.getPassword().equals(dto.getPassword())) {
+        if (!this.passwordEncoder.matches(dto.getPassword(), authUser.getPassword())) {
             throw new AuthServiceException("用户名或密码错误");
         }
         UserInfoVo userInfoVo = new UserInfoVo();

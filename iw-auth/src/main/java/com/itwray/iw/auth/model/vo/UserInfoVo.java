@@ -19,9 +19,9 @@ public class UserInfoVo {
     @Schema(title = "用户id")
     private Long id;
 
-    @Schema(title = "账号")
-    private String account;
-
     @Schema(title = "用户名")
     private String username;
+
+    @Schema(title = "姓名")
+    private String name;
 }
