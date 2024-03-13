@@ -38,7 +38,7 @@ public class AuthUserServiceImpl implements UserDetailsService, AuthUserService 
         this.authUserDao = authUserDao;
     }
 
-    private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    private final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     /**
      * 通过 {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#formLogin} 方式访问
@@ -94,6 +94,8 @@ public class AuthUserServiceImpl implements UserDetailsService, AuthUserService 
         if (StrUtil.isBlank(addUser.getName())) {
             addUser.setName(addUser.getUsername());
         }
+        // 密码加密存储
+        addUser.setPassword("{noop}" + addUser.getPassword());
         authUserDao.save(addUser);
     }
 }

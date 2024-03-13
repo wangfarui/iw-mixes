@@ -41,22 +41,22 @@ public class AuthUser {
     /**
      * 账号是否过期
      */
-    private boolean accountNonExpired;
+    private Boolean accountNonExpired;
 
     /**
      * 账号是否锁定
      */
-    private boolean accountNonLocked;
+    private Boolean accountNonLocked;
 
     /**
      * 用户凭证是否过期
      */
-    private boolean credentialsNonExpired;
+    private Boolean credentialsNonExpired;
 
     /**
      * 是否启用
      */
-    private boolean enabled;
+    private Boolean enabled;
 
     /**
      * 创建时间
