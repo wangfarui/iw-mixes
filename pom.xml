@@ -33,6 +33,7 @@
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <springfox.version>3.0.0</springfox.version>
         <hutool.version>5.8.26</hutool.version>
+        <captcha.version>2.2.3</captcha.version>
     </properties>
 
     <dependencyManagement>
@@ -61,6 +62,12 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.springboot.plugin</groupId>
+                <artifactId>captcha-spring-boot-starter</artifactId>
+                <version>${captcha.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

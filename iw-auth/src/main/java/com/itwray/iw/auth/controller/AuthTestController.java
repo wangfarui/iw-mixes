@@ -18,10 +18,20 @@ public class AuthTestController {
 
     @GetMapping("/hello")
     public String hello(Authentication authentication, Principal principal, HttpServletRequest request) {
-        System.out.println("authentication: " + authentication);
-        System.out.println("principal: " + principal);
-        Principal userPrincipal = request.getUserPrincipal();
+        if (authentication != null) {
+            System.out.println("authentication: " + authentication);
+        }
+        if (principal != null) {
+            System.out.println("principal: " + principal);
+        }
         System.out.println("request.getRemoteUser(): " + request.getRemoteUser());
-        return "hello " + userPrincipal.getName();
+        Principal userPrincipal = request.getUserPrincipal();
+        String name = userPrincipal != null ? userPrincipal.getName() : "null";
+        return "hello " + name;
+    }
+
+    @GetMapping("/hello2")
+    public String hello() {
+        return "hello2";
     }
 }
