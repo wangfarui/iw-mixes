@@ -50,7 +50,7 @@ public class AuthUserServiceImpl implements UserDetailsService, AuthUserService 
     public AuthUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         AuthUser authUser = authUserDao.queryOneByUsername(username);
         if (authUser == null) {
-            throw new AuthServiceException("用户名不存在");
+            throw new UsernameNotFoundException("用户名不存在");
         }
         List<AuthRole> authRoles = authUserDao.getBaseMapper().queryRolesByUserId(authUser.getId());
         AuthUserDetails authUserDetails = BeanUtil.copyProperties(authUser, AuthUserDetails.class);

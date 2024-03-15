@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.dao;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
 import com.itwray.iw.auth.model.entity.AuthUser;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +19,7 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUser> {
 
     public @Nullable AuthUser queryOneByUsername(String username) {
         if (StringUtils.isBlank(username)) {
-            throw new RuntimeException("用户名不能为空");
+            throw new AuthServiceException("用户名不能为空");
         }
         return this.lambdaQuery()
                 .eq(AuthUser::getUsername, username)
