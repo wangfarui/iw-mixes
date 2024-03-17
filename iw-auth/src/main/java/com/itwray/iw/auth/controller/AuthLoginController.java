@@ -10,7 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,16 +25,29 @@ import java.io.IOException;
  */
 @RestController
 @RequestMapping("/login")
-@AllArgsConstructor
 @Validated
 @Tag(name = "授权登录接口")
 public class AuthLoginController {
 
     private final AuthUserService authUserService;
 
+    @Value("${captcha.width:130}")
+    private Integer captchaWidth;
+
+    @Value("${captcha.height:48}")
+    private Integer captchaHeight;
+
+    @Value("${captcha.len:4}")
+    private Integer captchaLen;
+
+    @Autowired
+    public AuthLoginController(AuthUserService authUserService) {
+        this.authUserService = authUserService;
+    }
+
     @GetMapping("/captcha.jpg")
     public void getVerifyCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        CaptchaJakartaUtil.out(130, 48, 4, Captcha.TYPE_ONLY_NUMBER, request, response);
+        CaptchaJakartaUtil.out(this.captchaWidth, this.captchaHeight, this.captchaLen, Captcha.TYPE_ONLY_NUMBER, request, response);
     }
 
     @PostMapping("/password")
