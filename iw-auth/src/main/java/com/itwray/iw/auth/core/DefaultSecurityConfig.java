@@ -4,23 +4,25 @@ import cn.hutool.json.JSONUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,6 +37,13 @@ import java.util.Map;
 @Configuration
 public class DefaultSecurityConfig {
 
+    private AuthenticationConfiguration authenticationConfiguration;
+
+    @Autowired
+    public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
+        this.authenticationConfiguration = authenticationConfiguration;
+    }
+
     @Bean
     public SecurityFilterChain authSecurityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(t -> t.requestMatchers(HttpMethod.GET, "/css/**", "/js/**", "/*/captcha.jpg")
@@ -46,10 +55,10 @@ public class DefaultSecurityConfig {
                 )
                 .formLogin(t -> t.loginPage("/login.html")
                         .loginProcessingUrl("/doLogin")
-                        .successHandler(new DefaultAuthenticationSuccessHandler())
-                        .failureHandler(new DefaultAuthenticationFailureHandler())
                         .usernameParameter("uname")
                         .passwordParameter("passwd")
+                        .successHandler(new DefaultAuthenticationSuccessHandler())
+                        .failureHandler(new DefaultAuthenticationFailureHandler())
                         .permitAll()
                 )
                 .logout(t -> t.logoutUrl("/doLogout")
@@ -57,32 +66,46 @@ public class DefaultSecurityConfig {
                         .clearAuthentication(true)
                         .logoutSuccessHandler(new DefaultLogoutSuccessHandler())
                 )
+                .addFilterBefore(loginCaptchaFilter(), UsernamePasswordAuthenticationFilter.class)
                 .csrf(CsrfConfigurer::disable)
                 .build();
     }
 
-    @Bean
-    public AuthenticationProvider captchaDaoAuthenticationProvider(UserDetailsService userDetailsService) {
-        CaptchaDaoAuthenticationProvider provider = new CaptchaDaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        return provider;
+    public AuthenticationManager getAuthenticationManager() throws Exception {
+        return this.authenticationConfiguration.getAuthenticationManager();
     }
 
-    static class CaptchaDaoAuthenticationProvider extends DaoAuthenticationProvider {
-        @Override
-        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (requestAttributes != null) {
-                HttpServletRequest request = requestAttributes.getRequest();
-                String captcha = request.getParameter("captcha");
-                String captchaSession = (String) request.getSession().getAttribute("captcha");
-                // 判断验证码
-                if (captcha == null || captchaSession == null || !captchaSession.equals(captcha.trim().toLowerCase())) {
-                    throw new AuthenticationServiceException("验证码输入错误");
-                }
-            }
+    private LoginCaptchaFilter loginCaptchaFilter() throws Exception {
+        LoginCaptchaFilter loginCaptchaFilter = new LoginCaptchaFilter(this.getAuthenticationManager());
+        // 验证码认证成功后，不做任何处理操作
+        loginCaptchaFilter.setAuthenticationSuccessHandler(((request, response, authentication) -> {
+        }));
+        // 验证码认证失败后，回填 Response 对象
+        loginCaptchaFilter.setAuthenticationFailureHandler(new DefaultAuthenticationFailureHandler());
+        return loginCaptchaFilter;
+    }
 
-            return super.authenticate(authentication);
+    static class CaptchaAuthenticationToken extends AbstractAuthenticationToken {
+
+        private final String captcha;
+
+        public CaptchaAuthenticationToken(String captcha) {
+            super(null);
+            this.captcha = captcha;
+        }
+
+        @Override
+        public Object getCredentials() {
+            return null;
+        }
+
+        @Override
+        public Object getPrincipal() {
+            return null;
+        }
+
+        public String getCaptcha() {
+            return captcha;
         }
     }
 
@@ -122,6 +145,28 @@ public class DefaultSecurityConfig {
             resp.put("msg", "注销成功!");
             // 退出登录之后返回json字符串
             response.getWriter().write(JSONUtil.toJsonStr(resp));
+        }
+    }
+
+    /**
+     * 登录验证码过滤器
+     */
+    private static class LoginCaptchaFilter extends AbstractAuthenticationProcessingFilter {
+
+        public LoginCaptchaFilter(AuthenticationManager authenticationManager) {
+            super(new AntPathRequestMatcher("/doLogin", "POST"), authenticationManager);
+            super.setContinueChainBeforeSuccessfulAuthentication(true);
+        }
+
+        @Override
+        public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+            String captcha = request.getParameter("captcha");
+            String captchaSession = (String) request.getSession().getAttribute("captcha");
+            // 判断验证码
+            if (captcha == null || captchaSession == null || !captchaSession.equals(captcha.trim().toLowerCase())) {
+                throw new AuthenticationServiceException("验证码输入错误");
+            }
+            return new CaptchaAuthenticationToken(captcha);
         }
     }
 }
