@@ -46,10 +46,17 @@ public class DefaultSecurityConfig {
 
     @Bean
     public SecurityFilterChain authSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(t -> t.requestMatchers(HttpMethod.GET, "/css/**", "/js/**", "/*/captcha.jpg")
+        return http.authorizeHttpRequests(t -> t
+                        // 静态资源
+                        .requestMatchers(HttpMethod.GET, "/css/**", "/js/**", "/*/captcha.jpg")
                         .permitAll()
+                        // swagger ui
+                        .requestMatchers("/doc.html", "/swagger-ui/**", "/v3/api-docs/**")
+                        .permitAll()
+                        // 忽略认证接口
                         .requestMatchers("/hello")
                         .permitAll()
+                        // 除以上请求外的所有请求都需要认证
                         .anyRequest()
                         .authenticated()
                 )
