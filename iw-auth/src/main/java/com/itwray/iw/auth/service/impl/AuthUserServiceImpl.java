@@ -13,6 +13,8 @@ import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -29,7 +31,7 @@ import java.util.List;
  * @since 2024/3/2
  */
 @Service
-public class AuthUserServiceImpl implements UserDetailsService, AuthUserService {
+public class AuthUserServiceImpl implements AuthUserService, UserDetailsService, UserDetailsPasswordService {
 
     private final AuthUserDao authUserDao;
 
@@ -58,6 +60,25 @@ public class AuthUserServiceImpl implements UserDetailsService, AuthUserService 
         return authUserDetails;
     }
 
+
+    /**
+     * 修改用户密码
+     *
+     * @param user 要修改密码的用户
+     * @param newPassword 新加密的密码
+     * @return 修改密码后的用户
+     */
+    @Override
+    public UserDetails updatePassword(UserDetails user, String newPassword) {
+        boolean updateResult = authUserDao.updatePasswordByUsername(user.getUsername(), newPassword);
+        if (!updateResult) {
+            return user;
+        }
+        AuthUserDetails authUserDetails = (AuthUserDetails) user;
+        authUserDetails.setPassword(newPassword);
+        return authUserDetails;
+    }
+
     /**
      * 通过自定义Web接口访问
      *
@@ -73,6 +94,12 @@ public class AuthUserServiceImpl implements UserDetailsService, AuthUserService 
         }
         if (!this.passwordEncoder.matches(dto.getPassword(), authUser.getPassword())) {
             throw new AuthServiceException("用户名或密码错误");
+        }
+        // 自验密码是否需要升级
+        if (this.passwordEncoder.upgradeEncoding(authUser.getPassword())) {
+            AuthUserDetails authUserDetails = BeanUtil.copyProperties(authUser, AuthUserDetails.class);
+            String newPassword = this.passwordEncoder.encode(dto.getPassword());
+            this.updatePassword(authUserDetails, newPassword);
         }
         UserInfoVo userInfoVo = new UserInfoVo();
         BeanUtils.copyProperties(authUser, userInfoVo);
@@ -95,7 +122,7 @@ public class AuthUserServiceImpl implements UserDetailsService, AuthUserService 
             addUser.setName(addUser.getUsername());
         }
         // 密码加密存储
-        addUser.setPassword("{noop}" + addUser.getPassword());
+        addUser.setPassword(passwordEncoder.encode(addUser.getPassword()));
         authUserDao.save(addUser);
     }
 }

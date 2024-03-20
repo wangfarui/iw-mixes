@@ -17,6 +17,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUser> {
 
+    /**
+     * 根据用户名查询唯一的用户
+     *
+     * @param username 用户名
+     * @return 可能为空的用户
+     */
     public @Nullable AuthUser queryOneByUsername(String username) {
         if (StringUtils.isBlank(username)) {
             throw new AuthServiceException("用户名不能为空");
@@ -25,5 +31,19 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUser> {
                 .eq(AuthUser::getUsername, username)
                 .last("limit 1")
                 .one();
+    }
+
+    /**
+     * 根据用户名修改用户密码
+     *
+     * @param username 用户名
+     * @param encodedPassword 加密过后的密码
+     * @return 是否修改成功
+     */
+    public boolean updatePasswordByUsername(String username, String encodedPassword) {
+        return this.lambdaUpdate()
+                .eq(AuthUser::getUsername, username)
+                .set(AuthUser::getPassword, encodedPassword)
+                .update();
     }
 }
