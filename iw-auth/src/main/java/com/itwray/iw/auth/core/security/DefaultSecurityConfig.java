@@ -1,14 +1,11 @@
-package com.itwray.iw.auth.core;
+package com.itwray.iw.auth.core.security;
 
-import cn.hutool.json.JSONUtil;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -18,15 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 默认 SpringSecurity 配置
@@ -82,6 +72,12 @@ public class DefaultSecurityConfig {
         return this.authenticationConfiguration.getAuthenticationManager();
     }
 
+    /**
+     * 实例化登录验证码过滤器
+     *
+     * @return LoginCaptchaFilter
+     * @throws Exception from this.getAuthenticationManager()
+     */
     private LoginCaptchaFilter loginCaptchaFilter() throws Exception {
         LoginCaptchaFilter loginCaptchaFilter = new LoginCaptchaFilter(this.getAuthenticationManager());
         // 验证码认证成功后，不做任何处理操作
@@ -90,69 +86,6 @@ public class DefaultSecurityConfig {
         // 验证码认证失败后，回填 Response 对象
         loginCaptchaFilter.setAuthenticationFailureHandler(new DefaultAuthenticationFailureHandler());
         return loginCaptchaFilter;
-    }
-
-    static class CaptchaAuthenticationToken extends AbstractAuthenticationToken {
-
-        private final String captcha;
-
-        public CaptchaAuthenticationToken(String captcha) {
-            super(null);
-            this.captcha = captcha;
-        }
-
-        @Override
-        public Object getCredentials() {
-            return null;
-        }
-
-        @Override
-        public Object getPrincipal() {
-            return null;
-        }
-
-        public String getCaptcha() {
-            return captcha;
-        }
-    }
-
-    static class DefaultAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
-        @Override
-        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-            response.setContentType("application/json;charset=utf-8");
-            Map<String, Object> resp = new HashMap<>();
-            resp.put("status", 200);
-            resp.put("msg", "登录成功!");
-            // 认证成功之后返回json字符串
-            response.getWriter().write(JSONUtil.toJsonStr(resp));
-        }
-    }
-
-    static class DefaultAuthenticationFailureHandler implements AuthenticationFailureHandler {
-
-        @Override
-        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-            response.setContentType("application/json;charset=utf-8");
-            Map<String, Object> resp = new HashMap<>();
-            resp.put("status", 500);
-            resp.put("msg", exception.getMessage());
-            // 认证失败之后返回json字符串
-            response.getWriter().write(JSONUtil.toJsonStr(resp));
-        }
-    }
-
-    static class DefaultLogoutSuccessHandler implements LogoutSuccessHandler {
-
-        @Override
-        public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-            response.setContentType("application/json;charset=utf-8");
-            Map<String, Object> resp = new HashMap<>();
-            resp.put("status", 200);
-            resp.put("msg", "注销成功!");
-            // 退出登录之后返回json字符串
-            response.getWriter().write(JSONUtil.toJsonStr(resp));
-        }
     }
 
     /**
