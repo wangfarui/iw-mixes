@@ -1,8 +1,12 @@
 package com.itwray.iw.auth.core.security;
 
+import com.itwray.iw.auth.dao.AuthPersistentDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,9 +29,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
  * @since 2024/3/8
  */
 @Configuration
-public class DefaultSecurityConfig {
+public class DefaultSecurityConfig implements ApplicationContextAware {
 
     private AuthenticationConfiguration authenticationConfiguration;
+
+    private ApplicationContext applicationContext;
 
     @Autowired
     public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
@@ -36,6 +42,10 @@ public class DefaultSecurityConfig {
 
     @Bean
     public SecurityFilterChain authSecurityFilterChain(HttpSecurity http) throws Exception {
+        // 数据准备 提前暴露可能存在的异常
+        AuthPersistentDao authPersistentDao = this.getBeanOfNonNull(AuthPersistentDao.class);
+        LoginCaptchaFilter loginCaptchaFilter = this.loginCaptchaFilter();
+
         return http.authorizeHttpRequests(t -> t
                         // 静态资源
                         .requestMatchers(HttpMethod.GET, "/css/**", "/js/**", "/*/captcha.jpg")
@@ -43,8 +53,8 @@ public class DefaultSecurityConfig {
                         // swagger ui
                         .requestMatchers("/doc.html", "/swagger-ui/**", "/v3/api-docs/**")
                         .permitAll()
-                        // 忽略认证接口
-                        .requestMatchers("/hello")
+                        // 注册接口
+                        .requestMatchers("/register/*")
                         .permitAll()
                         // 除以上请求外的所有请求都需要认证
                         .anyRequest()
@@ -63,13 +73,25 @@ public class DefaultSecurityConfig {
                         .clearAuthentication(true)
                         .logoutSuccessHandler(new DefaultLogoutSuccessHandler())
                 )
-                .addFilterBefore(loginCaptchaFilter(), UsernamePasswordAuthenticationFilter.class)
+                .rememberMe(t -> t
+                        .tokenRepository(new DefaultPersistentTokenRepository(authPersistentDao))
+                )
+                .addFilterBefore(loginCaptchaFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(CsrfConfigurer::disable)
                 .build();
     }
 
     public AuthenticationManager getAuthenticationManager() throws Exception {
         return this.authenticationConfiguration.getAuthenticationManager();
+    }
+
+    public <T> T getBeanOfNonNull(Class<T> beanClazz) {
+        return this.applicationContext.getBean(beanClazz);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     /**

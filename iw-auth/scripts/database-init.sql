@@ -32,6 +32,15 @@ create table iw_auth_user_role
     key idx_user_id (user_id)
 ) comment '用户角色关联关系表';
 
+create table iw_auth_persistent
+(
+    username  varchar(64) not null,
+    series    varchar(64) not null,
+    token     varchar(64) not null,
+    last_used datetime    not null,
+    primary key (series)
+) comment '授权信息持久化表';
+
 insert into iw_auth_user(username, password, name)
 values ('root', '{noop}123456', '超级管理员'),
        ('admin', '{noop}123456', '系统管理员'),
