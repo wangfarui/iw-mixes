@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 /**
- * 授权登录的接口控制层
+ * 认证登录的接口控制层
  *
  * @author wray
  * @since 2024/3/2
@@ -26,7 +26,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/login")
 @Validated
-@Tag(name = "授权登录接口")
+@Tag(name = "认证登录接口")
 public class AuthLoginController {
 
     private final AuthUserService authUserService;

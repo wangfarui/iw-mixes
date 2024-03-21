@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 授权注册的接口控制层
+ * 认证注册的接口控制层
  *
  * @author wray
  * @since 2024/3/5
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/register")
 @AllArgsConstructor
 @Validated
-@Tag(name = "授权注册接口")
+@Tag(name = "认证注册接口")
 public class AuthRegisterController {
 
     private final AuthUserService authUserService;

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * 授权服务测试类
+ * 认证服务测试类
  *
  * @author wray
  * @since 2024/3/12

@@ -4,7 +4,7 @@ import com.itwray.iw.auth.model.ApiCode;
 import com.itwray.iw.auth.model.GeneralApiCode;
 
 /**
- * 授权服务异常
+ * 认证服务异常
  *
  * @author wray
  * @since 2024/3/5

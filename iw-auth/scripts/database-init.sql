@@ -39,7 +39,7 @@ create table iw_auth_persistent
     token     varchar(64) not null,
     last_used datetime    not null,
     primary key (series)
-) comment '授权信息持久化表';
+) comment '认证信息持久化表';
 
 insert into iw_auth_user(username, password, name)
 values ('root', '{noop}123456', '超级管理员'),

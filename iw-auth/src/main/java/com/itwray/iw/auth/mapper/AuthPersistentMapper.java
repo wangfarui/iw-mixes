@@ -5,7 +5,7 @@ import com.itwray.iw.auth.model.entity.AuthPersistent;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 授权信息持久化 Mapper
+ * 认证信息持久化 Mapper
  *
  * @author wray
  * @since 2024/3/20

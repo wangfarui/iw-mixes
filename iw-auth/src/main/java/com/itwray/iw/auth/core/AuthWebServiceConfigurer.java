@@ -5,7 +5,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * 授权Web服务配置器
+ * Web服务配置器
  *
  * @author wray
  * @since 2024/3/5

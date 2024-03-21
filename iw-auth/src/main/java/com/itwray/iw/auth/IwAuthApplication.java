@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * IW授权服务应用程序
+ * IW认证服务应用程序
  *
  * @author wray
  * @since 2024/3/2

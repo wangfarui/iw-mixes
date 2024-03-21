@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 /**
- * 授权服务的测试接口
+ * 认证服务的测试接口
  *
  * @author wray
  * @since 2024/3/11

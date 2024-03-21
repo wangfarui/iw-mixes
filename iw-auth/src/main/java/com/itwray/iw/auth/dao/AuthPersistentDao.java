@@ -6,7 +6,7 @@ import com.itwray.iw.auth.model.entity.AuthPersistent;
 import org.springframework.stereotype.Component;
 
 /**
- * 授权信息持久化 Dao
+ * 认证信息持久化 Dao
  *
  * @author wray
  * @since 2024/3/20

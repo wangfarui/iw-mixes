@@ -44,7 +44,7 @@ public class DefaultPersistentTokenRepository implements PersistentTokenReposito
                 .set(AuthPersistent::getLastUsed, this.transformDate(lastUsed))
                 .update();
         if (!res) {
-            log.info("用户授权持久化信息更新失败, series: {}", series);
+            log.info("用户认证信息更新失败, series: {}", series);
         }
     }
 
@@ -52,7 +52,7 @@ public class DefaultPersistentTokenRepository implements PersistentTokenReposito
     public PersistentRememberMeToken getTokenForSeries(String seriesId) {
         AuthPersistent authPersistent = authPersistentDao.getById(seriesId);
         if (authPersistent == null) {
-            log.debug("用户授权持久化信息不存在, seriesId: {}", seriesId);
+            log.debug("用户认证信息不存在, seriesId: {}", seriesId);
             return null;
         }
         return new PersistentRememberMeToken(authPersistent.getUsername(), authPersistent.getSeries(),
@@ -65,7 +65,7 @@ public class DefaultPersistentTokenRepository implements PersistentTokenReposito
                 .eq(AuthPersistent::getUsername, username)
                 .remove();
         if (!res) {
-            log.debug("用户授权持久化信息移除失败, username: {}", username);
+            log.debug("用户认证信息移除失败, username: {}", username);
         }
     }
 
