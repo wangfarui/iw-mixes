@@ -1,9 +1,3 @@
-create database iw_mixes CHARACTER SET utf8mb4 collate utf8mb4_0900_ai_ci;
-
-CREATE USER 'iw_root'@'localhost' IDENTIFIED BY 'iw@2024';
-GRANT ALL PRIVILEGES ON iw_mixes.* TO 'iw_root'@'localhost';
-FLUSH PRIVILEGES;
-
 create table iw_auth_user
 (
     id                      bigint                               not null primary key auto_increment comment '用户id',
