@@ -13,6 +13,14 @@ spring:
     url: jdbc:mysql://localhost:3306/iw_mixes
     username: iw_root
     password: iw@2024
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 01d70c0b65ed6fa5479e
+            client-secret: 62e53e3dcec260ffef7bca9bac4b63a7708e8642
+            redirect-uri: http://localhost:18001/iw-auth/login/oauth2/code/github
 
 # springdoc 配置
 springdoc:

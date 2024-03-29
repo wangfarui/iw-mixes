@@ -56,6 +56,9 @@ public class DefaultSecurityConfig implements ApplicationContextAware {
                         // 注册接口
                         .requestMatchers("/register/*")
                         .permitAll()
+                        // oauth2 接口
+                        .requestMatchers("/login/oauth2/code/*")
+                        .permitAll()
                         // 除以上请求外的所有请求都需要认证
                         .anyRequest()
                         .authenticated()
@@ -71,11 +74,10 @@ public class DefaultSecurityConfig implements ApplicationContextAware {
                 .logout(t -> t.logoutUrl("/doLogout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .logoutSuccessHandler(new DefaultLogoutSuccessHandler())
+                        .logoutSuccessUrl("/login.html")
                 )
-                .rememberMe(t -> t
-                        .tokenRepository(new DefaultPersistentTokenRepository(authPersistentDao))
-                )
+                .rememberMe(t -> t.tokenRepository(new DefaultPersistentTokenRepository(authPersistentDao)))
+                .oauth2Login(t -> t.defaultSuccessUrl("/index.html", true))
                 .addFilterBefore(loginCaptchaFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(CsrfConfigurer::disable)
                 .build();
