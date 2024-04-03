@@ -1,9 +1,9 @@
 package com.itwray.iw.auth.core;
 
 import cn.hutool.json.JSONUtil;
-import com.itwray.iw.auth.model.ApiCode;
-import com.itwray.iw.auth.model.GeneralApiCode;
-import com.itwray.iw.auth.model.GeneralResponse;
+import com.itwray.iw.common.ApiCode;
+import com.itwray.iw.common.GeneralApiCode;
+import com.itwray.iw.common.GeneralResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.context.properties.bind.validation.BindValidationException;

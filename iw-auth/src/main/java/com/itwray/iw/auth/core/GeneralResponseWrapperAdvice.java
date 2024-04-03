@@ -1,6 +1,6 @@
 package com.itwray.iw.auth.core;
 
-import com.itwray.iw.auth.model.GeneralResponse;
+import com.itwray.iw.common.GeneralResponse;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

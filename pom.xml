@@ -5,16 +5,20 @@
 
     <groupId>com.itwray-iw</groupId>
     <artifactId>iw-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${iw.version}</version>
     <modules>
         <module>iw-auth</module>
         <module>iw-note</module>
+        <module>iw-common</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
     <packaging>pom</packaging>
 
     <properties>
+        <!-- iw project -->
+        <iw.version>0.0.1-SNAPSHOT</iw.version>
+
         <!-- base properties -->
         <java.version>17</java.version>
         <resource.delimiter>@</resource.delimiter>

@@ -1,4 +1,4 @@
-package com.itwray.iw.auth.model;
+package com.itwray.iw.common;
 
 /**
  * 接口编码
