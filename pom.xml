@@ -10,6 +10,7 @@
         <module>iw-auth</module>
         <module>iw-note</module>
         <module>iw-common</module>
+        <module>iw-web</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>

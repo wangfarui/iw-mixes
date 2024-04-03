@@ -1,4 +1,4 @@
-package com.itwray.iw.auth.core;
+package com.itwray.iw.web;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @since 2024/3/5
  */
 @Configuration
-public class AuthWebServiceConfigurer implements WebMvcConfigurer {
+public class WebServiceConfigurer implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

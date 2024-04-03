@@ -10,4 +10,7 @@ import com.itwray.iw.common.IwException;
  */
 public class AuthServiceException extends IwException {
 
+    public AuthServiceException(String message) {
+        super(message);
+    }
 }

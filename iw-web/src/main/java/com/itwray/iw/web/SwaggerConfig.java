@@ -1,8 +1,9 @@
-package com.itwray.iw.auth.core;
+package com.itwray.iw.web;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,13 +16,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
+    @Value("${spring.application.name}")
+    private String applicationName;
+
+    @Value("${iw.version}")
+    private String version;
+
     @Bean
     public OpenAPI springShopOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("IW-AUTH API")
-                        .description("IW auth service api.")
-                        .version("v0.0.1")
+                .info(new Info().title(this.getApplicationName() + " API")
+                        .description(this.getApplicationName() + " service api.")
+                        .version(version)
                         .license(new License().name("SpringDoc").url("http://springdoc.org"))
                 );
+    }
+
+    public String getApplicationName() {
+        return applicationName.toUpperCase();
     }
 }

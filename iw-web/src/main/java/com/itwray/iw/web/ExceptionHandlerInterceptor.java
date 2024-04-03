@@ -1,4 +1,4 @@
-package com.itwray.iw.auth.core;
+package com.itwray.iw.web;
 
 import cn.hutool.json.JSONUtil;
 import com.itwray.iw.common.ApiCode;

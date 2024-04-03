@@ -1,4 +1,4 @@
-package com.itwray.iw.auth.core;
+package com.itwray.iw.web;
 
 import com.itwray.iw.common.GeneralResponse;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
