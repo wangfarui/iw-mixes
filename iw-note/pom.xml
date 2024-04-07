@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>iw-note</artifactId>
+    <description>IW Project Note Module</description>
 
     <dependencies>
         <dependency>
