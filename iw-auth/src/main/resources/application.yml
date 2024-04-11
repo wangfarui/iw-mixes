@@ -17,10 +17,26 @@ spring:
     oauth2:
       client:
         registration:
-          github:
-            client-id: 01d70c0b65ed6fa5479e
-            client-secret: 62e53e3dcec260ffef7bca9bac4b63a7708e8642
+          gigithub:
+            client-id: client-id
+            client-secret: client-secret
             redirect-uri: http://localhost:18001/iw-auth/login/oauth2/code/github
+          google:
+            redirect-uri: http://localhost:18001/iw-auth/login/oauth2/code/google
+          dingtalk:
+            provider: dingtalk
+            authorization-grant-type: authorization_code
+            client-id: client-id
+            client-secret: client-secret
+            redirect-uri: http://localhost:18001/iw-auth/login/oauth2/code/dingtalk
+            scope: openid
+            client-authentication-method: client_secret_post
+        provider:
+          dingtalk:
+            authorization-uri: https://login.dingtalk.com/oauth2/auth
+            token-uri: https://api.dingtalk.com/v1.0/oauth2/userAccessToken
+            user-info-uri: https://api.dingtalk.com/v1.0/contact/users/me
+            user-name-attribute: userid
 
 # springdoc 配置
 springdoc:
