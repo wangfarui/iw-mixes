@@ -52,11 +52,21 @@
                             <input type="submit" name="submit" class="btn btn-info btn-md" value="GitHub登录">
                         </div>
                     </form>
+                    <form id="google-login" class="form" action="/iw-auth/oauth2/authorization/google" method="post">
+                        <div class="form-group">
+                            <input type="submit" name="submit" class="btn btn-info btn-md" value="Google登录">
+                        </div>
+                    </form>
+                    <form id="dingtalk-login" class="form" action="/iw-auth/oauth2/authorization/dingtalk" method="post">
+                        <div class="form-group">
+                            <input type="submit" name="submit" class="btn btn-info btn-md" value="钉钉登录">
+                        </div>
+                    </form>
                     <div id="self_defined_element" class="self-defined-classname" style="display: none">
 
                     </div>
                     <button class="form" onclick="handleClick()">
-                        钉钉登录
+                        钉钉扫码登录
                     </button>
                 </div>
             </div>

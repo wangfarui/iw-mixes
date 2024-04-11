@@ -9,7 +9,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -48,7 +47,7 @@ public class DefaultSecurityConfig implements ApplicationContextAware {
 
         return http.authorizeHttpRequests(t -> t
                         // 静态资源
-                        .requestMatchers(HttpMethod.GET, "/css/**", "/js/**", "/*/captcha.jpg")
+                        .requestMatchers("/css/**", "/js/**", "/*/captcha.jpg")
                         .permitAll()
                         // swagger ui
                         .requestMatchers("/doc.html", "/swagger-ui/**", "/v3/api-docs/**")
@@ -77,7 +76,12 @@ public class DefaultSecurityConfig implements ApplicationContextAware {
                         .logoutSuccessUrl("/login.html")
                 )
                 .rememberMe(t -> t.tokenRepository(new DefaultPersistentTokenRepository(authPersistentDao)))
-                .oauth2Login(t -> t.defaultSuccessUrl("/index.html", true))
+                .oauth2Login(t ->
+                        // 登录成功默认强制跳转到index.html
+                        t.defaultSuccessUrl("/index.html", true)
+                        // 使用默认的登录处理url规则
+                        .loginProcessingUrl("/login/oauth2/code/*")
+                )
                 .addFilterBefore(loginCaptchaFilter, UsernamePasswordAuthenticationFilter.class)
                 .csrf(CsrfConfigurer::disable)
                 .build();
