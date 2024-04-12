@@ -16,7 +16,6 @@
         <dependency>
             <groupId>com.itwray-iw</groupId>
             <artifactId>iw-web</artifactId>
-            <version>${iw.version}</version>
         </dependency>
     </dependencies>
 
