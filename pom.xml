@@ -11,6 +11,7 @@
         <module>iw-note</module>
         <module>iw-common</module>
         <module>iw-web</module>
+        <module>iw-oauth2-authorization-server</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
@@ -43,6 +44,17 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.itwray-iw</groupId>
+                <artifactId>iw-common</artifactId>
+                <version>${iw.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itwray-iw</groupId>
+                <artifactId>iw-web</artifactId>
+                <version>${iw.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
