@@ -47,13 +47,13 @@ public class DefaultSecurityConfig implements ApplicationContextAware {
 
         return http.authorizeHttpRequests(t -> t
                         // 静态资源
-                        .requestMatchers("/css/**", "/js/**", "/*/captcha.jpg")
+                        .requestMatchers("/css/**", "/js/**")
                         .permitAll()
                         // swagger ui
                         .requestMatchers("/doc.html", "/swagger-ui/**", "/v3/api-docs/**")
                         .permitAll()
-                        // 注册接口
-                        .requestMatchers("/register/*")
+                        // 登录、注册接口
+                        .requestMatchers("/login/*", "/register/*")
                         .permitAll()
                         // oauth2 接口
                         .requestMatchers("/login/oauth2/code/*")
