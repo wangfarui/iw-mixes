@@ -14,7 +14,7 @@ public enum GeneralApiCode implements ApiCode {
     UNAUTHORIZED(401, "未授权"),
     FORBIDDEN(403, "重定向"),
     REQUEST_TIMEOUT(408, "请求超时"),
-    SERVER_ERROR(500, "服务器错误"),
+    INTERNAL_SERVER_ERROR(500, "系统异常"),
     NOT_IMPLEMENTED(501, "服务未实现"),
     BAD_GATEWAY(502, "网关错误"),
     SERVICE_UNAVAILABLE(503, "服务不可用"),

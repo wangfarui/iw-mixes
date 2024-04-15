@@ -40,6 +40,11 @@ public class GeneralResponse<T> {
         this.data = data;
     }
 
+    public GeneralResponse(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
     public GeneralResponse(int code, String message, T data) {
         this.code = code;
         this.message = message;
@@ -55,6 +60,10 @@ public class GeneralResponse<T> {
     }
 
     public static <T> GeneralResponse<T> fail() {
-        return new GeneralResponse<>(GeneralApiCode.SERVER_ERROR);
+        return new GeneralResponse<>(GeneralApiCode.INTERNAL_SERVER_ERROR);
+    }
+
+    public static <T> GeneralResponse<T> fail(String message) {
+        return new GeneralResponse<>(GeneralApiCode.INTERNAL_SERVER_ERROR.getCode(), message);
     }
 }

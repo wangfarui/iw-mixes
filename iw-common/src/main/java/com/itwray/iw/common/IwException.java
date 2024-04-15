@@ -8,7 +8,7 @@ package com.itwray.iw.common;
  */
 public class IwException extends RuntimeException implements ApiCode {
 
-    private int code = GeneralApiCode.SERVER_ERROR.getCode();
+    private int code = GeneralApiCode.INTERNAL_SERVER_ERROR.getCode();
 
     public IwException() {
     }
