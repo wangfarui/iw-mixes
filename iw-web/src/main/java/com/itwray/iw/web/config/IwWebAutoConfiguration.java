@@ -2,9 +2,10 @@ package com.itwray.iw.web.config;
 
 import com.itwray.iw.web.core.ExceptionHandlerInterceptor;
 import com.itwray.iw.web.core.GeneralResponseWrapperAdvice;
+import com.itwray.iw.web.core.WebMapperConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 /**
  * IW Web 自动装配配置类
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 //@EnableConfigurationProperties(IwWebProperties.class)
+@Import(WebMapperConfiguration.class)
 public class IwWebAutoConfiguration {
 
     @Bean
