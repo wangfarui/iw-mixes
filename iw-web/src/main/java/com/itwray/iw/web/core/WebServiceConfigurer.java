@@ -1,6 +1,6 @@
 package com.itwray.iw.web.core;
 
-import com.itwray.iw.web.IwWebException;
+import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.config.IwWebProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

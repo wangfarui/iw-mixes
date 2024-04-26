@@ -15,24 +15,24 @@ import java.util.List;
 public class PageVo<T> {
 
     /**
-     * 查询数据列表
-     */
-    protected List<T> records = Collections.emptyList();
-
-    /**
      * 总数
      */
     protected long total = 0;
 
+    /**
+     * 查询数据列表
+     */
+    protected List<T> records = Collections.emptyList();
+
     public PageVo() {
     }
 
-    public PageVo(List<T> records, long total) {
-        this.records = records;
+    public PageVo( long total, List<T> records) {
         this.total = total;
+        this.records = records;
     }
 
-    public static <T> PageVo<T> of(List<T> records, long total) {
-        return new PageVo<>(records, total);
+    public static <T> PageVo<T> of(long total, List<T> records) {
+        return new PageVo<>(total, records);
     }
 }

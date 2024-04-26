@@ -2,7 +2,7 @@ package com.itwray.iw.web.config;
 
 import com.itwray.iw.web.core.ExceptionHandlerInterceptor;
 import com.itwray.iw.web.core.GeneralResponseWrapperAdvice;
-import com.itwray.iw.web.core.WebMapperConfiguration;
+import com.itwray.iw.web.mybatis.MybatisPlusConfig;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
  */
 @AutoConfiguration
 //@EnableConfigurationProperties(IwWebProperties.class)
-@Import(WebMapperConfiguration.class)
+@Import(MybatisPlusConfig.class)
 public class IwWebAutoConfiguration {
 
     @Bean

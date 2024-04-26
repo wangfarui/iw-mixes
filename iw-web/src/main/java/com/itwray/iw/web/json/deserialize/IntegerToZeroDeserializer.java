@@ -19,8 +19,8 @@ public class IntegerToZeroDeserializer extends JsonDeserializer<Integer> {
     @Override
     public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         if (StringUtils.isBlank(p.getText())) {
-            return BoolEnums.NO.getCode();
+            return BoolEnums.FALSE.getCode();
         }
-        return p.getValueAsInt(BoolEnums.NO.getCode());
+        return p.getValueAsInt(BoolEnums.FALSE.getCode());
     }
 }

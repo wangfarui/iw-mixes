@@ -18,7 +18,7 @@ public class ZeroToIntegerSerializer extends JsonSerializer<Integer> {
 
     @Override
     public void serialize(Integer value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (BoolEnums.YES.getCode().equals(value)) {
+        if (BoolEnums.TRUE.getCode().equals(value)) {
             gen.writeString(CommonConstants.EMPTY);
         } else {
             gen.writeObject(value);

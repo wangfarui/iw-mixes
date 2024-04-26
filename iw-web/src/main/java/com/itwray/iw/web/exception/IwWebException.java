@@ -1,4 +1,4 @@
-package com.itwray.iw.web;
+package com.itwray.iw.web.exception;
 
 import com.itwray.iw.common.IwException;
 
