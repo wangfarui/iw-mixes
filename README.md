@@ -36,4 +36,10 @@ A mixed project, a little bit of everything
     <td>18101</td>
     <td>oauth2 authorization server</td>
 </tr>
+<tr>
+    <td>iw-eat</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td>18003</td>
+    <td>iw project eat server</td>
+</tr>
 </table>
