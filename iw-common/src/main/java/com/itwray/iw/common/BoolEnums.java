@@ -10,8 +10,8 @@ import lombok.Getter;
  */
 @Getter
 public enum BoolEnums {
-    NO(0, "否"),
-    YES(1, "是");
+    FALSE(0, "否"),
+    TRUE(1, "是");
 
     private final Integer code;
 
