@@ -1,5 +1,7 @@
 package com.itwray.iw.common;
 
+import com.itwray.iw.common.constants.GeneralApiCode;
+
 /**
  * IW Project Exception
  *

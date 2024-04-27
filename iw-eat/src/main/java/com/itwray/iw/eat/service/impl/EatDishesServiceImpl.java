@@ -2,7 +2,7 @@ package com.itwray.iw.eat.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.itwray.iw.common.NumberUtils;
+import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.eat.dao.EatDishesDao;
 import com.itwray.iw.eat.model.dto.DishesAddDto;
 import com.itwray.iw.eat.model.dto.DishesPageDto;

@@ -1,4 +1,6 @@
-package com.itwray.iw.common;
+package com.itwray.iw.common.constants;
+
+import com.itwray.iw.common.ApiCode;
 
 /**
  * 通用接口编码

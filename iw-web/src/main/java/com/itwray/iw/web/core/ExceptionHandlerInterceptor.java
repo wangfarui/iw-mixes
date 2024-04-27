@@ -1,6 +1,6 @@
 package com.itwray.iw.web.core;
 
-import com.itwray.iw.common.GeneralApiCode;
+import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.IwException;
 import com.itwray.iw.web.exception.AuthorizedException;

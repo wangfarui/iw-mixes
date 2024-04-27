@@ -3,7 +3,7 @@ package com.itwray.iw.web.json.deserialize;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.itwray.iw.common.BoolEnums;
+import com.itwray.iw.common.constants.BoolEnums;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;

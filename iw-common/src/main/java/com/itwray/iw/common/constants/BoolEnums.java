@@ -1,4 +1,4 @@
-package com.itwray.iw.common;
+package com.itwray.iw.common.constants;
 
 import lombok.Getter;
 

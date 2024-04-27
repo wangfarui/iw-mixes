@@ -3,8 +3,8 @@ package com.itwray.iw.web.json.serialize;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.itwray.iw.common.BoolEnums;
-import com.itwray.iw.web.constants.CommonConstants;
+import com.itwray.iw.common.constants.BoolEnums;
+import com.itwray.iw.common.constants.CommonConstants;
 
 import java.io.IOException;
 

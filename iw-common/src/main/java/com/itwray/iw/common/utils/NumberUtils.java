@@ -1,4 +1,4 @@
-package com.itwray.iw.common;
+package com.itwray.iw.common.utils;
 
 /**
  * {@link Number}工具类

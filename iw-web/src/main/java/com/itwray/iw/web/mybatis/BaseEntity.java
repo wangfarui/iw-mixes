@@ -1,6 +1,7 @@
 package com.itwray.iw.web.mybatis;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.itwray.iw.common.constants.BoolEnums;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -20,7 +21,7 @@ public abstract class BaseEntity {
      * <p>false -> 未删除</p>
      * <p>true -> 已删除</p>
      *
-     * @see com.itwray.iw.common.BoolEnums
+     * @see BoolEnums
      */
     @TableLogic
     private Boolean deleted;

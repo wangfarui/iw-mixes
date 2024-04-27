@@ -1,4 +1,4 @@
-package com.itwray.iw.web.constants;
+package com.itwray.iw.common.constants;
 
 /**
  * 公共常量
