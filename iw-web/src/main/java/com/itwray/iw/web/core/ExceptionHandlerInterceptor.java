@@ -1,10 +1,12 @@
 package com.itwray.iw.web.core;
 
-import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.IwException;
+import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.web.exception.AuthorizedException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -17,6 +19,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @Slf4j
 public class ExceptionHandlerInterceptor {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public GeneralResponse<?> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+        BindingResult bindingResult = e.getBindingResult();
+        String defaultMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
+        return new GeneralResponse<>(GeneralApiCode.INTERNAL_SERVER_ERROR.getCode(), defaultMessage);
+    }
 
     @ExceptionHandler(AuthorizedException.class)
     public GeneralResponse<?> authExceptionHandler(AuthorizedException authorizedException) {
