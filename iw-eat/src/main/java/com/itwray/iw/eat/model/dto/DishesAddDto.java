@@ -3,6 +3,7 @@ package com.itwray.iw.eat.model.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itwray.iw.web.json.deserialize.IntegerToZeroDeserializer;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -43,4 +44,10 @@ public class DishesAddDto {
      */
     @JsonDeserialize(using = IntegerToZeroDeserializer.class)
     private Integer prices;
+
+    /**
+     * 备注
+     */
+    @Size(max = 255, message = "备注不能超过255个字符")
+    private String remark;
 }

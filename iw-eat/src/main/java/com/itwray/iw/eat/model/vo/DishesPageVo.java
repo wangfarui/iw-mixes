@@ -42,7 +42,7 @@ public class DishesPageVo {
     private Integer prices;
 
     /**
-     * 状态(1:正常, 2:禁用, 3:售空)
+     * 状态(1:启用, 2:禁用, 3:售空)
      */
     private Integer status;
 }

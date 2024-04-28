@@ -48,6 +48,7 @@ public class EatDishesServiceImpl implements EatDishesService {
                 .set(EatDishesEntity::getDifficultyFactor, dto.getDifficultyFactor())
                 .set(EatDishesEntity::getUseTime, dto.getUseTime())
                 .set(EatDishesEntity::getPrices, dto.getPrices())
+                .set(EatDishesEntity::getRemark, dto.getRemark())
                 .update();
     }
 
@@ -62,7 +63,8 @@ public class EatDishesServiceImpl implements EatDishesService {
         LambdaQueryWrapper<EatDishesEntity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StringUtils.isNotBlank(dto.getDishesName()), EatDishesEntity::getDishesName, dto.getDishesName())
                 .eq(NumberUtils.isNotZero(dto.getDishesType()), EatDishesEntity::getDishesType, dto.getDishesType())
-                .eq(dto.getStatus() != null, EatDishesEntity::getStatus, dto.getStatus());
+                .eq(dto.getStatus() != null, EatDishesEntity::getStatus, dto.getStatus())
+                .orderByDesc(EatDishesEntity::getId);
         return eatDishesDao.page(dto, queryWrapper, DishesPageVo.class);
     }
 

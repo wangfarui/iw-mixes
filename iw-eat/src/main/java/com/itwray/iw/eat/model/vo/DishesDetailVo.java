@@ -45,4 +45,9 @@ public class DishesDetailVo {
      * 状态(1:正常, 2:禁用, 3:售空)
      */
     private Integer status;
+
+    /**
+     * 备注
+     */
+    private String remark;
 }
