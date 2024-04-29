@@ -5,7 +5,7 @@
 
     <groupId>com.itwray-iw</groupId>
     <artifactId>iw-parent</artifactId>
-    <version>${iw.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>iw-auth</module>
         <module>iw-note</module>

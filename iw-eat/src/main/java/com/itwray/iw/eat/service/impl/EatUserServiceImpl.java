@@ -52,7 +52,7 @@ public class EatUserServiceImpl implements EatUserService {
     }
 
     public static void main(String[] args) {
-        String hashpw = BCrypt.hashpw("eat@2024");
+        String hashpw = BCrypt.hashpw("123456");
         System.out.println(hashpw);
     }
 }

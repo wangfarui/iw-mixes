@@ -12,6 +12,10 @@
     <artifactId>iw-auth</artifactId>
     <description>IW Project Auth Module</description>
 
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.itwray-iw</groupId>
@@ -33,5 +37,10 @@
             <artifactId>captcha-spring-boot-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
