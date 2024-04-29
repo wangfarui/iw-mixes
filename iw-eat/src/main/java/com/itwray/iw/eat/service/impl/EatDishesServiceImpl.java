@@ -61,7 +61,7 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Override
     public PageVo<DishesPageVo> page(DishesPageDto dto) {
         LambdaQueryWrapper<EatDishesEntity> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(StringUtils.isNotBlank(dto.getDishesName()), EatDishesEntity::getDishesName, dto.getDishesName())
+        queryWrapper.like(StringUtils.isNotBlank(dto.getDishesName()), EatDishesEntity::getDishesName, dto.getDishesName())
                 .eq(NumberUtils.isNotZero(dto.getDishesType()), EatDishesEntity::getDishesType, dto.getDishesType())
                 .eq(dto.getStatus() != null, EatDishesEntity::getStatus, dto.getStatus())
                 .orderByDesc(EatDishesEntity::getId);
