@@ -5,6 +5,7 @@ import com.itwray.iw.common.IwException;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.web.exception.AuthorizedException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 @Slf4j
+@Order(0)
 public class ExceptionHandlerInterceptor {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
