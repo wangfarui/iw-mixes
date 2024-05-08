@@ -8,7 +8,7 @@ import com.itwray.iw.eat.model.dto.UserLoginDto;
 import com.itwray.iw.eat.model.entity.EatUserEntity;
 import com.itwray.iw.eat.model.vo.UserLoginVo;
 import com.itwray.iw.eat.service.EatUserService;
-import com.itwray.iw.web.exception.AuthorizedException;
+import com.itwray.iw.web.exception.IwWebException;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,7 @@ public class EatUserServiceImpl implements EatUserService {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            throw new AuthorizedException("用户名或密码错误");
+            throw new IwWebException("用户名或密码错误");
         }
         if (!BCrypt.checkpw(dto.getPassword(), userEntity.getPassword())) {
             try {
@@ -44,7 +44,7 @@ public class EatUserServiceImpl implements EatUserService {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            throw new AuthorizedException("用户名或密码错误");
+            throw new IwWebException("用户名或密码错误");
         }
         StpUtil.login(userEntity.getId());
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
