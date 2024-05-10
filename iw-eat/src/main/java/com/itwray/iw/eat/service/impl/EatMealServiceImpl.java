@@ -8,6 +8,7 @@ import com.itwray.iw.eat.model.dto.MealAddDto;
 import com.itwray.iw.eat.model.dto.MealPageDto;
 import com.itwray.iw.eat.model.dto.MealUpdateDto;
 import com.itwray.iw.eat.model.entity.EatMealEntity;
+import com.itwray.iw.eat.model.enums.MealTimeEnum;
 import com.itwray.iw.eat.model.vo.MealDetailVo;
 import com.itwray.iw.eat.model.vo.MealMenuDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
@@ -79,6 +80,7 @@ public class EatMealServiceImpl implements EatMealService {
         EatMealEntity eatMealEntity = eatMealDao.queryById(id);
         List<MealMenuDetailVo> detailList = eatMealMenuDao.getListByMealId(id);
         MealDetailVo vo = BeanUtil.copyProperties(eatMealEntity, MealDetailVo.class);
+        vo.setMealTimeDesc(MealTimeEnum.getDesc(eatMealEntity.getMealTime()));
         vo.setMealMenuList(detailList);
         return vo;
     }

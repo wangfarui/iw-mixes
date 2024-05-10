@@ -30,6 +30,11 @@ public class MealDetailVo {
     private Integer mealTime;
 
     /**
+     * 用餐时间描述
+     */
+    private String mealTimeDesc;
+
+    /**
      * 用餐人数(0表示不确定用餐人数)
      */
     private Integer diners;
