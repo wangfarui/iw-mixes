@@ -1,5 +1,7 @@
 package com.itwray.iw.eat.model.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.itwray.iw.web.json.serialize.DefaultImageSerializer;
 import lombok.Data;
 
 /**
@@ -24,6 +26,7 @@ public class DishesPageVo {
     /**
      * 菜品图片
      */
+    @JsonSerialize(using = DefaultImageSerializer.class)
     private String dishesImage;
 
     /**
