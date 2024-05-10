@@ -72,7 +72,11 @@ public class EatMealServiceImpl implements EatMealService {
         LambdaQueryWrapper<EatMealEntity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dto.getMealDate() != null, EatMealEntity::getMealDate, dto.getMealDate());
         queryWrapper.orderByDesc(EatMealEntity::getId);
-        return eatMealDao.page(dto, queryWrapper, MealPageVo.class);
+        PageVo<MealPageVo> page = eatMealDao.page(dto, queryWrapper, MealPageVo.class);
+        page.getRecords().forEach(t -> {
+            t.setMealTimeDesc(MealTimeEnum.getDesc(t.getMealTime()));
+        });
+        return page;
     }
 
     @Override

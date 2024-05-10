@@ -11,9 +11,9 @@ import lombok.Getter;
 @Getter
 public enum MealTimeEnum {
     ANY(0, "任意时间"),
-    BREAKFAST(1, "任意时间"),
-    NOONING(2, "任意时间"),
-    DINNER(3, "任意时间");
+    BREAKFAST(1, "早餐"),
+    NOONING(2, "午餐"),
+    DINNER(3, "晚餐");
 
     private final Integer code;
 
