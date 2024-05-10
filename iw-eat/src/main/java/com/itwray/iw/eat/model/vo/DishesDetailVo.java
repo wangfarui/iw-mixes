@@ -22,6 +22,11 @@ public class DishesDetailVo {
     private String dishesName;
 
     /**
+     * 菜品图片
+     */
+    private String dishesImage;
+
+    /**
      * 菜品分类(0:无分类, 1:荤, 2:素, 3:荤素)
      */
     private Integer dishesType;

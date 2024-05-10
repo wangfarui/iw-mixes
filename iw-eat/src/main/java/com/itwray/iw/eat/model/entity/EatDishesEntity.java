@@ -27,6 +27,11 @@ public class EatDishesEntity extends BaseEntity {
     private Integer id;
 
     /**
+     * 菜品图片
+     */
+    private String dishesImage;
+
+    /**
      * 菜品名称
      */
     private String dishesName;

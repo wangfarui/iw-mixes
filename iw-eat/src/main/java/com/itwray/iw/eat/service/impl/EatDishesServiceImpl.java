@@ -44,6 +44,7 @@ public class EatDishesServiceImpl implements EatDishesService {
         eatDishesDao.lambdaUpdate()
                 .eq(EatDishesEntity::getId, dto.getId())
                 .set(EatDishesEntity::getDishesName, dto.getDishesName())
+                .set(EatDishesEntity::getDishesImage, dto.getDishesImage())
                 .set(EatDishesEntity::getDishesType, dto.getDishesType())
                 .set(EatDishesEntity::getDifficultyFactor, dto.getDifficultyFactor())
                 .set(EatDishesEntity::getUseTime, dto.getUseTime())

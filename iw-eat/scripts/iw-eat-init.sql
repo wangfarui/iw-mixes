@@ -3,6 +3,7 @@ create table eat_dishes
 (
     id                int unsigned      not null auto_increment comment 'id',
     dishes_name       varchar(32)       not null comment '菜品名称',
+    dishes_image      varchar(255)      not null default '' comment '菜品封面图片',
     dishes_type       tinyint           not null default 0 comment '菜品分类(0:无分类, 1:荤, 2:素, 3:荤素)',
     difficulty_factor tinyint unsigned  not null default 0 comment '难度系数(难度依次递增, 0表示未知难度)',
     use_time          tinyint unsigned  not null default 0 comment '用时(分钟, 0表示未知用时)',

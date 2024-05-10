@@ -2,6 +2,7 @@ package com.itwray.iw.eat.model.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itwray.iw.web.json.deserialize.IntegerToZeroDeserializer;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -22,6 +23,11 @@ public class DishesAddDto {
     private String dishesName;
 
     /**
+     * 菜品图片
+     */
+    private String dishesImage;
+
+    /**
      * 菜品分类(0:无分类, 1:荤, 2:素, 3:荤素)
      */
     @JsonDeserialize(using = IntegerToZeroDeserializer.class)
@@ -31,6 +37,7 @@ public class DishesAddDto {
      * 难度系数(难度依次递增, 0表示未知难度)
      */
     @JsonDeserialize(using = IntegerToZeroDeserializer.class)
+    @Max(value = 8, message = "难度系数不能超过8")
     private Integer difficultyFactor;
 
     /**
