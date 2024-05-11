@@ -7,6 +7,7 @@ import com.itwray.iw.web.exception.AuthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +28,11 @@ public class ExceptionHandlerInterceptor {
         BindingResult bindingResult = e.getBindingResult();
         String defaultMessage = bindingResult.getAllErrors().get(0).getDefaultMessage();
         return new GeneralResponse<>(GeneralApiCode.INTERNAL_SERVER_ERROR.getCode(), defaultMessage);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public GeneralResponse<?> httpRequestMethodNotSupportedExceptionHandler() {
+        return new GeneralResponse<>(GeneralApiCode.NOT_FOUND);
     }
 
     @ExceptionHandler(AuthorizedException.class)
