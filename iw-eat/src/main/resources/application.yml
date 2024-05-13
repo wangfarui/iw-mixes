@@ -10,12 +10,22 @@ spring:
     name: iw-eat-service
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/iw_mixes
-    username: iw_root
-    password: iw@2024
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
   servlet:
     multipart:
       max-file-size: 10MB
+  config:
+    import:
+     - optional:nacos:${spring.application.name}.yml
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        username: ${SPRING_CLOUD_NACOS_USERNAME}
+        password: ${SPRING_CLOUD_NACOS_PASSWORD}
 
 # springdoc 配置
 springdoc:
@@ -47,13 +57,3 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: true
-
-aliyun:
-  oss:
-    base-url: https://itwray-bucket.oss-cn-wuhan-lr.aliyuncs.com
-    endpoint: oss-cn-wuhan-lr.aliyuncs.com
-    bucket-name: itwray-bucket
-    upload:
-      parent-dir: iw-eat
-    access-key-id: aaa
-    access-key-secret: aaa
