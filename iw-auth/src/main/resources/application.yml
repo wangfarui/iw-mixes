@@ -10,33 +10,19 @@ spring:
     name: iw-auth-service
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/iw_mixes
-    username: iw_root
-    password: iw@2024
-  security:
-    oauth2:
-      client:
-        registration:
-          gigithub:
-            client-id: client-id
-            client-secret: client-secret
-            redirect-uri: http://localhost:18001/iw-auth/login/oauth2/code/github
-          google:
-            redirect-uri: http://localhost:18001/iw-auth/login/oauth2/code/google
-          dingtalk:
-            provider: dingtalk
-            authorization-grant-type: authorization_code
-            client-id: client-id
-            client-secret: client-secret
-            redirect-uri: http://localhost:18001/iw-auth/login/oauth2/code/dingtalk
-            scope: openid
-            client-authentication-method: client_secret_post
-        provider:
-          dingtalk:
-            authorization-uri: https://login.dingtalk.com/oauth2/auth
-            token-uri: https://api.dingtalk.com/v1.0/oauth2/userAccessToken
-            user-info-uri: https://api.dingtalk.com/v1.0/contact/users/me
-            user-name-attribute: userid
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.yml
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        username: ${SPRING_CLOUD_NACOS_USERNAME}
+        password: ${SPRING_CLOUD_NACOS_PASSWORD}
 
 # springdoc 配置
 springdoc:
