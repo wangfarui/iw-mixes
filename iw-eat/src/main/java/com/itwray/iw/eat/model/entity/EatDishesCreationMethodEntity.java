@@ -6,14 +6,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
- * 菜品用料表
+ * 菜品制作方法表
  *
  * @author wray
- * @since 2024-04-23
+ * @since 2024-05-14
  */
 @Data
-@TableName("eat_dishes_material")
-public class EatDishesMaterialEntity {
+@TableName("eat_dishes_creation_method")
+public class EatDishesCreationMethodEntity {
 
     /**
      * id
@@ -27,17 +27,18 @@ public class EatDishesMaterialEntity {
     private Integer dishesId;
 
     /**
-     * 食材名称
+     * 制作步骤
      */
-    private String materialName;
+    private Integer step;
 
     /**
-     * 食材用量
+     * 步骤图片
      */
-    private String materialDosage;
+    private String stepImage;
 
     /**
-     * 是否需要购买 0否 1是
+     * 步骤内容
      */
-    private Boolean isPurchase;
+    private String stepContent;
+
 }

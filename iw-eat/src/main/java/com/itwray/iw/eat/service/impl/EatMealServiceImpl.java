@@ -57,7 +57,6 @@ public class EatMealServiceImpl implements EatMealService {
                 .set(EatMealEntity::getRemark, dto.getRemark())
                 .set(EatMealEntity::getUpdateTime, LocalDateTime.now())
                 .update();
-        eatMealMenuDao.removeMealMenuByMealId(dto.getId());
         eatMealMenuDao.saveMealMenu(dto.getId(), dto.getMealMenuList());
     }
 

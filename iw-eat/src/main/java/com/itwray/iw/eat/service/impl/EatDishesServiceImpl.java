@@ -3,7 +3,9 @@ package com.itwray.iw.eat.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.common.utils.NumberUtils;
+import com.itwray.iw.eat.dao.EatDishesCreationMethodDao;
 import com.itwray.iw.eat.dao.EatDishesDao;
+import com.itwray.iw.eat.dao.EatDishesMaterialDao;
 import com.itwray.iw.eat.model.dto.DishesAddDto;
 import com.itwray.iw.eat.model.dto.DishesPageDto;
 import com.itwray.iw.eat.model.dto.DishesUpdateDto;
@@ -28,12 +30,17 @@ public class EatDishesServiceImpl implements EatDishesService {
 
     @Resource
     private EatDishesDao eatDishesDao;
+    @Resource
+    private EatDishesMaterialDao eatDishesMaterialDao;
+    @Resource
+    private EatDishesCreationMethodDao eatDishesCreationMethodDao;
 
     @Override
     @Transactional
     public Integer add(DishesAddDto dto) {
         EatDishesEntity eatDishesEntity = BeanUtil.copyProperties(dto, EatDishesEntity.class);
         eatDishesDao.save(eatDishesEntity);
+        this.saveDishesDetail(eatDishesEntity.getId(), dto);
         return eatDishesEntity.getId();
     }
 
@@ -51,6 +58,8 @@ public class EatDishesServiceImpl implements EatDishesService {
                 .set(EatDishesEntity::getPrices, dto.getPrices())
                 .set(EatDishesEntity::getRemark, dto.getRemark())
                 .update();
+
+        this.saveDishesDetail(dto.getId(), dto);
     }
 
     @Override
@@ -72,6 +81,14 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Override
     public DishesDetailVo detail(Integer id) {
         EatDishesEntity eatDishesEntity = eatDishesDao.queryById(id);
-        return BeanUtil.copyProperties(eatDishesEntity, DishesDetailVo.class);
+        DishesDetailVo vo = BeanUtil.copyProperties(eatDishesEntity, DishesDetailVo.class);
+        vo.setDishesMaterialList(eatDishesMaterialDao.getListByDishesId(id));
+        vo.setDishesCreationMethodList(eatDishesCreationMethodDao.getListByDishesId(id));
+        return vo;
+    }
+
+    private void saveDishesDetail(Integer dishesId, DishesAddDto dto) {
+        eatDishesMaterialDao.saveDishesMaterial(dishesId, dto.getDishesMaterialList());
+        eatDishesCreationMethodDao.saveDishesCreationMethod(dishesId, dto.getDishesCreationMethodList());
     }
 }

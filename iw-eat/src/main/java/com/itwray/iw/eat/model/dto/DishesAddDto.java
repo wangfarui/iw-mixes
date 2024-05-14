@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 菜品新增DTO
  *
@@ -57,4 +59,14 @@ public class DishesAddDto {
      */
     @Size(max = 255, message = "备注不能超过255个字符")
     private String remark;
+
+    /**
+     * 菜品用料对象集合
+     */
+    private List<DishesMaterialAddDto> dishesMaterialList;
+
+    /**
+     * 菜品制作方法步骤集合
+     */
+    private List<DishesCreationMethodAddDto> dishesCreationMethodList;
 }

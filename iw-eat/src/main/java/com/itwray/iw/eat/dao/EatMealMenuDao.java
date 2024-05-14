@@ -28,6 +28,7 @@ public class EatMealMenuDao extends ServiceImpl<EatMealMenuMapper, EatMealMenuEn
      * @param mealMenuList 菜单明细
      */
     public void saveMealMenu(Integer mealId, List<MealMenuAddDto> mealMenuList) {
+        this.lambdaUpdate().eq(EatMealMenuEntity::getMealId, mealId).remove();
         if (CollUtil.isEmpty(mealMenuList)) {
             return;
         }
@@ -37,17 +38,6 @@ public class EatMealMenuDao extends ServiceImpl<EatMealMenuMapper, EatMealMenuEn
             return eatMealMenu;
         }).collect(Collectors.toList());
         this.saveBatch(eatMealMenus);
-    }
-
-    /**
-     * 物理删除菜单明细
-     *
-     * @param mealId 用餐记录id
-     */
-    public void removeMealMenuByMealId(Integer mealId) {
-        this.lambdaUpdate()
-                .eq(EatMealMenuEntity::getMealId, mealId)
-                .remove();
     }
 
     /**

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.itwray.iw.web.json.serialize.DefaultImageSerializer;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 菜品详情对象
  *
@@ -58,4 +60,14 @@ public class DishesDetailVo {
      * 备注
      */
     private String remark;
+
+    /**
+     * 菜品用料明细
+     */
+    private List<DishesMaterialVo> dishesMaterialList;
+
+    /**
+     * 菜品制作方法明细
+     */
+    private List<DishesCreationMethodVo> dishesCreationMethodList;
 }
