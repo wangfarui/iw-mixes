@@ -1,5 +1,6 @@
 package com.itwray.iw.eat.model.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -14,6 +15,7 @@ public class DishesMaterialAddDto {
     /**
      * 食材名称
      */
+    @NotBlank(message = "食材名称不能为空")
     private String materialName;
 
     /**

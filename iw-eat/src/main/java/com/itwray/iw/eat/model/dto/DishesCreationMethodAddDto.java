@@ -1,5 +1,6 @@
 package com.itwray.iw.eat.model.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -12,11 +13,6 @@ import lombok.Data;
 public class DishesCreationMethodAddDto {
 
     /**
-     * 制作步骤
-     */
-    private Integer step;
-
-    /**
      * 步骤图片
      */
     private String stepImage;
@@ -24,5 +20,6 @@ public class DishesCreationMethodAddDto {
     /**
      * 步骤内容
      */
+    @NotBlank(message = "步骤内容不能为空")
     private String stepContent;
 }

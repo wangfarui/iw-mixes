@@ -13,29 +13,30 @@ create table eat_dishes
     deleted           bool              not null default false comment '是否删除(true表示已删除, 默认false表示未删除',
     create_time       datetime          not null default current_timestamp comment '创建时间',
     update_time       datetime          not null default current_timestamp comment '更新时间',
-    primary key (id)
+    primary key (id),
+    key idx_dishes_name (dishes_name)
 ) comment '菜品表';
-
 
 drop table if exists eat_dishes_material;
 create table eat_dishes_material
 (
-    id              int unsigned not null auto_increment comment 'id',
-    dishes_id       int unsigned not null comment '菜品id',
-    material_name   varchar(16)  not null comment '食材名称',
-    material_dosage varchar(16)  not null comment '食材用量',
-    is_purchase     tinyint(1) default 0 comment '是否需要购买 0否 1是',
+    id              int unsigned           not null auto_increment comment 'id',
+    dishes_id       int unsigned           not null comment '菜品id',
+    material_name   varchar(16)            not null comment '食材名称',
+    material_dosage varchar(16) default '' not null comment '食材用量',
+    is_purchase     tinyint(1)  default 0 comment '是否需要购买 0否 1是',
     primary key (id),
     key idx_dishes_id (dishes_id)
 ) comment '菜品用料表';
 
+drop table if exists eat_dishes_creation_method;
 create table eat_dishes_creation_method
 (
     id           int unsigned     not null auto_increment comment 'id',
     dishes_id    int unsigned     not null comment '菜品id',
     step         tinyint unsigned not null default 0 comment '制作步骤',
     step_image   varchar(255)     not null default '' comment '步骤图片',
-    step_content text             null comment '步骤内容',
+    step_content text             not null comment '步骤内容',
     primary key (id),
     key idx_dishes_id (dishes_id)
 ) comment '菜品制作方法表';

@@ -2,6 +2,7 @@ package com.itwray.iw.eat.model.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itwray.iw.web.json.deserialize.IntegerToZeroDeserializer;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -63,10 +64,12 @@ public class DishesAddDto {
     /**
      * 菜品用料对象集合
      */
+    @Valid
     private List<DishesMaterialAddDto> dishesMaterialList;
 
     /**
      * 菜品制作方法步骤集合
      */
+    @Valid
     private List<DishesCreationMethodAddDto> dishesCreationMethodList;
 }

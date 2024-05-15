@@ -10,6 +10,7 @@ import com.itwray.iw.eat.model.vo.DishesCreationMethodVo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -31,9 +32,11 @@ public class EatDishesCreationMethodDao extends ServiceImpl<EatDishesCreationMet
     public void saveDishesCreationMethod(Integer dishesId, List<DishesCreationMethodAddDto> dishesCreationMethodList) {
         this.lambdaUpdate().eq(EatDishesCreationMethodEntity::getDishesId, dishesId).remove();
         if (CollUtil.isNotEmpty(dishesCreationMethodList)) {
+            AtomicInteger step = new AtomicInteger(1);
             List<EatDishesCreationMethodEntity> entityList = dishesCreationMethodList.stream()
                     .map(t -> {
                         EatDishesCreationMethodEntity entity = BeanUtil.copyProperties(t, EatDishesCreationMethodEntity.class);
+                        entity.setStep(step.getAndIncrement());
                         entity.setDishesId(dishesId);
                         return entity;
                     }).collect(Collectors.toList());

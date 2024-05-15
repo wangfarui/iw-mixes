@@ -13,6 +13,8 @@ import com.itwray.iw.eat.model.entity.EatDishesEntity;
 import com.itwray.iw.eat.model.vo.DishesDetailVo;
 import com.itwray.iw.eat.model.vo.DishesPageVo;
 import com.itwray.iw.eat.service.EatDishesService;
+import com.itwray.iw.web.constants.WebCommonConstants;
+import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.PageVo;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +40,7 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Override
     @Transactional
     public Integer add(DishesAddDto dto) {
+        this.validDishesNameRepeat(dto.getDishesName(), null);
         EatDishesEntity eatDishesEntity = BeanUtil.copyProperties(dto, EatDishesEntity.class);
         eatDishesDao.save(eatDishesEntity);
         this.saveDishesDetail(eatDishesEntity.getId(), dto);
@@ -48,6 +51,7 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Transactional
     public void update(DishesUpdateDto dto) {
         eatDishesDao.queryById(dto.getId());
+        this.validDishesNameRepeat(dto.getDishesName(), dto.getId());
         eatDishesDao.lambdaUpdate()
                 .eq(EatDishesEntity::getId, dto.getId())
                 .set(EatDishesEntity::getDishesName, dto.getDishesName())
@@ -90,5 +94,23 @@ public class EatDishesServiceImpl implements EatDishesService {
     private void saveDishesDetail(Integer dishesId, DishesAddDto dto) {
         eatDishesMaterialDao.saveDishesMaterial(dishesId, dto.getDishesMaterialList());
         eatDishesCreationMethodDao.saveDishesCreationMethod(dishesId, dto.getDishesCreationMethodList());
+    }
+
+    /**
+     * 校验菜品名称是否重复
+     * <p>重复后直接</p>
+     *
+     * @param dishesName 菜品名称
+     * @param dishesId   编辑时的菜品id
+     */
+    private void validDishesNameRepeat(String dishesName, Integer dishesId) {
+        EatDishesEntity entity = eatDishesDao.lambdaQuery()
+                .eq(EatDishesEntity::getDishesName, dishesName)
+                .ne(dishesId != null, EatDishesEntity::getId, dishesId)
+                .last(WebCommonConstants.LIMIT_ONE)
+                .one();
+        if (entity != null) {
+            throw new IwWebException("保存失败，菜品名称已存在");
+        }
     }
 }
