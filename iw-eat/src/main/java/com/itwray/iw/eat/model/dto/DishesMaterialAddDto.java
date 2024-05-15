@@ -12,11 +12,6 @@ import lombok.Data;
 public class DishesMaterialAddDto {
 
     /**
-     * 菜品id
-     */
-    private Integer dishesId;
-
-    /**
      * 食材名称
      */
     private String materialName;
