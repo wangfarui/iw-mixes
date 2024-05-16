@@ -2,6 +2,8 @@ package com.itwray.iw.eat.model.vo;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 菜品用料 VO
  *
@@ -27,6 +29,11 @@ public class DishesMaterialVo {
      * 食材用量
      */
     private String materialDosage;
+
+    /**
+     * 食材价格
+     */
+    private BigDecimal materialPrice;
 
     /**
      * 是否需要购买 0否 1是

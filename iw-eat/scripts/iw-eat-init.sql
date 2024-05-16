@@ -24,6 +24,7 @@ create table eat_dishes_material
     dishes_id       int unsigned           not null comment '菜品id',
     material_name   varchar(16)            not null comment '食材名称',
     material_dosage varchar(16) default '' not null comment '食材用量',
+    material_price  decimal(4, 2)          null comment '食材价格',
     is_purchase     tinyint(1)  default 0 comment '是否需要购买 0否 1是',
     primary key (id),
     key idx_dishes_id (dishes_id)

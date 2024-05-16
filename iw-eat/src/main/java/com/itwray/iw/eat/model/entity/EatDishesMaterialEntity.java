@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 菜品用料表
  *
@@ -35,6 +37,11 @@ public class EatDishesMaterialEntity {
      * 食材用量
      */
     private String materialDosage;
+
+    /**
+     * 食材价格
+     */
+    private BigDecimal materialPrice;
 
     /**
      * 是否需要购买 0否 1是
