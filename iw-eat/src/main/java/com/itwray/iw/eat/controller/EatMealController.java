@@ -5,6 +5,7 @@ import com.itwray.iw.eat.model.dto.MealAddDto;
 import com.itwray.iw.eat.model.dto.MealPageDto;
 import com.itwray.iw.eat.model.dto.MealUpdateDto;
 import com.itwray.iw.eat.model.vo.MealDetailVo;
+import com.itwray.iw.eat.model.vo.MealDishesMaterialDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
 import com.itwray.iw.eat.service.EatMealService;
 import com.itwray.iw.web.model.PageVo;
@@ -58,5 +59,11 @@ public class EatMealController {
     @Operation(summary = "查询用餐详情")
     public MealDetailVo detail(@RequestParam("id") Integer id) {
         return eatMealService.detail(id);
+    }
+
+    @GetMapping("/dishes/materialDetail")
+    @Operation(summary = "获取用餐记录的菜品食材详情信息")
+    public MealDishesMaterialDetailVo dishesMaterialDetail(@RequestParam("id") Integer mealId) {
+        return eatMealService.dishesMaterialDetail(mealId);
     }
 }

@@ -1,9 +1,10 @@
 package com.itwray.iw.eat.service;
 
-import com.itwray.iw.eat.model.dto.MealPageDto;
 import com.itwray.iw.eat.model.dto.MealAddDto;
+import com.itwray.iw.eat.model.dto.MealPageDto;
 import com.itwray.iw.eat.model.dto.MealUpdateDto;
 import com.itwray.iw.eat.model.vo.MealDetailVo;
+import com.itwray.iw.eat.model.vo.MealDishesMaterialDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
 import com.itwray.iw.web.model.PageVo;
 
@@ -52,5 +53,13 @@ public interface EatMealService {
      * @return 用餐详情信息
      */
     MealDetailVo detail(Integer id);
+
+    /**
+     * 查询用餐记录的菜品食材详情信息
+     *
+     * @param mealId 用餐记录id
+     * @return 菜品食材详情信息
+     */
+    MealDishesMaterialDetailVo dishesMaterialDetail(Integer mealId);
 
 }

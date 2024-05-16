@@ -55,4 +55,17 @@ public class EatDishesMaterialDao extends ServiceImpl<EatDishesMaterialMapper, E
                 .map(t -> BeanUtil.copyProperties(t, DishesMaterialVo.class))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * 查询菜品食材实体对象集合
+     * <p>根据菜品id集合查询</p>
+     *
+     * @param dishesIdList 菜品id集合
+     * @return 菜品食材实体对象集合
+     */
+    public List<EatDishesMaterialEntity> getEntityListByDishesIds(List<Integer> dishesIdList) {
+        return this.lambdaQuery()
+                .in(EatDishesMaterialEntity::getDishesId, dishesIdList)
+                .list();
+    }
 }

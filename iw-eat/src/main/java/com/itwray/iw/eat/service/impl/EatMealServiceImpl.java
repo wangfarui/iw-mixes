@@ -1,15 +1,19 @@
 package com.itwray.iw.eat.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.itwray.iw.eat.dao.EatDishesMaterialDao;
 import com.itwray.iw.eat.dao.EatMealDao;
 import com.itwray.iw.eat.dao.EatMealMenuDao;
 import com.itwray.iw.eat.model.dto.MealAddDto;
 import com.itwray.iw.eat.model.dto.MealPageDto;
 import com.itwray.iw.eat.model.dto.MealUpdateDto;
+import com.itwray.iw.eat.model.entity.EatDishesMaterialEntity;
 import com.itwray.iw.eat.model.entity.EatMealEntity;
 import com.itwray.iw.eat.model.enums.MealTimeEnum;
 import com.itwray.iw.eat.model.vo.MealDetailVo;
+import com.itwray.iw.eat.model.vo.MealDishesMaterialDetailVo;
 import com.itwray.iw.eat.model.vo.MealMenuDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
 import com.itwray.iw.eat.service.EatMealService;
@@ -19,7 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 用餐表 服务实现类
@@ -32,9 +37,10 @@ public class EatMealServiceImpl implements EatMealService {
 
     @Resource
     private EatMealDao eatMealDao;
-
     @Resource
     private EatMealMenuDao eatMealMenuDao;
+    @Resource
+    private EatDishesMaterialDao eatDishesMaterialDao;
 
     @Override
     @Transactional
@@ -86,5 +92,42 @@ public class EatMealServiceImpl implements EatMealService {
         vo.setMealTimeDesc(MealTimeEnum.getDesc(eatMealEntity.getMealTime()));
         vo.setMealMenuList(detailList);
         return vo;
+    }
+
+    @Override
+    public MealDishesMaterialDetailVo dishesMaterialDetail(Integer mealId) {
+        // 查询用餐记录的菜单列表
+        List<MealMenuDetailVo> detailList = eatMealMenuDao.getListByMealId(mealId);
+        if (CollUtil.isEmpty(detailList)) {
+            return new MealDishesMaterialDetailVo();
+        }
+
+        // 获取所有菜品id，查询菜品的食材实体对象列表
+        List<Integer> dishesIdList = detailList.stream().map(MealMenuDetailVo::getDishesId).collect(Collectors.toList());
+        List<EatDishesMaterialEntity> dishesMaterialList = eatDishesMaterialDao.getEntityListByDishesIds(dishesIdList);
+
+        Map<String, List<String>> materialMap = new HashMap<>();
+        HashSet<String> commonMaterialSet = new HashSet<>();
+
+        for (EatDishesMaterialEntity dishesMaterial : dishesMaterialList) {
+            String materialName = dishesMaterial.getMaterialName();
+            if (Boolean.TRUE.equals(dishesMaterial.getIsPurchase())) {
+                List<String> materialDosages = materialMap.get(materialName);
+                if (materialDosages == null) {
+                    materialDosages = new ArrayList<>();
+                    materialDosages.add(dishesMaterial.getMaterialDosage());
+                    materialMap.put(materialName, materialDosages);
+                } else {
+                    materialDosages.add(dishesMaterial.getMaterialDosage());
+                }
+            } else if (!commonMaterialSet.contains(materialName)) {
+                commonMaterialSet.add(materialName);
+            }
+        }
+        List<MealDishesMaterialDetailVo.NeedPurchaseMaterial> needPurchaseMaterialList = materialMap.entrySet().stream()
+                .map(entry -> new MealDishesMaterialDetailVo.NeedPurchaseMaterial(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        return new MealDishesMaterialDetailVo(needPurchaseMaterialList, commonMaterialSet);
     }
 }
