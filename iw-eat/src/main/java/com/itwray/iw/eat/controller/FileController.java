@@ -1,6 +1,6 @@
 package com.itwray.iw.eat.controller;
 
-import com.itwray.iw.eat.service.FileService;
+import com.itwray.iw.eat.service.BaseFileRecordService;
 import com.itwray.iw.web.model.FileVo;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
@@ -21,11 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileController {
 
     @Resource
-    private FileService fileService;
+    private BaseFileRecordService baseFileRecordService;
 
     @Operation(summary = "文件上传")
     @PostMapping("/upload")
     public FileVo upload(@RequestParam("file") MultipartFile file) {
-        return fileService.upload(file);
+        return baseFileRecordService.uploadFile(file);
     }
 }

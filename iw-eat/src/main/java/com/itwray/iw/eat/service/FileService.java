@@ -1,6 +1,6 @@
 package com.itwray.iw.eat.service;
 
-import com.itwray.iw.web.model.FileVo;
+import com.itwray.iw.eat.model.vo.FileRecordVo;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -11,5 +11,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface FileService {
 
-    FileVo upload(MultipartFile file);
+    FileRecordVo upload(MultipartFile file);
 }
