@@ -4,6 +4,7 @@ import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.IwException;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.web.exception.AuthorizedException;
+import com.itwray.iw.web.exception.IwWebException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.validation.BindingResult;
@@ -40,10 +41,16 @@ public class ExceptionHandlerInterceptor {
         return new GeneralResponse<>(GeneralApiCode.UNAUTHORIZED.getCode(), authorizedException.getMessage());
     }
 
+    @ExceptionHandler(IwWebException.class)
+    public GeneralResponse<?> iwWebExceptionHandler(IwWebException iwWebException) {
+        log.error("[IW Web异常]" + iwWebException.getMessage(), iwWebException);
+        return GeneralResponse.fail(iwWebException.getMessage());
+    }
+
     @ExceptionHandler(IwException.class)
     public GeneralResponse<?> iwExceptionHandler(IwException iwException) {
         log.error("[IW异常]" + iwException.getMessage(), iwException);
-        return GeneralResponse.fail(iwException.getMessage());
+        return GeneralResponse.fail();
     }
 
     @ExceptionHandler(Throwable.class)
