@@ -81,3 +81,16 @@ create table base_file_record
     primary key (id),
     UNIQUE KEY (file_hash)
 ) comment '文件上传记录表';
+
+create table eat_dict
+(
+    id          int unsigned auto_increment comment 'id',
+    parent_id   int unsigned                         not null default 0 comment '父字典id',
+    dict_type   smallint unsigned                    not null comment '字典类型',
+    dict_code   smallint unsigned                    not null comment '字典code',
+    dict_name   varchar(32)                          not null comment '字典名称',
+    deleted     tinyint(1) default 0                 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
+    create_time datetime   default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime   default CURRENT_TIMESTAMP not null comment '更新时间',
+    primary key (id)
+) comment '字典表';
