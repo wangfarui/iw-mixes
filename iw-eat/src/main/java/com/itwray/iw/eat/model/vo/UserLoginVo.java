@@ -1,6 +1,9 @@
 package com.itwray.iw.eat.model.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.itwray.iw.web.json.serialize.DefaultImageSerializer;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserLoginVo {
 
     /**
@@ -29,4 +33,10 @@ public class UserLoginVo {
      * sa token
      */
     private String tokenValue;
+
+    /**
+     * 头像（url地址）
+     */
+    @JsonSerialize(using = DefaultImageSerializer.class)
+    private String avatar;
 }

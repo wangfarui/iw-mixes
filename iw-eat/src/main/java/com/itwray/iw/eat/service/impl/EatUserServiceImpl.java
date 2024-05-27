@@ -8,9 +8,11 @@ import com.itwray.iw.eat.model.dto.UserLoginDto;
 import com.itwray.iw.eat.model.entity.EatUserEntity;
 import com.itwray.iw.eat.model.vo.UserLoginVo;
 import com.itwray.iw.eat.service.EatUserService;
+import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.IwWebException;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户服务实现层
@@ -48,7 +50,27 @@ public class EatUserServiceImpl implements EatUserService {
         }
         StpUtil.login(userEntity.getId());
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-        return new UserLoginVo(userEntity.getName(), tokenInfo.getTokenName(), tokenInfo.getTokenValue());
+
+        return UserLoginVo.builder()
+                .name(userEntity.getName())
+                .tokenName(tokenInfo.getTokenName())
+                .tokenValue(tokenInfo.getTokenValue())
+                .avatar(userEntity.getAvatar())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void editAvatar(String avatar) {
+        String loginId = (String) StpUtil.getLoginId();
+        EatUserEntity userEntity = eatUserDao.getById(loginId);
+        if (userEntity == null) {
+            throw new AuthorizedException("用户不存在，请重新登录");
+        }
+        eatUserDao.lambdaUpdate()
+                .eq(EatUserEntity::getId, loginId)
+                .set(EatUserEntity::getAvatar, avatar)
+                .update();
     }
 
     public static void main(String[] args) {

@@ -15,4 +15,11 @@ public interface EatUserService {
      * 登录
      */
     UserLoginVo doLogin(UserLoginDto dto);
+
+    /**
+     * 修改头像
+     *
+     * @param avatar 头像地址
+     */
+    void editAvatar(String avatar);
 }

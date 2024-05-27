@@ -7,3 +7,6 @@ create table eat_user
     password varchar(64) not null comment '密码',
     primary key (id)
 ) comment 'sa用户表';
+
+alter table eat_user
+    add column avatar varchar(255) default '' not null comment '头像';

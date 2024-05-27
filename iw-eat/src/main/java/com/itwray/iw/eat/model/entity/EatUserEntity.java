@@ -35,4 +35,9 @@ public class EatUserEntity {
      * 密码
      */
     private String password;
+
+    /**
+     * 头像（url地址）
+     */
+    private String avatar;
 }
