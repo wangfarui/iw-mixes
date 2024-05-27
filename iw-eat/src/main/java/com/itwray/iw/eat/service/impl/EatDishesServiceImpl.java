@@ -98,7 +98,7 @@ public class EatDishesServiceImpl implements EatDishesService {
 
     /**
      * 校验菜品名称是否重复
-     * <p>重复后直接</p>
+     * <p>重复后直接抛出异常</p>
      *
      * @param dishesName 菜品名称
      * @param dishesId   编辑时的菜品id

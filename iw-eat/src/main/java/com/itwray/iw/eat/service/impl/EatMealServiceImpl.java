@@ -106,7 +106,9 @@ public class EatMealServiceImpl implements EatMealService {
         List<Integer> dishesIdList = detailList.stream().map(MealMenuDetailVo::getDishesId).collect(Collectors.toList());
         List<EatDishesMaterialEntity> dishesMaterialList = eatDishesMaterialDao.getEntityListByDishesIds(dishesIdList);
 
+        // 需要采购的食材对象：<食材名称, List<食材用量>>
         Map<String, List<String>> materialMap = new HashMap<>();
+        // 不需要采购的食材名称
         HashSet<String> commonMaterialSet = new HashSet<>();
 
         for (EatDishesMaterialEntity dishesMaterial : dishesMaterialList) {
@@ -120,7 +122,7 @@ public class EatMealServiceImpl implements EatMealService {
                 } else {
                     materialDosages.add(dishesMaterial.getMaterialDosage());
                 }
-            } else if (!commonMaterialSet.contains(materialName)) {
+            } else {
                 commonMaterialSet.add(materialName);
             }
         }
