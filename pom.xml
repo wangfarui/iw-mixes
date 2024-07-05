@@ -13,6 +13,7 @@
         <module>iw-web</module>
         <module>iw-oauth2-authorization-server</module>
         <module>iw-eat</module>
+        <module>iw-bookkeeping</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>

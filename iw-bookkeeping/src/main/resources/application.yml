@@ -1,0 +1,43 @@
+# 服务器配置
+server:
+  servlet:
+    context-path: /iw-bookkeeping
+  port: 18004
+
+# spring 配置
+spring:
+  application:
+    name: iw-bookkeeping-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  config:
+    import:
+     - optional:nacos:${spring.application.name}.yml
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        username: ${SPRING_CLOUD_NACOS_USERNAME}
+        password: ${SPRING_CLOUD_NACOS_PASSWORD}
+
+# springdoc 配置
+springdoc:
+  swagger-ui:
+    path: /doc.html
+  packages-to-scan:
+    - com.itwray.iw.bookkeeping.controller
+
+# mybatis-plus配置
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: deleted # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: true # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: false # 逻辑未删除值(默认为 0)

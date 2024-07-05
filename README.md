@@ -42,4 +42,10 @@ A mixed project, a little bit of everything
     <td>18003</td>
     <td>iw project eat server</td>
 </tr>
+<tr>
+    <td>iw-bookkeeping</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td>18004</td>
+    <td>iw project bookkeeping server</td>
+</tr>
 </table>
