@@ -9,10 +9,10 @@ spring:
   application:
     name: iw-eat-service
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${spring.datasource.url}
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
+    driver-class-name: ${iw.db.driver-class}
+    url: ${iw.db.url}
+    username: ${iw.db.username}
+    password: ${iw.db.password}
   config:
     import:
      - optional:nacos:iw-web

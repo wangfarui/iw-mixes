@@ -3,6 +3,7 @@ package com.itwray.iw.eat.core;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.stp.StpUtil;
 import jakarta.servlet.Filter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class EatWebConfigurer implements WebMvcConfigurer {
 
+    @Value("${iw.cors.origin-pattern:}")
+    private String corsOriginPattern;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin()))
@@ -33,7 +37,7 @@ public class EatWebConfigurer implements WebMvcConfigurer {
         // 创建 CorsConfiguration 对象
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*"); // 设置访问源地址
+        config.addAllowedOriginPattern(this.corsOriginPattern); // 设置访问源地址
         config.addAllowedHeader("*"); // 设置访问源请求头
         config.addAllowedMethod("*"); // 设置访问源请求方法
         // 创建 UrlBasedCorsConfigurationSource 对象
