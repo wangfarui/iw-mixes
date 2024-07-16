@@ -19,11 +19,13 @@ spring:
      - optional:nacos:${spring.application.name}.yml
   cloud:
     nacos:
+      discovery:
+        enabled: true
       config:
-        server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR}
         file-extension: yaml
-        username: ${SPRING_CLOUD_NACOS_USERNAME}
-        password: ${SPRING_CLOUD_NACOS_PASSWORD}
+      password: ${SPRING_CLOUD_NACOS_PASSWORD}
+      username: ${SPRING_CLOUD_NACOS_USERNAME}
+      server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR}
 
 # springdoc 配置
 springdoc:
