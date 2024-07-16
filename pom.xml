@@ -14,6 +14,7 @@
         <module>iw-oauth2-authorization-server</module>
         <module>iw-eat</module>
         <module>iw-bookkeeping</module>
+        <module>iw-gateway</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
@@ -37,6 +38,8 @@
         <spring-security.version>6.2.2</spring-security.version>
         <springdoc.version>2.3.0</springdoc.version>
         <spring.cloud.alibaba.version>2023.0.1.0</spring.cloud.alibaba.version>
+        <spring-cloud-gateway.version>4.1.0</spring-cloud-gateway.version>
+        <spring-cloud-loadbalancer.version>4.1.0</spring-cloud-loadbalancer.version>
 
         <!-- other properties -->
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
@@ -44,6 +47,7 @@
         <hutool.version>5.8.26</hutool.version>
         <captcha.version>2.2.3</captcha.version>
         <nacos.version>2.3.2</nacos.version>
+        <netty.version>4.1.107.Final</netty.version>
     </properties>
 
     <dependencyManagement>
@@ -73,6 +77,17 @@
                 <version>${spring.cloud.alibaba.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-gateway</artifactId>
+                <version>${spring-cloud-gateway.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+                <version>${spring-cloud-loadbalancer.version}</version>
             </dependency>
 
             <dependency>
