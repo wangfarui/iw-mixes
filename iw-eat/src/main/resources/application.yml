@@ -1,7 +1,7 @@
 # 服务器配置
 server:
   servlet:
-    context-path: /iw-eat
+    context-path: /eat-service
   port: 18003
 
 # spring 配置

@@ -1,7 +1,7 @@
 # 服务器配置
 server:
   servlet:
-    context-path: /iw-bookkeeping
+    context-path: /bookkeeping-service
   port: 18004
 
 # spring 配置
