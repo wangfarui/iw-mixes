@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @since 2024/3/12
  */
 @SpringBootTest
-public class AuthUserServiceTest {
+public class AuthUserEntityServiceTest {
 
     @Autowired
     private AuthUserService authUserService;

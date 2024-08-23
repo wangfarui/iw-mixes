@@ -21,9 +21,28 @@ public interface AuthUserService {
     UserInfoVo loginByPassword(LoginPasswordDto dto);
 
     /**
+     * 退出登录
+     */
+    void logout();
+
+    /**
      * 用户注册-通过表单方式注册
      *
      * @param dto 用户注册信息
      */
     void registerByForm(RegisterFormDto dto);
+
+    /**
+     * 校验Token有效性
+     * @param token Token
+     * @return ture -> 有效
+     */
+    Boolean validateToken(String token);
+
+    /**
+     * 修改头像
+     *
+     * @param avatar 头像地址
+     */
+    void editAvatar(String avatar);
 }

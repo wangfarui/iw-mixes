@@ -3,8 +3,6 @@ package com.itwray.iw.auth.controller;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
-import io.springboot.captcha.base.Captcha;
-import io.springboot.captcha.utils.CaptchaJakartaUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +45,13 @@ public class AuthLoginController {
 
     @GetMapping("/captcha.jpg")
     public void getVerifyCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        CaptchaJakartaUtil.out(this.captchaWidth, this.captchaHeight, this.captchaLen, Captcha.TYPE_ONLY_NUMBER, request, response);
+//        CaptchaJakartaUtil.out(this.captchaWidth, this.captchaHeight, this.captchaLen, Captcha.TYPE_ONLY_NUMBER, request, response);
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "退出登录")
+    public void logout() {
+        authUserService.logout();
     }
 
     @PostMapping("/password")

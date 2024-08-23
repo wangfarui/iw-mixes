@@ -3,7 +3,7 @@ package com.itwray.iw.auth.dao;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
-import com.itwray.iw.auth.model.entity.AuthUser;
+import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  * @since 2024/3/2
  */
 @Component
-public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUser> {
+public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
 
     /**
      * 根据用户名查询唯一的用户
@@ -23,12 +23,12 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUser> {
      * @param username 用户名
      * @return 可能为空的用户
      */
-    public @Nullable AuthUser queryOneByUsername(String username) {
+    public @Nullable AuthUserEntity queryOneByUsername(String username) {
         if (StringUtils.isBlank(username)) {
             throw new AuthServiceException("用户名不能为空");
         }
         return this.lambdaQuery()
-                .eq(AuthUser::getUsername, username)
+                .eq(AuthUserEntity::getUsername, username)
                 .last("limit 1")
                 .one();
     }
@@ -42,8 +42,8 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUser> {
      */
     public boolean updatePasswordByUsername(String username, String encodedPassword) {
         return this.lambdaUpdate()
-                .eq(AuthUser::getUsername, username)
-                .set(AuthUser::getPassword, encodedPassword)
+                .eq(AuthUserEntity::getUsername, username)
+                .set(AuthUserEntity::getPassword, encodedPassword)
                 .update();
     }
 }

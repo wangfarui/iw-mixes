@@ -1,7 +1,7 @@
 # 服务器配置
 server:
   servlet:
-    context-path: /iw-auth
+    context-path: /auth-service
   port: 18001
 
 # spring 配置
@@ -9,20 +9,23 @@ spring:
   application:
     name: iw-auth-service
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${spring.datasource.url}
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
+    driver-class-name: ${iw.db.driver-class}
+    url: ${iw.db.url}
+    username: ${iw.db.username}
+    password: ${iw.db.password}
   config:
     import:
+      - optional:nacos:iw-web
       - optional:nacos:${spring.application.name}.yml
   cloud:
     nacos:
+      discovery:
+        enabled: true
       config:
-        server-addr: 127.0.0.1:8848
         file-extension: yaml
-        username: ${SPRING_CLOUD_NACOS_USERNAME}
-        password: ${SPRING_CLOUD_NACOS_PASSWORD}
+      password: ${SPRING_CLOUD_NACOS_PASSWORD}
+      username: ${SPRING_CLOUD_NACOS_USERNAME}
+      server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR}
 
 # springdoc 配置
 springdoc:

@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
  * @author wray
  * @since 2024/3/2
  */
-@TableName("iw_auth_user")
+@TableName("auth_user")
 @Data
-public class AuthUser {
+public class AuthUserEntity {
 
     /**
      * 用户id
@@ -37,6 +37,11 @@ public class AuthUser {
      * 姓名
      */
     private String name;
+
+    /**
+     * 头像（url地址）
+     */
+    private String avatar;
 
     /**
      * 账号是否过期
