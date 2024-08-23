@@ -47,6 +47,6 @@ cd /root/iw-mixes/$PROJECT_NAME || exit 1
 chmod +x $PROJECT_NAME-$VERSION.jar
 
 # 8. 启动java服务并退出远程服务器
-nohup java -Xms128m -Xmx256m -jar $PROJECT_NAME-$VERSION.jar > $PROJECT_NAME.log 2>&1 &
+nohup java -Xms64m -Xmx128m -jar $PROJECT_NAME-$VERSION.jar > $PROJECT_NAME.log 2>&1 &
 exit
 EOF

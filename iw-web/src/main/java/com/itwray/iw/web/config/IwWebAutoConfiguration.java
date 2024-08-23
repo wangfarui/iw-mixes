@@ -14,8 +14,7 @@ import org.springframework.context.annotation.Import;
  * @since 2024/4/3
  */
 @AutoConfiguration
-//@EnableConfigurationProperties(IwWebProperties.class)
-@Import(MybatisPlusConfig.class)
+@Import({MybatisPlusConfig.class})
 public class IwWebAutoConfiguration {
 
     @Bean

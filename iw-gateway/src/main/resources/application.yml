@@ -6,8 +6,22 @@ spring:
     name: iw-gateway-service
   config:
     import:
+      - optional:nacos:iw-web
       - optional:nacos:${spring.application.name}.yml
   cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]': # 匹配所有路由
+            allowedOriginPatterns: ${iw.cors.origin-pattern}  # 允许的域名，可以使用 '*' 表示允许所有域
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders:
+              - "*"  # 允许的请求头
+            allowCredentials: true  # 是否允许携带认证信息（如 cookies）
     nacos:
       discovery:
         enabled: true
