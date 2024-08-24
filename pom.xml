@@ -15,6 +15,7 @@
         <module>iw-eat</module>
         <module>iw-bookkeeping</module>
         <module>iw-gateway</module>
+        <module>iw-packaging-parent</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
