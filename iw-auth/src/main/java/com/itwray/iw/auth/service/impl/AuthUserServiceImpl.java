@@ -20,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 用户服务实现层
@@ -36,23 +34,9 @@ public class AuthUserServiceImpl implements AuthUserService {
     private final AuthUserDao authUserDao;
 
     /**
-     * 已登录用户信息集合
-     * key -> Token
-     * value -> 用户实体信息
+     * token固定的存活时间 3天
      */
-    private final Map<String, AuthUserEntity> userMap = new ConcurrentHashMap<>();
-
-    /**
-     * token的过期时间集合
-     * key -> token
-     * value -> 过期时间的时间戳
-     */
-    private final Map<String, Long> expireMap = new ConcurrentHashMap<>();
-
-    /**
-     * token固定的存活时间 7天
-     */
-    private static final Long ACTIVE_TIME = 7 * 24 * 60 * 60L;
+    private static final Long ACTIVE_TIME = 3 * 24 * 60 * 60L;
 
     /**
      * token的固定header
@@ -91,21 +75,9 @@ public class AuthUserServiceImpl implements AuthUserService {
             throw new IwWebException("用户名或密码错误");
         }
 
-        // 判断是否已经登录过，如果已经登录过，只需要刷新token有效期即可
-        String token;
-        Object oldToken =  RedisUtil.get(authUserEntity.getId().toString());
-        if (oldToken == null) {
-            token = UUID.randomUUID().toString();
-            RedisUtil.set(authUserEntity.getId().toString(), token);
-        } else {
-            token = oldToken.toString();
-        }
-
-        // 存放token对应的用户信息
-        userMap.put(token, authUserEntity);
-
-        // 设置token有效期
-        expireMap.put(token, System.currentTimeMillis() + ACTIVE_TIME);
+        // 生成Token并缓存
+        String token = UUID.randomUUID().toString();
+        RedisUtil.set(token, authUserEntity.getId(), ACTIVE_TIME);
 
         // 将token写入到请求头中
         this.setTokenValue(token);
@@ -127,12 +99,8 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (token == null) {
             return;
         }
-        AuthUserEntity authUserEntity = userMap.get(token);
-        if (authUserEntity != null) {
-            RedisUtil.delete(authUserEntity.getId().toString());
-            userMap.remove(token);
-        }
-        expireMap.remove(token);
+        // 移除token缓存
+        RedisUtil.delete(token);
     }
 
     @Override
@@ -174,24 +142,14 @@ public class AuthUserServiceImpl implements AuthUserService {
      * @return true -> 有效
      */
     public Boolean validateToken(String token, boolean isRenew) {
-        long currentTimeMillis = System.currentTimeMillis();
-        Long expireTime = expireMap.get(token);
-
-        // token已不存在情况
-        if (expireTime == null) {
-            return false;
-        }
-
-        // token过期情况
-        if (expireTime < currentTimeMillis) {
-            userMap.remove(token);
-            expireMap.remove(token);
+        // token不存在 或者 token过期自动删除
+        if (!RedisUtil.hasKey(token)) {
             return false;
         }
 
         // 自动续签
         if (isRenew) {
-            expireMap.put(token, currentTimeMillis + ACTIVE_TIME);
+            RedisUtil.expire(token, ACTIVE_TIME);
         }
 
         return true;
@@ -236,11 +194,10 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (!validity) {
             throw new AuthorizedException("登录状态已失效，请重新登录");
         }
-        AuthUserEntity authUserEntity = userMap.get(token);
-        if (authUserEntity == null) {
-            expireMap.remove(token);
+        Object userId = RedisUtil.get(token);
+        if (userId == null) {
             throw new AuthorizedException("登录状态已失效，请重新登录");
         }
-        return authUserEntity.getId();
+        return (Long) userId;
     }
 }
