@@ -10,13 +10,13 @@ import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
+import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.IwWebException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +35,6 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     private final AuthUserDao authUserDao;
 
-    private final RedisTemplate<Object, Object> redisTemplate;
-
     /**
      * 已登录用户信息集合
      * key -> Token
@@ -52,9 +50,9 @@ public class AuthUserServiceImpl implements AuthUserService {
     private final Map<String, Long> expireMap = new ConcurrentHashMap<>();
 
     /**
-     * token固定的存活时间
+     * token固定的存活时间 7天
      */
-    private static final Long ACTIVE_TIME = 7 * 24 * 60 * 60 * 1000L;
+    private static final Long ACTIVE_TIME = 7 * 24 * 60 * 60L;
 
     /**
      * token的固定header
@@ -62,9 +60,8 @@ public class AuthUserServiceImpl implements AuthUserService {
     private static final String TOKEN_HEADER = "iwtoken";
 
     @Autowired
-    public AuthUserServiceImpl(AuthUserDao authUserDao, RedisTemplate<Object, Object> redisTemplate) {
+    public AuthUserServiceImpl(AuthUserDao authUserDao) {
         this.authUserDao = authUserDao;
-        this.redisTemplate = redisTemplate;
     }
 
     /**
@@ -96,10 +93,10 @@ public class AuthUserServiceImpl implements AuthUserService {
 
         // 判断是否已经登录过，如果已经登录过，只需要刷新token有效期即可
         String token;
-        Object oldToken = redisTemplate.opsForValue().get(authUserEntity.getId().toString());
+        Object oldToken =  RedisUtil.get(authUserEntity.getId().toString());
         if (oldToken == null) {
             token = UUID.randomUUID().toString();
-            redisTemplate.opsForValue().set(authUserEntity.getId().toString(), token);
+            RedisUtil.set(authUserEntity.getId().toString(), token);
         } else {
             token = oldToken.toString();
         }
@@ -132,7 +129,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         }
         AuthUserEntity authUserEntity = userMap.get(token);
         if (authUserEntity != null) {
-            redisTemplate.opsForValue().getAndDelete(authUserEntity.getId().toString());
+            RedisUtil.delete(authUserEntity.getId().toString());
             userMap.remove(token);
         }
         expireMap.remove(token);
