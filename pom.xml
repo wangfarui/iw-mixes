@@ -16,6 +16,7 @@
         <module>iw-bookkeeping</module>
         <module>iw-gateway</module>
         <module>iw-packaging-parent</module>
+        <module>iw-starter</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
@@ -24,6 +25,7 @@
     <properties>
         <!-- iw project -->
         <iw.version>0.0.1-SNAPSHOT</iw.version>
+        <iw.starter.version>0.0.1-SNAPSHOT</iw.starter.version>
 
         <!-- base properties -->
         <java.version>17</java.version>
@@ -62,6 +64,11 @@
                 <groupId>com.itwray.mixes</groupId>
                 <artifactId>iw-web</artifactId>
                 <version>${iw.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itwray.mixes</groupId>
+                <artifactId>iw-redis-starter</artifactId>
+                <version>${iw.starter.version}</version>
             </dependency>
 
             <dependency>
