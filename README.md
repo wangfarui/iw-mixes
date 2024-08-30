@@ -1,11 +1,15 @@
 # iw-mixes
 
-A mixed project, a little bit of everything
+A mixed project, aim to do all the functions in one project.
 
 # Project Modules
 
 <table>
 <tr><td>ProjectName</td><td>Version</td><td>Port</td><td>Description</td></tr>
+<tr>
+   <td>
+    </td>
+</tr>
 <tr>
     <td>iw-gateway</td>
     <td>0.0.1-SNAPSHOT</td>
@@ -16,42 +20,48 @@ A mixed project, a little bit of everything
     <td>iw-common</td>
     <td>0.0.1-SNAPSHOT</td>
     <td></td>
-    <td></td>
+    <td>IW项目公共基础模块</td>
 </tr>
 <tr>
     <td>iw-web</td>
     <td>0.0.1-SNAPSHOT</td>
     <td></td>
-    <td></td>
+    <td>Web项目基础模块</td>
 </tr>
 <tr>
     <td>iw-auth</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18001</td>
-    <td>iw project auth server</td>
+    <td>用户授权服务</td>
 </tr>
 <tr>
     <td>iw-note</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18002</td>
-    <td>iw project note server</td>
+    <td>笔记服务</td>
 </tr>
 <tr>
     <td>iw-oauth2-authorization-server</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18101</td>
-    <td>oauth2 authorization server</td>
+    <td>OAuth2授权服务</td>
 </tr>
 <tr>
     <td>iw-eat</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18003</td>
-    <td>iw project eat server</td>
+    <td>餐饮服务</td>
 </tr>
 <tr>
     <td>iw-bookkeeping</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18004</td>
-    <td>iw project bookkeeping server</td>
+    <td>记账服务</td>
+</tr>
+<tr>
+    <td>iw-redis-starter</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td></td>
+    <td>Redis Starter</td>
 </tr>
 </table>
