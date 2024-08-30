@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>iw-redis-starter</artifactId>
-    <version>${iw.starter.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <description>redis starter</description>
 
     <dependencies>

@@ -14,7 +14,7 @@
     </modules>
 
     <artifactId>iw-starter</artifactId>
-    <version>${iw.starter.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <description>iw spring boot starter</description>
     <packaging>pom</packaging>
 
