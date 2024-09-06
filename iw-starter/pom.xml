@@ -18,4 +18,11 @@
     <description>iw spring boot starter</description>
     <packaging>pom</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-common</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
