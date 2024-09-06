@@ -2,6 +2,7 @@ package com.itwray.iw.starter.redis.config;
 
 import com.itwray.iw.starter.redis.RedisUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  * @since 2024/8/26
  */
 @Configuration
+@EnableConfigurationProperties(IwRedisProperties.class)
 public class RedisAutoConfiguration {
 
 
