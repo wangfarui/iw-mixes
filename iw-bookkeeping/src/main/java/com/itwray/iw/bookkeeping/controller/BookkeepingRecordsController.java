@@ -46,7 +46,7 @@ public class BookkeepingRecordsController {
 
     @DeleteMapping("/delete")
     @Operation(summary = "删除记账记录")
-    public void delete(@RequestParam Integer id) {
+    public void delete(@RequestParam("id") Integer id) {
         bookkeepingRecordsService.delete(id);
     }
 
