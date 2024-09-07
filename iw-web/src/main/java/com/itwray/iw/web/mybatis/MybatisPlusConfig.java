@@ -2,7 +2,9 @@ package com.itwray.iw.web.mybatis;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.itwray.iw.web.config.IwDaoProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,9 +20,16 @@ public class MybatisPlusConfig {
      * 添加分页插件
      */
     @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(IwDaoProperties daoProperties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));//如果配置多个插件,切记分页最后添加
+        if (daoProperties.getDataPermission().isEnabled()) {
+            DataPermissionInterceptor dataPermissionInterceptor = new DataPermissionInterceptor(new UserDataPermissionHandler(daoProperties.getDataPermission()));
+            interceptor.addInnerInterceptor(dataPermissionInterceptor);
+        }
+        // 分页插件需要放到最后面
+        if (daoProperties.isEnablePagination()) {
+            interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));//如果配置多个插件,切记分页最后添加
+        }
         return interceptor;
     }
 }

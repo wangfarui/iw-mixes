@@ -37,6 +37,11 @@ public abstract class BaseEntity {
     private LocalDateTime updateTime;
 
     /**
+     * 用户id
+     */
+    private Integer userId;
+
+    /**
      * 主键id的getter方法
      * <p>之所以不直接配置id变量，是为了应对id变量类型的不统一或id自动生成策略不一致的情况</p>
      *
