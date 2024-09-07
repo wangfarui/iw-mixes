@@ -1,16 +1,17 @@
 #!/bin/bash
 
-### 使用方法示例：./deploy.sh iw-eat 0.0.1-SNAPSHOT
+### 使用方法示例：./deploy.sh iw-eat [version]
+### 如果没有指定 version，则默认使用 0.0.1-SNAPSHOT
 
-# 检查参数数量
-if [ $# -ne 2 ]; then
-    echo "Usage: $0 <project-name> <version>"
+# 检查第一个参数是否存在
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <project-name> [version]"
     exit 1
 fi
 
 # 获取参数
 PROJECT_NAME=$1
-VERSION=$2
+VERSION=${2:-0.0.1-SNAPSHOT}  # 如果没有指定第二个参数，则使用默认值
 
 # 1. 连接到远程服务器
 ssh aliyun183 << EOF
