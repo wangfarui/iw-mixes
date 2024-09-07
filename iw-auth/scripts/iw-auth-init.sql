@@ -1,6 +1,6 @@
 create table auth_user
 (
-    id                      bigint                                 not null primary key auto_increment comment '用户id',
+    id                      int unsigned                           not null primary key auto_increment comment '用户id',
     username                varchar(64)                            not null comment '用户名',
     password                varchar(255)                           not null comment '密码',
     name                    varchar(32)                            not null comment '姓名',

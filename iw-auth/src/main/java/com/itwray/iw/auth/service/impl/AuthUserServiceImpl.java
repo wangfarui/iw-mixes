@@ -158,7 +158,7 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     @Transactional
     public void editAvatar(String avatar) {
-        Long loginId = this.getLoginId();
+        Integer loginId = this.getLoginId();
         AuthUserEntity userEntity = authUserDao.getById(loginId);
         if (userEntity == null) {
             throw new AuthorizedException("用户不存在，请重新登录");
@@ -184,7 +184,7 @@ public class AuthUserServiceImpl implements AuthUserService {
     /**
      * 获取当前登录用户的id
      */
-    private Long getLoginId() {
+    private Integer getLoginId() {
         HttpServletRequest request = SpringWebHolder.getRequest();
         String token = request.getHeader(TOKEN_HEADER);
         if (token == null) {
@@ -198,6 +198,6 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (userId == null) {
             throw new AuthorizedException("登录状态已失效，请重新登录");
         }
-        return (Long) userId;
+        return (Integer) userId;
     }
 }

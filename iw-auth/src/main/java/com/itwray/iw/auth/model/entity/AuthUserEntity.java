@@ -21,7 +21,7 @@ public class AuthUserEntity {
      * 用户id
      */
     @TableId(type = IdType.AUTO)
-    private Long id;
+    private Integer id;
 
     /**
      * 用户名
