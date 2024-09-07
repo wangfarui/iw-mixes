@@ -40,5 +40,6 @@ create table bookkeeping_records
     deleted         tinyint(1)   default 0                 not null comment '是否删除(true表示已删除, 默认false表示未删除',
     create_time     datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time     datetime     default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id         int unsigned                           not null comment '用户id',
     primary key (id)
 ) comment '记账记录表';

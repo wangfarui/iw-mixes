@@ -12,6 +12,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.utils.UserUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,7 @@ public class BookkeepingRecordsServiceImpl implements BookkeepingRecordsService 
             // 日期取指定日期，时间取当前时间
             bookkeepingRecords.setRecordTime(dto.getRecordDate().atTime(LocalTime.now()));
         }
+        bookkeepingRecords.setUserId(UserUtils.getUserId());
         bookkeepingRecordsDao.save(bookkeepingRecords);
     }
 
