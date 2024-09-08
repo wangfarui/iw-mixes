@@ -89,6 +89,7 @@ public class BookkeepingRecordsServiceImpl implements BookkeepingRecordsService 
         }
         return bookkeepingRecordsDao.lambdaQuery()
                 .eq(BookkeepingRecordsEntity::getRecordDate, dto.getRecordDate())
+                .orderByDesc(BookkeepingRecordsEntity::getId)
                 .list()
                 .stream()
                 .map(t -> BeanUtil.copyProperties(t, BookkeepingRecordPageVo.class))
