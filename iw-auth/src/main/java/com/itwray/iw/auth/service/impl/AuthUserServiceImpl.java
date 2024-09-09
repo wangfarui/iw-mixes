@@ -3,7 +3,6 @@ package com.itwray.iw.auth.service.impl;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.itwray.iw.auth.core.AuthServiceException;
-import com.itwray.iw.auth.core.SpringWebHolder;
 import com.itwray.iw.auth.dao.AuthUserDao;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
@@ -11,6 +10,7 @@ import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.starter.redis.RedisUtil;
+import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.IwWebException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+
+import static com.itwray.iw.web.utils.UserUtils.TOKEN_HEADER;
 
 /**
  * 用户服务实现层
@@ -37,11 +39,6 @@ public class AuthUserServiceImpl implements AuthUserService {
      * token固定的存活时间 3天
      */
     private static final Long ACTIVE_TIME = 3 * 24 * 60 * 60L;
-
-    /**
-     * token的固定header
-     */
-    private static final String TOKEN_HEADER = "iwtoken";
 
     @Autowired
     public AuthUserServiceImpl(AuthUserDao authUserDao) {
