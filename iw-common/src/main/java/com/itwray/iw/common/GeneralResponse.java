@@ -67,4 +67,8 @@ public class GeneralResponse<T> {
     public static <T> GeneralResponse<T> fail(String message) {
         return new GeneralResponse<>(GeneralApiCode.INTERNAL_SERVER_ERROR.getCode(), message);
     }
+
+    public boolean isSuccess() {
+        return this.code == GeneralApiCode.SUCCESS.getCode();
+    }
 }

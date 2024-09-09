@@ -34,10 +34,19 @@ public interface AuthUserService {
 
     /**
      * 校验Token有效性
+     *
      * @param token Token
      * @return ture -> 有效
      */
     Boolean validateToken(String token);
+
+    /**
+     * 获取指定token的用户id
+     *
+     * @param token Token
+     * @return 用户id
+     */
+    Integer getUserId(String token);
 
     /**
      * 修改头像

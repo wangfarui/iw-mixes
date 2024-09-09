@@ -126,12 +126,23 @@ public class AuthUserServiceImpl implements AuthUserService {
     /**
      * 校验token有效性(默认续签)
      *
-     * @param token   token值
+     * @param token token值
      * @return true -> 有效
      */
     @Override
     public Boolean validateToken(String token) {
         return this.validateToken(token, true);
+    }
+
+    /**
+     * 获取指定token的用户id
+     *
+     * @param token token值
+     * @return 用户id
+     */
+    @Override
+    public Integer getUserId(String token) {
+        return getLoginId(token);
     }
 
     /**
@@ -190,6 +201,13 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (token == null) {
             throw new AuthorizedException("当前未登录，请先登录");
         }
+        return this.getLoginId(token);
+    }
+
+    /**
+     * 获取指定token的用户id
+     */
+    private Integer getLoginId(String token) {
         Boolean validity = this.validateToken(token, false);
         if (!validity) {
             throw new AuthorizedException("登录状态已失效，请重新登录");

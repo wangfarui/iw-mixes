@@ -34,4 +34,10 @@ public class AuthenticationController {
     public Boolean validateToken(@RequestParam("token") String token) {
         return authUserService.validateToken(token);
     }
+
+    @GetMapping("/getUserIdByToken")
+    @Operation(summary = "获取指定token的用户id")
+    public Integer getUserIdByToken(@RequestParam("token") String token) {
+        return authUserService.getUserId(token);
+    }
 }
