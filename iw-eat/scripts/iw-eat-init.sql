@@ -68,6 +68,9 @@ create table eat_meal_menu
     key idx_meal_id (meal_id)
 ) comment '用餐菜单表';
 
+alter table eat_meal
+    add column user_id int unsigned not null comment '用户id';
+
 drop table if exists base_file_record;
 create table base_file_record
 (

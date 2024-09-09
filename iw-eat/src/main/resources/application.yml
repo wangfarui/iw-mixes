@@ -33,3 +33,9 @@ springdoc:
     path: /doc.html
   packages-to-scan:
     - com.itwray.iw.eat.controller
+
+iw:
+  dao:
+    data-permission:
+      enable-table-names:
+        - eat_meal
