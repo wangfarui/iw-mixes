@@ -1,3 +1,10 @@
+# iw配置
+iw:
+  dao:
+    data-permission:
+      enable-table-names:
+        - eat_meal
+
 # 服务器配置
 server:
   servlet:
@@ -34,8 +41,6 @@ springdoc:
   packages-to-scan:
     - com.itwray.iw.eat.controller
 
-iw:
-  dao:
-    data-permission:
-      enable-table-names:
-        - eat_meal
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

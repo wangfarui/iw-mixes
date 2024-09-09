@@ -1,3 +1,11 @@
+# iw配置
+iw:
+  redis:
+    database: 1
+  dao:
+    dataPermission:
+      enabled: false
+
 # 服务器配置
 server:
   servlet:

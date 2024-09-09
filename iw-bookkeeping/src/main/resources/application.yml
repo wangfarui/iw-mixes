@@ -1,3 +1,9 @@
+# iw配置
+iw:
+  dao:
+    dataPermission:
+      enabled: true
+
 # 服务器配置
 server:
   servlet:
