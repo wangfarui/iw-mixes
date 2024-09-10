@@ -7,13 +7,15 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import com.itwray.iw.web.config.IwDaoProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * Mybatis-Plus配置类
  */
 @Configuration
-@MapperScan(basePackages = "com.itwray.iw.*.mapper.*")
+@MapperScan(basePackages = "com.itwray.iw.*.mapper")
+@ComponentScan(basePackages = "com.itwray.iw.web.dao")
 public class MybatisPlusConfig {
 
     /**

@@ -1,8 +1,11 @@
 package com.itwray.iw.web.config;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.itwray.iw.web.model.entity.BaseDictEntity;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.validation.annotation.Validated;
 
@@ -65,6 +68,19 @@ public class IwDaoProperties {
         private Map<String, Boolean> disableTableStatusCache = new HashMap<>();
 
         /**
+         * 基础数据表
+         * <p>默认是不带数据权限的，具体权限由业务决定</p>
+         */
+        private static final Set<String> BASE_TABLE_NAMES = new HashSet<>();
+
+        static {
+            TableName tableName = AnnotationUtils.findAnnotation(BaseDictEntity.class, TableName.class);
+            if (tableName != null) {
+                BASE_TABLE_NAMES.add(tableName.value());
+            }
+        }
+
+        /**
          * 数据表的数据权限是否被禁用
          *
          * @param tableName 数据表表名
@@ -72,9 +88,15 @@ public class IwDaoProperties {
          */
         public boolean disableTable(String tableName) {
             return disableTableStatusCache.computeIfAbsent(tableName, key -> {
+                // 基础数据表默认被禁用数据权限
+                if (BASE_TABLE_NAMES.contains(key)) {
+                    return true;
+                }
+                // 禁用的数据表
                 if (CollUtil.isNotEmpty(disableTableNames) && disableTableNames.contains(key)) {
                     return true;
                 }
+                // 启用的数据表
                 return CollUtil.isNotEmpty(enableTableNames) && !enableTableNames.contains(key);
             });
         }
