@@ -1,6 +1,6 @@
 package com.itwray.iw.eat.model.vo;
 
-import com.itwray.iw.web.model.FileVo;
+import com.itwray.iw.web.model.vo.FileVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

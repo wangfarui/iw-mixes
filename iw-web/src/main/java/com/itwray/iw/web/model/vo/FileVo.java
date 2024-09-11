@@ -1,4 +1,4 @@
-package com.itwray.iw.web.model;
+package com.itwray.iw.web.model.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.itwray.iw.web.model;
+package com.itwray.iw.web.model.dto;
 
 import lombok.Data;
 

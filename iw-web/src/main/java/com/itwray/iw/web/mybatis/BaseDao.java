@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.web.exception.IwWebException;
-import com.itwray.iw.web.model.PageDto;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.dto.PageDto;
+import com.itwray.iw.web.model.vo.PageVo;
 
 import java.io.Serializable;
 import java.util.List;

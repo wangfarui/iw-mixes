@@ -11,7 +11,7 @@ import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;

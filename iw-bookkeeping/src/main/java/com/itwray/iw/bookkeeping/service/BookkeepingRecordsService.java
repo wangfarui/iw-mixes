@@ -6,7 +6,7 @@ import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordUpdateDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 
 import java.util.List;
 

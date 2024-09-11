@@ -15,7 +15,7 @@ import com.itwray.iw.eat.model.vo.DishesPageVo;
 import com.itwray.iw.eat.service.EatDishesService;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.exception.IwWebException;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

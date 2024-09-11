@@ -7,7 +7,7 @@ import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordUpdateDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;

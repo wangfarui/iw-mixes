@@ -8,7 +8,7 @@ import com.itwray.iw.eat.model.vo.MealDetailVo;
 import com.itwray.iw.eat.model.vo.MealDishesMaterialDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
 import com.itwray.iw.eat.service.EatMealService;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;

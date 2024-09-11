@@ -6,7 +6,7 @@ import com.itwray.iw.eat.model.dto.MealUpdateDto;
 import com.itwray.iw.eat.model.vo.MealDetailVo;
 import com.itwray.iw.eat.model.vo.MealDishesMaterialDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 
 /**
  * 用餐表 服务类

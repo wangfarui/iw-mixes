@@ -1,7 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.itwray.iw.web.model.PageDto;
+import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -1,6 +1,6 @@
 package com.itwray.iw.eat.model.dto;
 
-import com.itwray.iw.web.model.PageDto;
+import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

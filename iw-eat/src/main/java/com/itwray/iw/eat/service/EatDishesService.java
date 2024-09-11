@@ -5,7 +5,7 @@ import com.itwray.iw.eat.model.dto.DishesAddDto;
 import com.itwray.iw.eat.model.dto.DishesUpdateDto;
 import com.itwray.iw.eat.model.vo.DishesDetailVo;
 import com.itwray.iw.eat.model.vo.DishesPageVo;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 
 /**
  * 菜品表 服务类

@@ -1,7 +1,7 @@
 package com.itwray.iw.eat.controller;
 
 import com.itwray.iw.eat.service.BaseFileRecordService;
-import com.itwray.iw.web.model.FileVo;
+import com.itwray.iw.web.model.vo.FileVo;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;

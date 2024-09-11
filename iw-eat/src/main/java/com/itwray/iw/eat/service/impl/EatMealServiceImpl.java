@@ -17,7 +17,7 @@ import com.itwray.iw.eat.model.vo.MealDishesMaterialDetailVo;
 import com.itwray.iw.eat.model.vo.MealMenuDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
 import com.itwray.iw.eat.service.EatMealService;
-import com.itwray.iw.web.model.PageVo;
+import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
