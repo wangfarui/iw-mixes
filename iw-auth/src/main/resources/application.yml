@@ -1,7 +1,5 @@
 # iw配置
 iw:
-  redis:
-    database: 1
   dao:
     dataPermission:
       enabled: false

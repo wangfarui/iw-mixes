@@ -19,9 +19,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class RedisAutoConfiguration {
 
 
-    @Bean(name = "redisTemplate")
-    @ConditionalOnMissingBean(name = "redisTemplate")
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    @Bean(name = "customRedisTemplate")
+    @ConditionalOnMissingBean(name = "customRedisTemplate")
+    public RedisTemplate<String, Object> customRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
         RedisUtil.setRedisTemplate(template);
