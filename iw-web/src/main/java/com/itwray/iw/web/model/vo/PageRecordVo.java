@@ -3,12 +3,12 @@ package com.itwray.iw.web.model.vo;
 import java.io.Serializable;
 
 /**
- * web接口的详情VO
+ * 分页记录 VO
  *
  * @author wray
  * @since 2024/9/11
  */
-public interface DetailVo {
+public interface PageRecordVo {
 
     /**
      * 主键id的getter方法

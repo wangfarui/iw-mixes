@@ -6,5 +6,5 @@ package com.itwray.iw.web.model.dto;
  * @author wray
  * @since 2024/9/11
  */
-public abstract class AddDto {
+public interface AddDto {
 }
