@@ -2,7 +2,6 @@ package com.itwray.iw.web.dao;
 
 import com.itwray.iw.web.mapper.BaseDictMapper;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
-import com.itwray.iw.web.mybatis.BaseDao;
 import org.springframework.stereotype.Component;
 
 /**

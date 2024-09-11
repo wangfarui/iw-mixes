@@ -1,4 +1,4 @@
-package com.itwray.iw.web.mybatis;
+package com.itwray.iw.web.model.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

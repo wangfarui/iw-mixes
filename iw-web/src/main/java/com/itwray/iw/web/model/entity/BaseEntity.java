@@ -1,8 +1,9 @@
-package com.itwray.iw.web.mybatis;
+package com.itwray.iw.web.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.itwray.iw.common.constants.BoolEnums;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -14,7 +15,8 @@ import java.time.LocalDateTime;
  * @since 2024/4/26
  */
 @Data
-public abstract class BaseEntity {
+@EqualsAndHashCode(callSuper = true)
+public abstract class BaseEntity extends IdEntity {
 
     /**
      * 是否删除，默认false
@@ -35,12 +37,4 @@ public abstract class BaseEntity {
      * 更新时间
      */
     private LocalDateTime updateTime;
-
-    /**
-     * 主键id的getter方法
-     * <p>之所以不直接配置id变量，是为了应对id变量类型的不统一或id自动生成策略不一致的情况</p>
-     *
-     * @return 主键id
-     */
-    public abstract Serializable getId();
 }

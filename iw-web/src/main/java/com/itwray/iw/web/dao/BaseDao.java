@@ -1,4 +1,4 @@
-package com.itwray.iw.web.mybatis;
+package com.itwray.iw.web.dao;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.dto.PageDto;
+import com.itwray.iw.web.model.entity.IdEntity;
 import com.itwray.iw.web.model.vo.PageVo;
 
 import java.io.Serializable;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
  * @author wray
  * @since 2024/4/25
  */
-public class BaseDao<M extends BaseMapper<T>, T extends BaseEntity> extends ServiceImpl<M, T> {
+public class BaseDao<M extends BaseMapper<T>, T extends IdEntity> extends ServiceImpl<M, T> {
 
     /**
      * 根据id查询实体对象

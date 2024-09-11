@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.web.model.enums.DictTypeEnum;
-import com.itwray.iw.web.mybatis.BaseEntity;
-import com.itwray.iw.web.mybatis.UserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

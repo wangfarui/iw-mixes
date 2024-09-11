@@ -2,7 +2,7 @@ package com.itwray.iw.eat.dao;
 
 import com.itwray.iw.eat.mapper.EatDishesMapper;
 import com.itwray.iw.eat.model.entity.EatDishesEntity;
-import com.itwray.iw.web.mybatis.BaseDao;
+import com.itwray.iw.web.dao.BaseDao;
 import org.springframework.stereotype.Component;
 
 /**

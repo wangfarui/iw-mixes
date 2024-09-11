@@ -3,7 +3,9 @@ package com.itwray.iw.eat.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.itwray.iw.web.model.entity.IdEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 菜品制作方法表
@@ -12,8 +14,9 @@ import lombok.Data;
  * @since 2024-05-14
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("eat_dishes_creation_method")
-public class EatDishesCreationMethodEntity {
+public class EatDishesCreationMethodEntity extends IdEntity {
 
     /**
      * id

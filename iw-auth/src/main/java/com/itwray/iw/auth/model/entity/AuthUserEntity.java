@@ -3,7 +3,9 @@ package com.itwray.iw.auth.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.itwray.iw.web.model.entity.IdEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +17,8 @@ import java.time.LocalDateTime;
  */
 @TableName("auth_user")
 @Data
-public class AuthUserEntity {
+@EqualsAndHashCode(callSuper = true)
+public class AuthUserEntity extends IdEntity {
 
     /**
      * 用户id

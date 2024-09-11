@@ -3,7 +3,9 @@ package com.itwray.iw.eat.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.itwray.iw.web.model.entity.IdEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 
@@ -14,8 +16,9 @@ import java.math.BigDecimal;
  * @since 2024-04-23
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("eat_dishes_material")
-public class EatDishesMaterialEntity {
+public class EatDishesMaterialEntity extends IdEntity {
 
     /**
      * id

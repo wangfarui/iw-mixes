@@ -3,7 +3,9 @@ package com.itwray.iw.eat.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.itwray.iw.web.model.entity.IdEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
@@ -14,8 +16,9 @@ import java.util.Date;
  * @since 2024/5/17
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("base_file_record")
-public class BaseFileRecordEntity {
+public class BaseFileRecordEntity extends IdEntity {
 
     /**
      * id
