@@ -22,6 +22,10 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-redis-starter</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>jakarta.servlet</groupId>
