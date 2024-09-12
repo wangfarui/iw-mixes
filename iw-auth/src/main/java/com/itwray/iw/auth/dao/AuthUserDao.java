@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
+import com.itwray.iw.web.constants.WebCommonConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
         }
         return this.lambdaQuery()
                 .eq(AuthUserEntity::getUsername, username)
-                .last("limit 1")
+                .last(WebCommonConstants.LIMIT_ONE)
                 .one();
     }
 

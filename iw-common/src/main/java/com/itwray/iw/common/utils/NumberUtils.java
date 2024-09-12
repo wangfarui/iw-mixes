@@ -14,4 +14,11 @@ public abstract class NumberUtils {
         }
         return number.intValue() != 0;
     }
+
+    public static boolean isNullOrZero(Number number) {
+        if (number == null) {
+            return true;
+        }
+        return number.intValue() == 0;
+    }
 }
