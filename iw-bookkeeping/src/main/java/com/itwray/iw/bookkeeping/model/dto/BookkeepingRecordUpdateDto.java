@@ -1,5 +1,6 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
+import com.itwray.iw.web.model.dto.UpdateDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class BookkeepingRecordUpdateDto extends BookkeepingRecordAddDto {
+public class BookkeepingRecordUpdateDto extends BookkeepingRecordAddDto implements UpdateDto {
 
     /**
      * id

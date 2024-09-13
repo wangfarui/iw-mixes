@@ -7,13 +7,17 @@ import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordUpdateDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
+import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -27,44 +31,23 @@ import java.util.List;
 @RequestMapping("/records")
 @Validated
 @Tag(name = "记账记录接口")
-public class BookkeepingRecordsController {
+public class BookkeepingRecordsController extends WebController<BookkeepingRecordsService, BookkeepingRecordAddDto,
+        BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo> {
 
-    @Resource
-    private BookkeepingRecordsService bookkeepingRecordsService;
-
-    @PostMapping("/add")
-    @Operation(summary = "新增记账记录")
-    public void add(@RequestBody @Valid BookkeepingRecordAddDto dto) {
-        bookkeepingRecordsService.add(dto);
-    }
-
-    @PostMapping("/update")
-    @Operation(summary = "更新记账记录")
-    public void update(@RequestBody @Valid BookkeepingRecordUpdateDto dto) {
-        bookkeepingRecordsService.update(dto);
-    }
-
-    @DeleteMapping("/delete")
-    @Operation(summary = "删除记账记录")
-    public void delete(@RequestParam("id") Integer id) {
-        bookkeepingRecordsService.delete(id);
+    @Autowired
+    public BookkeepingRecordsController(BookkeepingRecordsService webService) {
+        super(webService);
     }
 
     @PostMapping("/page")
     @Operation(summary = "分页查询记账记录")
     public PageVo<BookkeepingRecordPageVo> page(@RequestBody @Valid BookkeepingRecordPageDto dto) {
-        return bookkeepingRecordsService.page(dto);
-    }
-
-    @GetMapping("/detail")
-    @Operation(summary = "查询记账记录详情")
-    public BookkeepingRecordDetailVo detail(@RequestParam("id") Integer id) {
-        return bookkeepingRecordsService.detail(id);
+        return getWebService().page(dto);
     }
 
     @PostMapping("/list")
     @Operation(summary = "列表查询记账记录")
     public List<BookkeepingRecordPageVo> list(@RequestBody BookkeepingRecordListDto dto) {
-        return bookkeepingRecordsService.list(dto);
+        return getWebService().list(dto);
     }
 }

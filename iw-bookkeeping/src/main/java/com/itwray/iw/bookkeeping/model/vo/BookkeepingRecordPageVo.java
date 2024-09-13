@@ -40,4 +40,9 @@ public class BookkeepingRecordPageVo {
      * 金额
      */
     private BigDecimal amount;
+
+    /**
+     * 记录分类
+     */
+    private Integer recordType;
 }

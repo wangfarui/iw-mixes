@@ -3,6 +3,7 @@ package com.itwray.iw.bookkeeping.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
+import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordAddDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordListDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
@@ -11,12 +12,17 @@ import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
+import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
+import com.itwray.iw.web.model.dto.AddDto;
+import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.vo.PageVo;
+import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.UserUtils;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,39 +36,67 @@ import java.util.stream.Collectors;
  * @since 2024/8/28
  */
 @Service
-public class BookkeepingRecordsServiceImpl implements BookkeepingRecordsService {
+public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRecordsMapper, BookkeepingRecordsEntity,
+        BookkeepingRecordsDao, BookkeepingRecordDetailVo> implements BookkeepingRecordsService {
 
-    @Resource
-    private BookkeepingRecordsDao bookkeepingRecordsDao;
+    private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;
+
+    @Autowired
+    public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao, BaseDictBusinessRelationDao baseDictBusinessRelationDao) {
+        super(baseDao);
+        this.baseDictBusinessRelationDao = baseDictBusinessRelationDao;
+    }
 
     @Override
     @Transactional
-    public void add(BookkeepingRecordAddDto dto) {
+    public Serializable add(AddDto dto) {
         BookkeepingRecordsEntity bookkeepingRecords = BeanUtil.copyProperties(dto, BookkeepingRecordsEntity.class);
         // 记录日期为空是默认取当前时间
-        if (dto.getRecordDate() == null) {
+        if (bookkeepingRecords.getRecordDate() == null) {
             bookkeepingRecords.setRecordDate(LocalDate.now());
             bookkeepingRecords.setRecordTime(LocalDateTime.now());
         } else {
             // 日期取指定日期，时间取当前时间
-            bookkeepingRecords.setRecordTime(dto.getRecordDate().atTime(LocalTime.now()));
+            bookkeepingRecords.setRecordTime(bookkeepingRecords.getRecordDate().atTime(LocalTime.now()));
         }
         bookkeepingRecords.setUserId(UserUtils.getUserId());
-        bookkeepingRecordsDao.save(bookkeepingRecords);
+        getBaseDao().save(bookkeepingRecords);
+
+        // 保存标签
+        if (dto instanceof BookkeepingRecordAddDto recordAddDto) {
+            baseDictBusinessRelationDao.saveRelation(bookkeepingRecords.getId(), recordAddDto.getRecordTags());
+        }
+
+        return bookkeepingRecords.getId();
     }
 
     @Override
     @Transactional
-    public void update(BookkeepingRecordUpdateDto dto) {
-        bookkeepingRecordsDao.queryById(dto.getId());
-        BookkeepingRecordsEntity bookkeepingRecords = BeanUtil.copyProperties(dto, BookkeepingRecordsEntity.class);
-        bookkeepingRecordsDao.updateById(bookkeepingRecords);
+    public void update(UpdateDto dto) {
+        super.update(dto);
+        // 保存标签
+        if (dto instanceof BookkeepingRecordUpdateDto recordUpdateDto) {
+            baseDictBusinessRelationDao.saveRelation(recordUpdateDto.getId(), recordUpdateDto.getRecordTags());
+        }
     }
 
     @Override
     @Transactional
-    public void delete(Integer id) {
-        bookkeepingRecordsDao.removeById(id);
+    public void delete(Serializable id) {
+        super.delete(id);
+        // 删除标签
+        baseDictBusinessRelationDao.removeRelation(id);
+    }
+
+    @Override
+    public BookkeepingRecordDetailVo detail(Serializable id) {
+        BookkeepingRecordDetailVo vo = super.detail(id);
+
+        // 查询标签
+        List<Integer> tagIdList = baseDictBusinessRelationDao.queryDictIdList(id);
+        vo.setRecordTags(tagIdList);
+
+        return vo;
     }
 
     @Override
@@ -72,13 +106,7 @@ public class BookkeepingRecordsServiceImpl implements BookkeepingRecordsService 
                         BookkeepingRecordsEntity::getRecordDate, dto.getRecordStartDate(), dto.getRecordEndDate()
                 )
                 .orderByDesc(BookkeepingRecordsEntity::getId);
-        return bookkeepingRecordsDao.page(dto, queryWrapper, BookkeepingRecordPageVo.class);
-    }
-
-    @Override
-    public BookkeepingRecordDetailVo detail(Integer id) {
-        BookkeepingRecordsEntity Incomes = bookkeepingRecordsDao.queryById(id);
-        return BeanUtil.copyProperties(Incomes, BookkeepingRecordDetailVo.class);
+        return getBaseDao().page(dto, queryWrapper, BookkeepingRecordPageVo.class);
     }
 
     @Override
@@ -87,7 +115,7 @@ public class BookkeepingRecordsServiceImpl implements BookkeepingRecordsService 
         if (dto.getRecordDate() == null) {
             dto.setRecordDate(LocalDate.now());
         }
-        return bookkeepingRecordsDao.lambdaQuery()
+        return getBaseDao().lambdaQuery()
                 .eq(BookkeepingRecordsEntity::getRecordDate, dto.getRecordDate())
                 .orderByDesc(BookkeepingRecordsEntity::getId)
                 .list()

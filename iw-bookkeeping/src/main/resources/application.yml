@@ -3,6 +3,8 @@ iw:
   dao:
     dataPermission:
       enabled: true
+      enable-table-names:
+        - bookkeeping_records
 
 # 服务器配置
 server:

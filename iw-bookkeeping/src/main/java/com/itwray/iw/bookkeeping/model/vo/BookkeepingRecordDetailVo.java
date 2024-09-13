@@ -1,11 +1,13 @@
 package com.itwray.iw.bookkeeping.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.web.model.vo.DetailVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 记账记录 详情VO
@@ -14,7 +16,7 @@ import java.time.LocalDateTime;
  * @since 2024/7/15
  */
 @Data
-public class BookkeepingRecordDetailVo {
+public class BookkeepingRecordDetailVo implements DetailVo {
 
     /**
      * id
@@ -57,4 +59,9 @@ public class BookkeepingRecordDetailVo {
      * 备注
      */
     private String remark;
+
+    /**
+     * 记录标签
+     */
+    private List<Integer> recordTags;
 }

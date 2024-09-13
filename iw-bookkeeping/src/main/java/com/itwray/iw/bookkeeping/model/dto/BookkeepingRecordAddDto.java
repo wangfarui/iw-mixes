@@ -1,11 +1,13 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.web.model.dto.AddDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 记账记录 新增DTO
@@ -14,7 +16,7 @@ import java.time.LocalDate;
  * @since 2024/8/29
  */
 @Data
-public class BookkeepingRecordAddDto {
+public class BookkeepingRecordAddDto implements AddDto {
 
     /**
      * 记录日期
@@ -49,4 +51,9 @@ public class BookkeepingRecordAddDto {
      * 备注
      */
     private String remark;
+
+    /**
+     * 记录标签
+     */
+    private List<Integer> recordTags;
 }
