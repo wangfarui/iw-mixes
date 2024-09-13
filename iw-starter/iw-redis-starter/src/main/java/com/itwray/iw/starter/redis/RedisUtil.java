@@ -284,8 +284,17 @@ public class RedisUtil {
      * @param map 键
      * @return
      */
-    public static void add(String key, Map<String, String> map) {
+    public static void add(String key, Map<String, ?> map) {
         redisTemplate.opsForHash().putAll(key, map);
+    }
+
+    /**
+     * 删除整个hashKey
+     *
+     * @param hashKey
+     */
+    public static void deleteEntireHash(String hashKey) {
+        redisTemplate.delete(hashKey);
     }
 
     /**
@@ -308,6 +317,18 @@ public class RedisUtil {
     public static boolean hashKey(String key, String hashKey) {
         return redisTemplate.opsForHash().hasKey(key, hashKey);
     }
+
+    /**
+     * 指定key下的hashKey进行赋值
+     *
+     * @param key
+     * @param hashKey
+     * @param value
+     */
+    public static void putHashKey(String key, Object hashKey, Object value) {
+        redisTemplate.opsForHash().put(key, hashKey, value);
+    }
+
 
     /**
      * 获取指定key的值string
