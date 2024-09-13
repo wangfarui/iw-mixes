@@ -39,10 +39,10 @@ public class IwDaoProperties {
     public static class DataPermission {
 
         /**
-         * 启用数据权限(默认true)
+         * 启用数据权限(默认false)
          * <p>只有在{@code enabled=true}时，enableTableNames和disableTableNames 才会生效，如果两个列表数据都为空，则全部数据表启用数据权限。</p>
          */
-        private boolean enabled = true;
+        private boolean enabled = false;
 
         /**
          * 启用数据权限的表名

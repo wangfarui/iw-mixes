@@ -2,6 +2,7 @@
 iw:
   dao:
     data-permission:
+      enabled: true
       enable-table-names:
         - eat_meal
 
