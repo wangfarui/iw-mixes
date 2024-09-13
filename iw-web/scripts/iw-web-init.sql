@@ -1,3 +1,4 @@
+drop table if exists base_dict;
 create table base_dict
 (
     id          int unsigned auto_increment                 not null comment 'id',
@@ -14,3 +15,13 @@ create table base_dict
     primary key (id),
     key idx_dict_type (dict_type)
 ) comment '字典表';
+
+drop table if exists base_dict_business_relation;
+create table base_dict_business_relation
+(
+    id int unsigned not null  comment '业务id',
+    dict_id int unsigned not null  comment '字典id',
+    primary key (id, dict_id),
+    key idx_dict_id (dict_id)
+) comment '字典业务关联表';
+
