@@ -2,27 +2,31 @@ package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.itwray.iw.auth.model.RedisKeyConstants;
 import com.itwray.iw.auth.model.dto.DictAddDto;
 import com.itwray.iw.auth.model.dto.DictPageDto;
-import com.itwray.iw.auth.model.vo.BaseDictVo;
-import com.itwray.iw.auth.model.vo.DictDetailVo;
-import com.itwray.iw.auth.model.vo.DictPageVo;
-import com.itwray.iw.auth.model.vo.DictTypeVo;
+import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
+import com.itwray.iw.common.constants.EnableEnums;
 import com.itwray.iw.common.utils.NumberUtils;
+import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.dao.BaseDictDao;
 import com.itwray.iw.web.mapper.BaseDictMapper;
 import com.itwray.iw.web.model.dto.AddDto;
+import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
 import com.itwray.iw.web.model.enums.DictTypeEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -47,16 +51,56 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
     }
 
     @Override
-    public List<BaseDictVo> getDictList(Integer dictType) {
+    public List<DictListVo> getDictList(Integer dictType) {
         return getBaseDao().lambdaQuery()
                 .eq(BaseDictEntity::getDictType, dictType)
+                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
                 .orderByAsc(BaseDictEntity::getSort)
                 .list()
-                .stream().map(t -> BeanUtil.copyProperties(t, BaseDictVo.class))
+                .stream().map(t -> BeanUtil.copyProperties(t, DictListVo.class))
                 .collect(Collectors.toList());
     }
 
     @Override
+    public Map<String, List<DictAllListVo>> getAllDictList(Boolean latest) {
+        // 默认不查询最新实时字典数据
+        if (latest == null || !latest) {
+            Map<Object, Object> dictMapCache = RedisUtil.getHashEntries(RedisKeyConstants.DICT_KEY);
+            if (!dictMapCache.isEmpty()) {
+                return (Map) dictMapCache;
+            }
+        }
+
+        Map<String, List<DictAllListVo>> dictMap = getBaseDao().lambdaQuery()
+                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(t -> t.getDictType().toString(),
+                        // 对每个分组先排序，再进行转换
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                (List<BaseDictEntity> list) -> {
+                                    // 对每个分组的 List<BaseDictEntity> 按 sort 字段排序
+                                    list.sort(Comparator.comparing(BaseDictEntity::getSort));
+
+                                    // 将排序后的 BaseDictEntity 转换为 DictAllListVo
+                                    return list.stream()
+                                            .map(baseDictEntity -> new DictAllListVo(
+                                                    baseDictEntity.getId(),
+                                                    baseDictEntity.getDictCode(),
+                                                    baseDictEntity.getDictName())
+                                            )
+                                            .collect(Collectors.toList());
+                                }
+                        )));
+
+        RedisUtil.add(RedisKeyConstants.DICT_KEY, dictMap);
+
+        return dictMap;
+    }
+
+    @Override
+    @Transactional
     public Serializable add(AddDto dto) {
         if (dto instanceof DictAddDto dictAddDto) {
             // 如果新增时没有指定sort值
@@ -66,7 +110,40 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
             }
         }
 
-        return super.add(dto);
+        Serializable id = super.add(dto);
+
+        if (dto instanceof DictAddDto dictAddDto) {
+            // 更新Redis缓存
+            List<DictAllListVo> dictAllListVos = queryAllDictByType(dictAddDto.getDictType());
+            RedisUtil.putHashKey(RedisKeyConstants.DICT_KEY, dictAddDto.getDictType().toString(), dictAllListVos);
+        }
+
+        return id;
+    }
+
+    @Override
+    @Transactional
+    public void update(UpdateDto dto) {
+        super.update(dto);
+
+        if (dto instanceof DictAddDto dictAddDto) {
+            // 更新Redis缓存
+            List<DictAllListVo> dictAllListVos = queryAllDictByType(dictAddDto.getDictType());
+            RedisUtil.putHashKey(RedisKeyConstants.DICT_KEY, dictAddDto.getDictType().toString(), dictAllListVos);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void delete(Serializable id) {
+        // 根据id查询字典类型
+        BaseDictEntity dictEntity = getBaseDao().queryById(id);
+
+        super.delete(id);
+
+        // 更新Redis缓存
+        List<DictAllListVo> dictAllListVos = queryAllDictByType(dictEntity.getDictType());
+        RedisUtil.putHashKey(RedisKeyConstants.DICT_KEY, dictEntity.getDictType().toString(), dictAllListVos);
     }
 
     @Override
@@ -82,5 +159,16 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
             queryWrapper.orderByDesc(BaseDictEntity::getId);
         }
         return getBaseDao().page(dto, queryWrapper, DictPageVo.class);
+    }
+
+    private List<DictAllListVo> queryAllDictByType(Integer dictType) {
+        return getBaseDao().lambdaQuery()
+                .eq(BaseDictEntity::getDictType, dictType)
+                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .orderByAsc(BaseDictEntity::getSort)
+                .list()
+                .stream()
+                .map(t -> new DictAllListVo(t.getId(), t.getDictCode(), t.getDictName()))
+                .collect(Collectors.toList());
     }
 }

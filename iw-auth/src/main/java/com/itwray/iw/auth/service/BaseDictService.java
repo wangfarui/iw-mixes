@@ -1,13 +1,15 @@
 package com.itwray.iw.auth.service;
 
 import com.itwray.iw.auth.model.dto.DictPageDto;
-import com.itwray.iw.auth.model.vo.BaseDictVo;
+import com.itwray.iw.auth.model.vo.DictAllListVo;
+import com.itwray.iw.auth.model.vo.DictListVo;
 import com.itwray.iw.auth.model.vo.DictPageVo;
 import com.itwray.iw.auth.model.vo.DictTypeVo;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.WebService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 字典接口服务
@@ -25,12 +27,20 @@ public interface BaseDictService extends WebService {
     List<DictTypeVo> getDictTypeList();
 
     /**
-     * 根据字典类型获取字典信息集合
+     * 根据字典类型获取字典列表信息集合
      *
      * @param dictType 字典类型code
-     * @return 字典信息集合
+     * @return 字典列表信息集合
      */
-    List<BaseDictVo> getDictList(Integer dictType);
+    List<DictListVo> getDictList(Integer dictType);
+
+    /**
+     * 查询所有字典类型的字典列表
+     *
+     * @param latest 查询最新的数据
+     * @return 字典列表精简信息集合
+     */
+    Map<String, List<DictAllListVo>> getAllDictList(Boolean latest);
 
     /**
      * 分页查询字典信息

@@ -3,10 +3,7 @@ package com.itwray.iw.auth.controller;
 import com.itwray.iw.auth.model.dto.DictAddDto;
 import com.itwray.iw.auth.model.dto.DictPageDto;
 import com.itwray.iw.auth.model.dto.DictUpdateDto;
-import com.itwray.iw.auth.model.vo.BaseDictVo;
-import com.itwray.iw.auth.model.vo.DictDetailVo;
-import com.itwray.iw.auth.model.vo.DictPageVo;
-import com.itwray.iw.auth.model.vo.DictTypeVo;
+import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
 import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -18,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 字典接口控制层
@@ -44,8 +42,14 @@ public class BaseDictController extends WebController<BaseDictService, DictAddDt
 
     @GetMapping("/getDictListByType")
     @Operation(summary = "查询字典列表")
-    public List<BaseDictVo> getDictListByType(@RequestParam("dictType") Integer dictType) {
+    public List<DictListVo> getDictListByType(@RequestParam("dictType") Integer dictType) {
         return getWebService().getDictList(dictType);
+    }
+
+    @GetMapping("/getAllDictList")
+    @Operation(summary = "查询所有字典类型的字典列表")
+    public Map<String, List<DictAllListVo>> getAllDictList(@RequestParam(value = "latest", required = false) Boolean latest) {
+        return getWebService().getAllDictList(latest);
     }
 
     @PostMapping("/page")

@@ -4,14 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 字典信息 VO
+ * 字典列表信息VO VO
  *
  * @author wray
  * @since 2024/9/10
  */
 @Data
-@Schema(name = "字典信息VO")
-public class BaseDictVo {
+@Schema(name = "字典列表信息VO")
+public class DictListVo {
 
     @Schema(title = "id")
     private Integer id;
