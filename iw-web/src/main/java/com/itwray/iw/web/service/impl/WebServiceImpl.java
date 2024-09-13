@@ -10,6 +10,7 @@ import com.itwray.iw.web.model.entity.IdEntity;
 import com.itwray.iw.web.model.vo.DetailVo;
 import com.itwray.iw.web.service.WebService;
 import lombok.Getter;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 
@@ -33,6 +34,7 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
     }
 
     @Override
+    @Transactional
     public Serializable add(AddDto dto) {
         T entity = BeanUtil.copyProperties(dto, getBaseDao().getEntityClass());
         getBaseDao().save(entity);
@@ -40,6 +42,7 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
     }
 
     @Override
+    @Transactional
     public void update(UpdateDto dto) {
         getBaseDao().queryById(dto.getId());
         T entity = BeanUtil.copyProperties(dto, getBaseDao().getEntityClass());
@@ -47,6 +50,7 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
     }
 
     @Override
+    @Transactional
     public void delete(Serializable id) {
         getBaseDao().removeById(id);
     }
