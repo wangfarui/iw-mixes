@@ -65,3 +65,11 @@ A mixed project, aim to do all the functions in one project.
     <td>Redis Starter</td>
 </tr>
 </table>
+
+# 个人开发习惯
+* yaml配置：非隐私数据尽量写在yaml中，而非配置中心
+* id长度：能用int，就不用long
+* CRUD习惯：新增使用`add`，编辑使用`update`，删除使用`delete`，详情使用`detail`，分页使用`page`
+* 字典：
+  * 无论是一对一、一对多、多对多的数据字典项，都采用\<id:name\>的格式存储和查询。
+  * 当数据字典具有业务判断逻辑时，通过前后端枚举+表code的形式配置。
