@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper">
+
+    <select id="statistics" resultType="com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo">
+        SELECT record_category AS recordCategory,
+               SUM(amount) AS totalAmount
+        FROM bookkeeping_records
+        WHERE deleted = 0
+          AND record_date BETWEEN #{dto.recordStartDate} AND #{dto.recordEndDate}
+        GROUP BY record_category;
+    </select>
+</mapper>

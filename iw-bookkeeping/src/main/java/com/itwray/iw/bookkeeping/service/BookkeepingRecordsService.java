@@ -2,7 +2,9 @@ package com.itwray.iw.bookkeeping.service;
 
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordListDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordsStatisticsDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.WebService;
 
@@ -19,4 +21,6 @@ public interface BookkeepingRecordsService extends WebService {
     PageVo<BookkeepingRecordPageVo> page(BookkeepingRecordPageDto dto);
 
     List<BookkeepingRecordPageVo> list(BookkeepingRecordListDto dto);
+
+    BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto);
 }

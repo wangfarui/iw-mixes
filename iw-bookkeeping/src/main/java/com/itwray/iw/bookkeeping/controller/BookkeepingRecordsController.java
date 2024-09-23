@@ -1,11 +1,9 @@
 package com.itwray.iw.bookkeeping.controller;
 
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordAddDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordListDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordUpdateDto;
+import com.itwray.iw.bookkeeping.model.dto.*;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -49,5 +47,11 @@ public class BookkeepingRecordsController extends WebController<BookkeepingRecor
     @Operation(summary = "列表查询记账记录")
     public List<BookkeepingRecordPageVo> list(@RequestBody BookkeepingRecordListDto dto) {
         return getWebService().list(dto);
+    }
+
+    @PostMapping("/statistics")
+    @Operation(summary = "查询记账统计信息")
+    public BookkeepingRecordsStatisticsVo statistics(@RequestBody BookkeepingRecordsStatisticsDto dto) {
+        return getWebService().statistics(dto);
     }
 }

@@ -1,16 +1,17 @@
 package com.itwray.iw.bookkeeping.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordAddDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordListDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordUpdateDto;
+import com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo;
+import com.itwray.iw.bookkeeping.model.dto.*;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
+import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.model.dto.AddDto;
@@ -23,10 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -122,5 +128,25 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 .stream()
                 .map(t -> BeanUtil.copyProperties(t, BookkeepingRecordPageVo.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto) {
+        if (dto.getRecordStartDate() == null) {
+            dto.setRecordStartDate(DateUtil.beginOfMonth(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        }
+        if (dto.getRecordEndDate() == null) {
+            dto.setRecordEndDate(DateUtil.endOfMonth(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+        }
+        Map<Integer, BigDecimal> statisticsMap = getBaseDao().getBaseMapper().statistics(dto)
+                .stream()
+                .collect(Collectors.toMap(RecordsStatisticsBo::getRecordCategory, RecordsStatisticsBo::getTotalAmount));
+
+        BookkeepingRecordsStatisticsVo statisticsVo = new BookkeepingRecordsStatisticsVo();
+        // 消费金额
+        statisticsVo.setConsume(Optional.ofNullable(statisticsMap.get(RecordCategoryEnum.CONSUME.getCode())).orElse(BigDecimal.ZERO));
+        // 收入金额
+        statisticsVo.setIncome(Optional.ofNullable(statisticsMap.get(RecordCategoryEnum.INCOME.getCode())).orElse(BigDecimal.ZERO));
+        return statisticsVo;
     }
 }
