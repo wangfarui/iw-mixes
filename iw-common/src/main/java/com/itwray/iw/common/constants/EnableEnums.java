@@ -1,5 +1,6 @@
 package com.itwray.iw.common.constants;
 
+import com.itwray.iw.common.ConstantEnum;
 import lombok.Getter;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Getter;
  * @since 2024/9/12
  */
 @Getter
-public enum EnableEnums {
+public enum EnableEnums implements ConstantEnum {
     ENABLE(1, "启用"),
     DISABLE(0, "禁用");
 

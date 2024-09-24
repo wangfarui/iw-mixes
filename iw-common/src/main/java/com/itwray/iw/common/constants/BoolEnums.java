@@ -1,5 +1,6 @@
 package com.itwray.iw.common.constants;
 
+import com.itwray.iw.common.ConstantEnum;
 import lombok.Getter;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Getter;
  * @since 2024/4/25
  */
 @Getter
-public enum BoolEnums {
+public enum BoolEnums implements ConstantEnum {
     FALSE(0, "否"),
     TRUE(1, "是");
 

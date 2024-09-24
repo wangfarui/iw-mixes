@@ -1,5 +1,6 @@
 package com.itwray.iw.web.model.enums;
 
+import com.itwray.iw.common.ConstantEnum;
 import lombok.Getter;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Getter;
  * @since 2024/9/10
  */
 @Getter
-public enum DictTypeEnum {
+public enum DictTypeEnum implements ConstantEnum {
 
     /** iw-web web模块 **/
     WEB_TAG(1001, "web模块", DataType.ID),
