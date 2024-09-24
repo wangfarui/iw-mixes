@@ -1,8 +1,8 @@
-package com.itwray.iw.eat.dao;
+package com.itwray.iw.auth.dao;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itwray.iw.eat.mapper.BaseFileRecordMapper;
-import com.itwray.iw.eat.model.entity.BaseFileRecordEntity;
+import com.itwray.iw.auth.mapper.BaseFileRecordMapper;
+import com.itwray.iw.auth.model.entity.BaseFileRecordEntity;
 import org.springframework.stereotype.Component;
 
 /**

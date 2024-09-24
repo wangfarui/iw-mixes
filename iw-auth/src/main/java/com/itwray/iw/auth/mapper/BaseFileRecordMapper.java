@@ -1,7 +1,7 @@
-package com.itwray.iw.eat.mapper;
+package com.itwray.iw.auth.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.itwray.iw.eat.model.entity.BaseFileRecordEntity;
+import com.itwray.iw.auth.model.entity.BaseFileRecordEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

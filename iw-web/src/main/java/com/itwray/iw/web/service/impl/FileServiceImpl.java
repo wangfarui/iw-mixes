@@ -1,13 +1,13 @@
-package com.itwray.iw.eat.service.impl;
+package com.itwray.iw.web.service.impl;
 
 import cn.hutool.core.io.file.FileNameUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.PutObjectRequest;
-import com.itwray.iw.eat.model.vo.FileRecordVo;
-import com.itwray.iw.eat.service.FileService;
 import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.model.vo.FileRecordVo;
+import com.itwray.iw.web.service.FileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -22,11 +22,5 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-web</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
-            <version>3.17.2</version>
-        </dependency>
     </dependencies>
 </project>

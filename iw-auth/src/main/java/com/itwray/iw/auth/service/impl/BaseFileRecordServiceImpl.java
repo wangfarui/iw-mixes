@@ -1,14 +1,14 @@
-package com.itwray.iw.eat.service.impl;
+package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.itwray.iw.auth.dao.BaseFileRecordDao;
+import com.itwray.iw.auth.model.entity.BaseFileRecordEntity;
+import com.itwray.iw.auth.service.BaseFileRecordService;
 import com.itwray.iw.common.IwException;
-import com.itwray.iw.eat.dao.BaseFileRecordDao;
-import com.itwray.iw.eat.model.entity.BaseFileRecordEntity;
-import com.itwray.iw.eat.model.vo.FileRecordVo;
-import com.itwray.iw.eat.service.BaseFileRecordService;
-import com.itwray.iw.eat.service.FileService;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.model.vo.FileRecordVo;
+import com.itwray.iw.web.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

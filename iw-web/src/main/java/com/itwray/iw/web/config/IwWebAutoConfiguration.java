@@ -12,6 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Import;
 @EnableConfigurationProperties({IwWebProperties.class, IwDaoProperties.class})
 @EnableFeignClients(basePackages = "com.itwray.iw.*.client")
 @Import({IwWebConfig.class, MybatisPlusConfig.class})
+@ComponentScan(basePackages = "com.itwray.iw.web.service.impl")
 public class IwWebAutoConfiguration implements ApplicationContextAware {
 
     @Bean

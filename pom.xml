@@ -50,6 +50,7 @@
         <captcha.version>2.2.3</captcha.version>
         <nacos.version>2.3.2</nacos.version>
         <netty.version>4.1.107.Final</netty.version>
+        <aliyun.oss.version>3.17.2</aliyun.oss.version>
     </properties>
 
     <dependencyManagement>
@@ -132,6 +133,13 @@
                 <groupId>io.springboot.plugin</groupId>
                 <artifactId>captcha-spring-boot-starter</artifactId>
                 <version>${captcha.version}</version>
+            </dependency>
+
+            <!-- Aliyun OSS -->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun.oss.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

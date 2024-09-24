@@ -1,6 +1,6 @@
-package com.itwray.iw.eat.controller;
+package com.itwray.iw.auth.controller;
 
-import com.itwray.iw.eat.service.BaseFileRecordService;
+import com.itwray.iw.auth.service.BaseFileRecordService;
 import com.itwray.iw.web.model.vo.FileVo;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/file")
-public class FileController {
+public class BaseFileController {
 
     @Resource
     private BaseFileRecordService baseFileRecordService;

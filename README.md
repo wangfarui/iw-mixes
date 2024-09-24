@@ -31,7 +31,7 @@
     <td>iw-auth</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18001</td>
-    <td>用户授权服务</td>
+    <td>用户授权服务、基础服务</td>
 </tr>
 <tr>
     <td>iw-note</td>
