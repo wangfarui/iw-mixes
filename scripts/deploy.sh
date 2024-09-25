@@ -39,7 +39,7 @@ exit
 EOF
 
 # 6. 切换到本地目录并拷贝jar文件到远程服务器
-cd /Users/wangfarui/workspaces/wfr/iw-mixes/$PROJECT_NAME || exit 1
+cd /Users/wangfarui/workspaces/wfr/iw-mixes/iw-packaging-parent/$PROJECT_NAME || exit 1
 scp ./target/$PROJECT_NAME-$VERSION.jar aliyun183:/root/iw-mixes/$PROJECT_NAME/
 
 # 7. 进入远程服务器并给文件授权

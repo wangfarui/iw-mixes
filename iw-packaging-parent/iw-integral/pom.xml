@@ -6,22 +6,10 @@
         <artifactId>iw-packaging-parent</artifactId>
         <groupId>com.itwray.mixes</groupId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../iw-packaging-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>iw-note</artifactId>
-    <description>IW Project Note Module</description>
+    <artifactId>iw-integral</artifactId>
 
-    <properties>
-        <iw.mainClass>com.itwray.iw.note.IwNoteApplication</iw.mainClass>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.itwray.mixes</groupId>
-            <artifactId>iw-web</artifactId>
-        </dependency>
-    </dependencies>
 
 </project>

@@ -6,7 +6,6 @@
         <artifactId>iw-packaging-parent</artifactId>
         <groupId>com.itwray.mixes</groupId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../iw-packaging-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

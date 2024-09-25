@@ -63,6 +63,12 @@
     <td></td>
     <td>Redis Starter</td>
 </tr>
+<tr>
+    <td>iw-integral</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td>18005</td>
+    <td>积分服务</td>
+</tr>
 </table>
 
 # 项目规则

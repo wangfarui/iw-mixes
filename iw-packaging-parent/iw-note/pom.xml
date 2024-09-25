@@ -6,15 +6,14 @@
         <artifactId>iw-packaging-parent</artifactId>
         <groupId>com.itwray.mixes</groupId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../iw-packaging-parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>iw-eat</artifactId>
-    <description>IW Project 点餐服务</description>
+    <artifactId>iw-note</artifactId>
+    <description>IW Project Note Module</description>
 
     <properties>
-        <iw.mainClass>com.itwray.iw.eat.IwEatApplication</iw.mainClass>
+        <iw.mainClass>com.itwray.iw.note.IwNoteApplication</iw.mainClass>
     </properties>
 
     <dependencies>
@@ -23,4 +22,5 @@
             <artifactId>iw-web</artifactId>
         </dependency>
     </dependencies>
+
 </project>

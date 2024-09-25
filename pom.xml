@@ -7,16 +7,11 @@
     <artifactId>iw-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <modules>
-        <module>iw-auth</module>
-        <module>iw-note</module>
         <module>iw-common</module>
-        <module>iw-web</module>
         <module>iw-oauth2-authorization-server</module>
-        <module>iw-eat</module>
-        <module>iw-bookkeeping</module>
-        <module>iw-gateway</module>
         <module>iw-packaging-parent</module>
         <module>iw-starter</module>
+        <module>iw-web</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
