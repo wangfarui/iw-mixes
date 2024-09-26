@@ -13,7 +13,7 @@
     <description>积分项目-设置积分奖惩制度</description>
 
     <properties>
-        <iw.mainClass>com.itwray.iw.points.IwIntegralApplication</iw.mainClass>
+        <iw.mainClass>com.itwray.iw.points.IwPointsApplication</iw.mainClass>
     </properties>
 
     <dependencies>
