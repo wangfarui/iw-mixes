@@ -9,7 +9,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>iw-integral</artifactId>
+    <artifactId>iw-points</artifactId>
+    <description>积分项目-设置积分奖惩制度</description>
 
+    <properties>
+        <iw.mainClass>com.itwray.iw.points.IwIntegralApplication</iw.mainClass>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-web</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

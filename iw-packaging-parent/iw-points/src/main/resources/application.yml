@@ -1,0 +1,49 @@
+# iw配置
+iw:
+  dao:
+    dataPermission:
+      enabled: true
+      enable-table-names:
+        - points_records
+
+# 服务器配置
+server:
+  servlet:
+    context-path: /points-service
+  port: 18005
+
+# spring 配置
+spring:
+  application:
+    name: iw-points-service
+  datasource:
+    driver-class-name: ${iw.db.driver-class}
+    url: ${iw.db.url}
+    username: ${iw.db.username}
+    password: ${iw.db.password}
+  config:
+    import:
+     - optional:nacos:iw-web
+     - optional:nacos:${spring.application.name}.yml
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+      config:
+        file-extension: yaml
+      password: ${SPRING_CLOUD_NACOS_PASSWORD}
+      username: ${SPRING_CLOUD_NACOS_USERNAME}
+      server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR}
+
+# springdoc 配置
+springdoc:
+  swagger-ui:
+    path: /doc.html
+  packages-to-scan:
+    - com.itwray.iw.points.controller
+
+# mybatis-plus 配置
+mybatis-plus:
+  configuration:
+    # sql日志打印
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -19,7 +19,7 @@
         <module>iw-eat</module>
         <module>iw-bookkeeping</module>
         <module>iw-gateway</module>
-        <module>iw-integral</module>
+        <module>iw-points</module>
     </modules>
 
     <properties>
