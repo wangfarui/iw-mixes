@@ -1,5 +1,7 @@
 package com.itwray.iw.web.model.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
 
 /**
@@ -16,5 +18,6 @@ public interface UpdateDto {
      *
      * @return 主键id
      */
+    @NotNull(message = "id不能为空")
     Serializable getId();
 }

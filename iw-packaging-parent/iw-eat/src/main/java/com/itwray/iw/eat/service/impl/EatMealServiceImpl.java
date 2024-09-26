@@ -18,7 +18,6 @@ import com.itwray.iw.eat.model.vo.MealMenuDetailVo;
 import com.itwray.iw.eat.model.vo.MealPageVo;
 import com.itwray.iw.eat.service.EatMealService;
 import com.itwray.iw.web.model.vo.PageVo;
-import com.itwray.iw.web.utils.UserUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +46,6 @@ public class EatMealServiceImpl implements EatMealService {
     @Transactional
     public Integer add(MealAddDto dto) {
         EatMealEntity eatMealEntity = BeanUtil.copyProperties(dto, EatMealEntity.class);
-        eatMealEntity.setUserId(UserUtils.getUserId());
         eatMealDao.save(eatMealEntity);
         eatMealMenuDao.saveMealMenu(eatMealEntity.getId(), dto.getMealMenuList());
         return eatMealEntity.getId();

@@ -1,5 +1,7 @@
 package com.itwray.iw.web.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,5 +18,6 @@ public abstract class UserEntity extends BaseEntity {
     /**
      * 用户id
      */
+    @TableField(fill = FieldFill.INSERT)
     private Integer userId;
 }

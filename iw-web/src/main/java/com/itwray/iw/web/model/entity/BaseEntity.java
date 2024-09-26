@@ -1,5 +1,7 @@
 package com.itwray.iw.web.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.itwray.iw.common.constants.BoolEnums;
 import lombok.Data;
@@ -31,10 +33,12 @@ public abstract class BaseEntity extends IdEntity {
     /**
      * 创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
 }

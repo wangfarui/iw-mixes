@@ -18,7 +18,6 @@ import com.itwray.iw.web.model.dto.AddDto;
 import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
-import com.itwray.iw.web.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +64,6 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             // 日期取指定日期，时间取当前时间
             bookkeepingRecords.setRecordTime(bookkeepingRecords.getRecordDate().atTime(LocalTime.now()));
         }
-        bookkeepingRecords.setUserId(UserUtils.getUserId());
         getBaseDao().save(bookkeepingRecords);
 
         // 保存标签

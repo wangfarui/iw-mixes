@@ -34,4 +34,12 @@ public class MybatisPlusConfig {
         }
         return interceptor;
     }
+
+    /**
+     * 默认的自动填充字段处理器
+     */
+    @Bean
+    public DefaultMetaObjectHandler defaultMetaObjectHandler() {
+        return new DefaultMetaObjectHandler();
+    }
 }
