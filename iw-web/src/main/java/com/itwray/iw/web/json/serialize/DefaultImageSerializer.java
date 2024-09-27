@@ -18,7 +18,7 @@ public class DefaultImageSerializer  extends JsonSerializer<String> {
     @Override
     public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         if (StrUtil.isBlank(value)) {
-            gen.writeString("https://itwray-bucket.oss-cn-wuhan-lr.aliyuncs.com/img/20240510170053.png");
+            gen.writeString("https://itwray.oss-cn-heyuan.aliyuncs.com/img/20240510170053.png");
         } else {
             gen.writeString(value);
         }
