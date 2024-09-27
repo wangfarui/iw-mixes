@@ -1,20 +1,10 @@
-# iw-mixes
+# 项目介绍
 `iw-mixes`是一个服务端混合项目，旨在用一个项目支持IW系统的所有服务端功能。<br/>
 `iw-mixes`所有服务的依赖只会来自于项目本身和开源依赖。
 
 # 项目模块
 <table>
 <tr><td>ProjectName</td><td>Version</td><td>Port</td><td>Description</td></tr>
-<tr>
-   <td>
-    </td>
-</tr>
-<tr>
-    <td>iw-gateway</td>
-    <td>0.0.1-SNAPSHOT</td>
-    <td>18000</td>
-    <td>Gateway网关服务</td>
-</tr>
 <tr>
     <td>iw-common</td>
     <td>0.0.1-SNAPSHOT</td>
@@ -26,6 +16,18 @@
     <td>0.0.1-SNAPSHOT</td>
     <td></td>
     <td>Web项目基础模块</td>
+</tr>
+<tr>
+    <td>iw-redis-starter</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td></td>
+    <td>Redis Starter</td>
+</tr>
+<tr>
+    <td>iw-gateway</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td>18000</td>
+    <td>Gateway网关服务</td>
 </tr>
 <tr>
     <td>iw-auth</td>
@@ -40,12 +42,6 @@
     <td>笔记服务（受资源影响，暂不开发）</td>
 </tr>
 <tr>
-    <td>iw-oauth2-authorization-server</td>
-    <td>0.0.1-SNAPSHOT</td>
-    <td>18101</td>
-    <td>OAuth2授权服务（暂不开放）</td>
-</tr>
-<tr>
     <td>iw-eat</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18003</td>
@@ -58,16 +54,16 @@
     <td>记账服务</td>
 </tr>
 <tr>
-    <td>iw-redis-starter</td>
-    <td>0.0.1-SNAPSHOT</td>
-    <td></td>
-    <td>Redis Starter</td>
-</tr>
-<tr>
-    <td>iw-integral</td>
+    <td>iw-points</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18005</td>
     <td>积分服务</td>
+</tr>
+<tr>
+    <td>iw-oauth2-authorization-server</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td>18101</td>
+    <td>OAuth2授权服务（暂不开放）</td>
 </tr>
 </table>
 
