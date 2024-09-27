@@ -29,7 +29,6 @@ spring:
     nacos:
       discovery:
         enabled: true
-        ip: ${iw.nacos.ip}
       config:
         file-extension: yaml
       password: ${SPRING_CLOUD_NACOS_PASSWORD}
