@@ -1,37 +1,59 @@
 #!/bin/bash
 
-### 使用方法示例：./deploy.sh iw-eat [version]
-### 如果没有指定 version，则默认使用 0.0.1-SNAPSHOT
+### 使用方法示例：./deploy.sh -p iw-eat [-v version] [-s server]
 
-# 检查第一个参数是否存在
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 <project-name> [version]"
+# 初始化变量
+PROJECT_NAME=""
+VERSION="0.0.1-SNAPSHOT"  # 默认版本号
+SERVER_NAME="aliyun87" # 默认发布服务器
+TARGET_DIR="/root/iw-mixes" # 目标服务器目录
+SOURCE_DIR="/Users/wangfarui/workspaces/wfr/iw-mixes/iw-packaging-parent" # 源服务器目录
+
+# 解析命令行参数
+while getopts ":p:v:s:" opt; do
+  case $opt in
+    p)
+      PROJECT_NAME=$OPTARG
+      ;;
+    v)
+      VERSION=$OPTARG
+      ;;
+    s)
+      SERVER_NAME=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+# 检查是否提供了项目名称
+if [ -z "$PROJECT_NAME" ]; then
+    echo "Usage: $0 -p <project-name> [-v version]"
     exit 1
 fi
 
-# 获取参数
-PROJECT_NAME=$1
-VERSION=${2:-0.0.1-SNAPSHOT}  # 如果没有指定第二个参数，则使用默认值
-
 # 1. 连接到远程服务器
-ssh aliyun183 << EOF
+ssh $SERVER_NAME << EOF
+
 # 2. 检查连接是否成功，若失败则退出并报错
 if [ $? -ne 0 ]; then
-    echo "连接aliyun183服务器失败"
+    echo "连接$SERVER_NAME服务器失败"
     exit 1
 fi
 
 # 3. 检查目录是否存在，不存在则创建
-if [ ! -d "/root/iw-mixes/$PROJECT_NAME" ]; then
-    mkdir -p /root/iw-mixes/$PROJECT_NAME
+if [ ! -d "$TARGET_DIR/$PROJECT_NAME" ]; then
+    mkdir -p $TARGET_DIR/$PROJECT_NAME
 fi
 
-# 4. 停止java服务并清空目录
-cd /root/iw-mixes/$PROJECT_NAME || exit 1
-pid=\$(jps -l | grep "$PROJECT_NAME-$VERSION.jar" | awk '{print \$1}')
-if [ -n "\$pid" ]; then
-    kill -9 "\$pid"
-fi
+# 4. 清空目录下的内容
+cd $TARGET_DIR/$PROJECT_NAME || exit 1
 rm -f ./*
 
 # 5. 退出远程服务器
@@ -39,15 +61,21 @@ exit
 EOF
 
 # 6. 切换到本地目录并拷贝jar文件到远程服务器
-cd /Users/wangfarui/workspaces/wfr/iw-mixes/iw-packaging-parent/$PROJECT_NAME || exit 1
-scp ./target/$PROJECT_NAME-$VERSION.jar aliyun183:/root/iw-mixes/$PROJECT_NAME/
+cd $SOURCE_DIR/$PROJECT_NAME || exit 1
+scp ./target/$PROJECT_NAME-$VERSION.jar $SERVER_NAME:$TARGET_DIR/$PROJECT_NAME/
 
 # 7. 进入远程服务器并给文件授权
-ssh aliyun183 << EOF
-cd /root/iw-mixes/$PROJECT_NAME || exit 1
+ssh $SERVER_NAME << EOF
+cd $TARGET_DIR/$PROJECT_NAME || exit 1
 chmod +x $PROJECT_NAME-$VERSION.jar
 
-# 8. 启动java服务并退出远程服务器
+# 8. 停止java服务
+pid=\$(jps -l | grep "$PROJECT_NAME-$VERSION.jar" | awk '{print \$1}')
+if [ -n "\$pid" ]; then
+    kill -9 "\$pid"
+fi
+
+# 9. 启动java服务并退出远程服务器
 nohup java -Xms64m -Xmx128m -jar $PROJECT_NAME-$VERSION.jar > $PROJECT_NAME.log 2>&1 &
 exit
 EOF
