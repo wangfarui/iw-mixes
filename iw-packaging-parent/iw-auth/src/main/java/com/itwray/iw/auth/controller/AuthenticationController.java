@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.service.AuthUserService;
+import com.itwray.iw.web.annotation.SkipWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/authentication")
 @Validated
 @Tag(name = "权限认证接口")
+@SkipWrapper
 public class AuthenticationController {
 
     private final AuthUserService authUserService;

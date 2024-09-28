@@ -17,5 +17,5 @@ public interface AuthClient {
 
     @GetMapping("/authentication/getUserIdByToken")
     @Operation(summary = "获取指定token的用户id")
-    GeneralResponse<Integer> getUserIdByToken(@RequestParam("token") String token);
+    Integer getUserIdByToken(@RequestParam("token") String token);
 }

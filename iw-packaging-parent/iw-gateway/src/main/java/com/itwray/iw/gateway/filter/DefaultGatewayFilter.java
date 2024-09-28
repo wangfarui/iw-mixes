@@ -67,9 +67,9 @@ public class DefaultGatewayFilter implements GlobalFilter {
                 .get()
                 .uri(getAuthServiceUrl() + token)  // 构建请求URI
                 .retrieve()
-                .bodyToMono(Map.class)  // 期望返回Boolean值
-                .flatMap(resMap -> {
-                    if (resMap != null && Boolean.TRUE.equals(resMap.get("data"))) {
+                .bodyToMono(Boolean.class)  // 期望返回Boolean值
+                .flatMap(res -> {
+                    if (Boolean.TRUE.equals(res)) {
                         RedisUtil.set(token, Boolean.TRUE, gatewayProperties.getTokenValidTime());
                         // token 验证成功，继续执行链上的其他过滤器
                         return chain.filter(exchange);

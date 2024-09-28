@@ -1,10 +1,8 @@
 package com.itwray.iw.web.utils;
 
-import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.web.client.ClientHelper;
 import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
-import com.itwray.iw.web.exception.IwWebException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -35,12 +33,7 @@ public abstract class UserUtils {
                 throw new AuthorizedException("当前未登录，请先登录");
             }
 
-            GeneralResponse<Integer> response = ClientHelper.getAuthClient().getUserIdByToken(token);
-            if (!response.isSuccess()) {
-                throw new IwWebException("用户信息异常，请重试");
-            }
-            userId = response.getData();
-            USER_ID.set(userId);
+            USER_ID.set(userId = ClientHelper.getAuthClient().getUserIdByToken(token));
         }
         return userId;
     }
