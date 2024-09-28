@@ -8,6 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>iw-common</module>
+        <module>iw-feign-client</module>
         <module>iw-oauth2-authorization-server</module>
         <module>iw-packaging-parent</module>
         <module>iw-starter</module>
