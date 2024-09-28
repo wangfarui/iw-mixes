@@ -26,6 +26,16 @@
         <iw.mainClass>com.itwray.iw.xx.Application</iw.mainClass>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.itwray.mixes</groupId>
+                <artifactId>iw-points-client</artifactId>
+                <version>${iw.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>

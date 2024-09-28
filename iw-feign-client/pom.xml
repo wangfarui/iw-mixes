@@ -12,24 +12,16 @@
     <artifactId>iw-feign-client</artifactId>
     <description>IW项目FeignClient模块</description>
 
+    <modules>
+        <module>iw-points-client</module>
+    </modules>
+
     <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.itwray.mixes</groupId>
-            <artifactId>iw-common</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <artifactId>iw-web</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
