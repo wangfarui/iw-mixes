@@ -27,6 +27,11 @@ public class IwException extends RuntimeException implements ApiCode {
         super(cause);
     }
 
+    public IwException(Integer code, String message) {
+        super(message);
+        this.code = code;
+    }
+
     public IwException(ApiCode apiCode) {
         super(apiCode.getMessage());
         this.code = apiCode.getCode();

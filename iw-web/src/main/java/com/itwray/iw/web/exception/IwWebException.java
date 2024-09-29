@@ -17,4 +17,8 @@ public class IwWebException extends IwException {
     public IwWebException(String message) {
         super(message);
     }
+
+    public IwWebException(Integer code, String message) {
+        super(code, message);
+    }
 }
