@@ -13,11 +13,14 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
+import com.itwray.iw.points.client.PointsRecordsClient;
+import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.model.dto.AddDto;
 import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,10 +49,15 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;
 
+    private final PointsRecordsClient pointsRecordsClient;
+
     @Autowired
-    public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao, BaseDictBusinessRelationDao baseDictBusinessRelationDao) {
+    public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao,
+                                         BaseDictBusinessRelationDao baseDictBusinessRelationDao,
+                                         ObjectProvider<PointsRecordsClient> pointsRecordsClient) {
         super(baseDao);
         this.baseDictBusinessRelationDao = baseDictBusinessRelationDao;
+        this.pointsRecordsClient = pointsRecordsClient.getIfAvailable();
     }
 
     @Override
@@ -69,6 +77,15 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 保存标签
         if (dto instanceof BookkeepingRecordAddDto recordAddDto) {
             baseDictBusinessRelationDao.saveRelation(bookkeepingRecords.getId(), recordAddDto.getRecordTags());
+            // 收入时，积分+1
+            if (RecordCategoryEnum.INCOME.getCode().equals(recordAddDto.getRecordCategory())) {
+                PointsRecordsAddDto recordsAddDto = new PointsRecordsAddDto();
+                recordsAddDto.setTransactionType(1);
+                recordsAddDto.setPoints(1);
+                recordsAddDto.setSource("记账收入");
+                Integer pointsRecordId = pointsRecordsClient.add(recordsAddDto);
+                System.out.println("新增积分成功：" + pointsRecordId);
+            }
         }
 
         return bookkeepingRecords.getId();
