@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * @see GeneralResponseWrapperAdvice
  * @since 2024/9/28
  */
-@Target({ElementType.FIELD, ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SkipWrapper {
 }

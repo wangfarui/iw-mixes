@@ -4,7 +4,9 @@ import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.IwException;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.web.exception.AuthorizedException;
+import com.itwray.iw.web.exception.FeignClientException;
 import com.itwray.iw.web.exception.IwWebException;
+import feign.codec.DecodeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.validation.BindingResult;
@@ -39,6 +41,22 @@ public class ExceptionHandlerInterceptor {
     @ExceptionHandler(AuthorizedException.class)
     public GeneralResponse<?> authExceptionHandler(AuthorizedException authorizedException) {
         return new GeneralResponse<>(GeneralApiCode.UNAUTHORIZED.getCode(), authorizedException.getMessage());
+    }
+
+    @ExceptionHandler(FeignClientException.class)
+    public GeneralResponse<?> feignClientExceptionHandler(FeignClientException feignClientException) {
+        log.error("[IW Feign异常]" + feignClientException.getMessage(), feignClientException);
+        return new GeneralResponse<>(feignClientException.getCode(), feignClientException.getMessage());
+    }
+
+    @ExceptionHandler(DecodeException.class)
+    public GeneralResponse<?> decodeExceptionHandler(DecodeException decodeException) {
+        if (decodeException.getCause() instanceof FeignClientException feignClientException) {
+            log.error("[IW Feign异常]" + feignClientException.getMessage(), feignClientException);
+            return new GeneralResponse<>(feignClientException.getCode(), feignClientException.getMessage());
+        }
+        log.error("[IW Decode异常]" + decodeException.getMessage(), decodeException);
+        return GeneralResponse.fail();
     }
 
     @ExceptionHandler(IwWebException.class)

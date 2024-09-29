@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/authentication")
 @Validated
 @Tag(name = "权限认证接口")
-@SkipWrapper
 public class AuthenticationController {
 
     private final AuthUserService authUserService;
@@ -33,6 +32,7 @@ public class AuthenticationController {
 
     @GetMapping("/validateToken")
     @Operation(summary = "校验Token有效性")
+    @SkipWrapper
     public Boolean validateToken(@RequestParam("token") String token) {
         return authUserService.validateToken(token);
     }
