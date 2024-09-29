@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 import static com.itwray.iw.web.utils.UserUtils.TOKEN_HEADER;
+import static com.itwray.iw.web.utils.UserUtils.getToken;
 
 /**
  * 用户服务实现层
@@ -91,8 +92,7 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Override
     public void logout() {
-        HttpServletRequest request = SpringWebHolder.getRequest();
-        String token = request.getHeader(TOKEN_HEADER);
+        String token = getToken();
         if (token == null) {
             return;
         }

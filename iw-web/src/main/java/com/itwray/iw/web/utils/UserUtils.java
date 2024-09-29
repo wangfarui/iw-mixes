@@ -20,6 +20,11 @@ public abstract class UserUtils {
 
     private static final ThreadLocal<Integer> USER_ID = new ThreadLocal<>();
 
+    public static String getToken() {
+        HttpServletRequest request = SpringWebHolder.getRequest();
+        return request.getHeader(TOKEN_HEADER);
+    }
+
     /**
      * 获取当前登录用户的id
      */
@@ -27,8 +32,7 @@ public abstract class UserUtils {
         Integer userId = USER_ID.get();
         // 线程中为空时，尝试远程获取
         if (userId == null) {
-            HttpServletRequest request = SpringWebHolder.getRequest();
-            String token = request.getHeader(TOKEN_HEADER);
+            String token = getToken();
             if (token == null) {
                 throw new AuthorizedException("当前未登录，请先登录");
             }
