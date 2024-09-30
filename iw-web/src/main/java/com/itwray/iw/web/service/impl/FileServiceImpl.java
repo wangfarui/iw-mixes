@@ -5,6 +5,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.PutObjectRequest;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.vo.FileRecordVo;
 import com.itwray.iw.web.service.FileService;
@@ -86,7 +87,7 @@ public class FileServiceImpl implements FileService {
     /**
      * 获取当天日期的字符串
      *
-     * @return yyyy-MM-dd
+     * @return {@link DateUtils#DATE_FORMAT}
      */
     private String getNowDateDir() {
         return LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);

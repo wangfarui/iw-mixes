@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.common.utils.DateUtils;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -17,12 +18,12 @@ public class BookkeepingRecordsStatisticsDto {
     /**
      * 记账记录开始时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate recordStartDate;
 
     /**
      * 记账记录结束时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate recordEndDate;
 }

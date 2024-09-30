@@ -14,6 +14,16 @@ import java.time.YearMonth;
 public abstract class DateUtils {
 
     /**
+     * 日期字符串格式
+     */
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+
+    /**
+     * 日期时间字符串格式
+     */
+    public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    /**
      * 返回当前月的开始日期
      */
     public static LocalDate startDateOfNowMonth() {

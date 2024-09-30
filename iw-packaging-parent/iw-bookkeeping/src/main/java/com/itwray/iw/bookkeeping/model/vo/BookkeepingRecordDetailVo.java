@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.DetailVo;
 import lombok.Data;
 
@@ -26,13 +27,13 @@ public class BookkeepingRecordDetailVo implements DetailVo {
     /**
      * 记录日期
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate recordDate;
 
     /**
      * 记录时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime recordTime;
 
     /**

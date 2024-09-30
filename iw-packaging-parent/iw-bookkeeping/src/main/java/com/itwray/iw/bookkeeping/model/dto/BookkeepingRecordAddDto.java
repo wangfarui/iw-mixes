@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.AddDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class BookkeepingRecordAddDto implements AddDto {
      * 记录日期
      * <p>为空时，表示当前日期</p>
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate recordDate;
 
     /**
