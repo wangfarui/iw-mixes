@@ -3,13 +3,17 @@ package com.itwray.iw.web.config;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
+import com.itwray.iw.web.mybatis.UserDataPermissionHandler;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * IW Dao 属性配置
@@ -60,12 +64,13 @@ public class IwDaoProperties {
 
         /**
          * 被禁用数据权限的数据表状态缓存
-         * true -> 禁用
-         * false -> 启用
-         * null -> 未查询过
+         * <p>涉及到多线程并发: {@link UserDataPermissionHandler#getSqlSegment}</p>
+         * true -> 禁用;
+         * false -> 启用;
+         * null -> 未查询过;
          */
         @Transient
-        private Map<String, Boolean> disableTableStatusCache = new HashMap<>();
+        private Map<String, Boolean> disableTableStatusCache = new ConcurrentHashMap<>();
 
         /**
          * 基础数据表
