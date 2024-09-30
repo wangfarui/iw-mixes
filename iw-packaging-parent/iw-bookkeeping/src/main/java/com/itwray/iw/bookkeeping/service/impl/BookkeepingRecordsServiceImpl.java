@@ -1,7 +1,6 @@
 package com.itwray.iw.bookkeeping.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
@@ -13,6 +12,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.points.client.PointsRecordsClient;
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
@@ -30,8 +30,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -148,10 +146,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     public BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto) {
         if (dto.getRecordStartDate() == null) {
-            dto.setRecordStartDate(DateUtil.beginOfMonth(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            dto.setRecordStartDate(DateUtils.startDateOfNowMonth());
         }
         if (dto.getRecordEndDate() == null) {
-            dto.setRecordEndDate(DateUtil.endOfMonth(new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
         }
         Map<Integer, BigDecimal> statisticsMap = getBaseDao().getBaseMapper().statistics(dto)
                 .stream()
