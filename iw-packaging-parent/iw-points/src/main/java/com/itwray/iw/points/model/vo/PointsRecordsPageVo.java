@@ -1,6 +1,7 @@
 package com.itwray.iw.points.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.common.utils.DateUtils;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -39,6 +40,6 @@ public class PointsRecordsPageVo {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime createTime;
 }

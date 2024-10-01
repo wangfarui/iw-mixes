@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itwray.iw.points.mapper.PointsRecordsMapper">
+
+    <select id="statistics" resultType="com.itwray.iw.points.model.bo.PointsRecordsStatisticsBo">
+        SELECT transaction_type,
+               SUM(points) AS totalPoints
+        FROM points_records
+        WHERE deleted = 0
+          AND create_time BETWEEN #{dto.createStartTime} AND #{dto.createEndTime}
+        <if test="dto.transactionType != null">
+            AND transaction_type = #{dto.transactionType}
+        </if>
+        GROUP BY transaction_type;
+    </select>
+</mapper>

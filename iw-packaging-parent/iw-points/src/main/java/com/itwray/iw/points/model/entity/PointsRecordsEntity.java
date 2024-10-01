@@ -40,6 +40,11 @@ public class PointsRecordsEntity extends UserEntity {
     private String source;
 
     /**
+     * 积分来源分类
+     */
+    private Integer sourceType;
+
+    /**
      * 积分变动备注
      */
     private String remark;

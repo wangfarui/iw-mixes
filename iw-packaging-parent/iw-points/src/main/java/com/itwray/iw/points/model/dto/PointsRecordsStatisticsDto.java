@@ -3,21 +3,18 @@ package com.itwray.iw.points.model.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.itwray.iw.web.json.deserialize.EndLocalDateTimeDeserializer;
 import com.itwray.iw.web.json.deserialize.StartLocalDateTimeDeserializer;
-import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
 /**
- * 积分记录 分页DTO
+ * 积分记录 统计DTO
  *
  * @author wray
- * @since 2024/9/26
+ * @since 2024/9/30
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class PointsRecordsPageDto extends PageDto {
+public class PointsRecordsStatisticsDto {
 
     /**
      * 积分变动类型(1表示增加, 2表示扣减)

@@ -2,9 +2,11 @@ package com.itwray.iw.points.controller;
 
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.dto.PointsRecordsPageDto;
+import com.itwray.iw.points.model.dto.PointsRecordsStatisticsDto;
 import com.itwray.iw.points.model.dto.PointsRecordsUpdateDto;
 import com.itwray.iw.points.model.vo.PointsRecordsDetailVo;
 import com.itwray.iw.points.model.vo.PointsRecordsPageVo;
+import com.itwray.iw.points.model.vo.PointsRecordsStatisticsVo;
 import com.itwray.iw.points.service.PointsRecordsService;
 import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -41,4 +43,9 @@ public class PointsRecordsController extends WebController<PointsRecordsService,
         return getWebService().page(dto);
     }
 
+    @PostMapping("/statistics")
+    @Operation(summary = "查询记账统计信息")
+    public PointsRecordsStatisticsVo statistics(@RequestBody PointsRecordsStatisticsDto dto) {
+        return getWebService().statistics(dto);
+    }
 }
