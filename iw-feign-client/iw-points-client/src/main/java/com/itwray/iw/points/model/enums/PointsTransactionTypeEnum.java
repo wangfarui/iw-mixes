@@ -10,7 +10,7 @@ import lombok.Getter;
  * @since 2024/9/23
  */
 @Getter
-public enum TransactionTypeEnum implements ConstantEnum {
+public enum PointsTransactionTypeEnum implements ConstantEnum {
 
     INCREASE(1, "增加积分"),
     DEDUCT(2, "扣减积分");
@@ -19,7 +19,7 @@ public enum TransactionTypeEnum implements ConstantEnum {
 
     private final String name;
 
-    TransactionTypeEnum(Integer code, String name) {
+    PointsTransactionTypeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
     }

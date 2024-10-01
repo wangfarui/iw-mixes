@@ -12,7 +12,7 @@ import com.itwray.iw.points.model.dto.PointsRecordsPageDto;
 import com.itwray.iw.points.model.dto.PointsRecordsStatisticsDto;
 import com.itwray.iw.points.model.dto.PointsRecordsUpdateDto;
 import com.itwray.iw.points.model.entity.PointsRecordsEntity;
-import com.itwray.iw.points.model.enums.TransactionTypeEnum;
+import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.points.model.vo.PointsRecordsDetailVo;
 import com.itwray.iw.points.model.vo.PointsRecordsPageVo;
 import com.itwray.iw.points.model.vo.PointsRecordsStatisticsVo;
@@ -51,7 +51,7 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
     @Transactional
     public Serializable add(AddDto dto) {
         if (dto instanceof PointsRecordsAddDto recordsAddDto) {
-            recordsAddDto.setTransactionType(recordsAddDto.getPoints() < 0 ? TransactionTypeEnum.DEDUCT.getCode() : TransactionTypeEnum.INCREASE.getCode());
+            recordsAddDto.setTransactionType(recordsAddDto.getPoints() < 0 ? PointsTransactionTypeEnum.DEDUCT.getCode() : PointsTransactionTypeEnum.INCREASE.getCode());
             pointsTotalDao.updatePointsBalance(recordsAddDto.getPoints());
         }
         return super.add(dto);
@@ -65,7 +65,7 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
 
         // 同步积分余额
         if (dto instanceof PointsRecordsUpdateDto recordsUpdateDto) {
-            recordsUpdateDto.setTransactionType(recordsUpdateDto.getPoints() < 0 ? TransactionTypeEnum.DEDUCT.getCode() : TransactionTypeEnum.INCREASE.getCode());
+            recordsUpdateDto.setTransactionType(recordsUpdateDto.getPoints() < 0 ? PointsTransactionTypeEnum.DEDUCT.getCode() : PointsTransactionTypeEnum.INCREASE.getCode());
             // 把之前的记录扣减，再增加
             pointsTotalDao.updatePointsBalance(recordsUpdateDto.getPoints() - pointsRecordsEntity.getPoints());
         }
@@ -112,8 +112,8 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
                 .collect(Collectors.toMap(PointsRecordsStatisticsBo::getTransactionType, PointsRecordsStatisticsBo::getTotalPoints));
 
         PointsRecordsStatisticsVo statisticsVo = new PointsRecordsStatisticsVo();
-        statisticsVo.setIncreasePoints(pointsMap.getOrDefault(TransactionTypeEnum.INCREASE.getCode(), 0));
-        statisticsVo.setDeductPoints(pointsMap.getOrDefault(TransactionTypeEnum.DEDUCT.getCode(), 0));
+        statisticsVo.setIncreasePoints(pointsMap.getOrDefault(PointsTransactionTypeEnum.INCREASE.getCode(), 0));
+        statisticsVo.setDeductPoints(pointsMap.getOrDefault(PointsTransactionTypeEnum.DEDUCT.getCode(), 0));
         return statisticsVo;
     }
 }

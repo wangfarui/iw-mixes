@@ -15,6 +15,7 @@ import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.points.client.PointsRecordsClient;
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
+import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.model.dto.AddDto;
 import com.itwray.iw.web.model.dto.UpdateDto;
@@ -81,6 +82,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 recordsAddDto.setTransactionType(1);
                 recordsAddDto.setPoints(1);
                 recordsAddDto.setSource("记账收入");
+                recordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
                 Integer pointsRecordId = pointsRecordsClient.add(recordsAddDto);
                 System.out.println("新增积分成功：" + pointsRecordId);
             }
