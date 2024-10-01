@@ -151,15 +151,17 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         if (dto.getRecordEndDate() == null) {
             dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
         }
+
+        // 查询记录类型对应的总金额
         Map<Integer, BigDecimal> statisticsMap = getBaseDao().getBaseMapper().statistics(dto)
                 .stream()
                 .collect(Collectors.toMap(RecordsStatisticsBo::getRecordCategory, RecordsStatisticsBo::getTotalAmount));
 
         BookkeepingRecordsStatisticsVo statisticsVo = new BookkeepingRecordsStatisticsVo();
         // 消费金额
-        statisticsVo.setConsume(Optional.ofNullable(statisticsMap.get(RecordCategoryEnum.CONSUME.getCode())).orElse(BigDecimal.ZERO));
+        statisticsVo.setConsume(statisticsMap.getOrDefault(RecordCategoryEnum.CONSUME.getCode(), BigDecimal.ZERO));
         // 收入金额
-        statisticsVo.setIncome(Optional.ofNullable(statisticsMap.get(RecordCategoryEnum.INCOME.getCode())).orElse(BigDecimal.ZERO));
+        statisticsVo.setIncome(statisticsMap.getOrDefault(RecordCategoryEnum.INCOME.getCode(), BigDecimal.ZERO));
         return statisticsVo;
     }
 }
