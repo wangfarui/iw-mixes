@@ -22,6 +22,11 @@
             <artifactId>iw-web</artifactId>
         </dependency>
 
+        <!-- iw-feign-client -->
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-bookkeeping-client</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-points-client</artifactId>

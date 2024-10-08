@@ -21,5 +21,11 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-web</artifactId>
         </dependency>
+
+        <!-- iw-feign-client -->
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-eat-client</artifactId>
+        </dependency>
     </dependencies>
 </project>

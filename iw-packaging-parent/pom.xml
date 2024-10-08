@@ -33,6 +33,16 @@
                 <artifactId>iw-points-client</artifactId>
                 <version>${iw.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.itwray.mixes</groupId>
+                <artifactId>iw-eat-client</artifactId>
+                <version>${iw.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itwray.mixes</groupId>
+                <artifactId>iw-bookkeeping-client</artifactId>
+                <version>${iw.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
