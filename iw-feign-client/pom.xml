@@ -15,6 +15,7 @@
     <modules>
         <module>iw-points-client</module>
         <module>iw-bookkeeping-client</module>
+        <module>iw-eat-client</module>
     </modules>
 
     <packaging>pom</packaging>
