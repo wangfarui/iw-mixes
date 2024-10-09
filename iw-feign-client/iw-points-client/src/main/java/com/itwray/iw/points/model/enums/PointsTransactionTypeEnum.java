@@ -23,4 +23,18 @@ public enum PointsTransactionTypeEnum implements ConstantEnum {
         this.code = code;
         this.name = name;
     }
+
+    /**
+     * 根据积分分数的正负数决定积分变动类型code
+     *
+     * @param points 积分分数
+     * @return {@link PointsTransactionTypeEnum#getCode()}
+     */
+    public static Integer getCodeByPoints(Integer points) {
+        if (points == null || points >= 0) {
+            return INCREASE.getCode();
+        } else {
+            return DEDUCT.getCode();
+        }
+    }
 }

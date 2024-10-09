@@ -1,7 +1,5 @@
 package com.itwray.iw.points.model.vo;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.DetailVo;
@@ -10,7 +8,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 积分记录详情VO
+ * 积分记录 详情VO
  *
  * @author wray
  * @since 2024/9/26

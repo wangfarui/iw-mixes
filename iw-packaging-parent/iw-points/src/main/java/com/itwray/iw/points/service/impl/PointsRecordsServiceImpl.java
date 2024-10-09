@@ -51,7 +51,7 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
     @Transactional
     public Serializable add(AddDto dto) {
         if (dto instanceof PointsRecordsAddDto recordsAddDto) {
-            recordsAddDto.setTransactionType(recordsAddDto.getPoints() < 0 ? PointsTransactionTypeEnum.DEDUCT.getCode() : PointsTransactionTypeEnum.INCREASE.getCode());
+            recordsAddDto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(recordsAddDto.getPoints()));
             pointsTotalDao.updatePointsBalance(recordsAddDto.getPoints());
         }
         return super.add(dto);
@@ -65,7 +65,7 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
 
         // 同步积分余额
         if (dto instanceof PointsRecordsUpdateDto recordsUpdateDto) {
-            recordsUpdateDto.setTransactionType(recordsUpdateDto.getPoints() < 0 ? PointsTransactionTypeEnum.DEDUCT.getCode() : PointsTransactionTypeEnum.INCREASE.getCode());
+            recordsUpdateDto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(recordsUpdateDto.getPoints()));
             // 把之前的记录扣减，再增加
             pointsTotalDao.updatePointsBalance(recordsUpdateDto.getPoints() - pointsRecordsEntity.getPoints());
         }
