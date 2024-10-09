@@ -41,6 +41,7 @@ public class PointsRecordsEntity extends UserEntity {
 
     /**
      * 积分来源分类
+     * @see com.itwray.iw.points.model.enums.PointsSourceTypeEnum
      */
     private Integer sourceType;
 

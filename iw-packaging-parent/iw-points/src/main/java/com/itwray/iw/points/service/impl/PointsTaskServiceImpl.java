@@ -1,0 +1,68 @@
+package com.itwray.iw.points.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import com.itwray.iw.points.dao.PointsRecordsDao;
+import com.itwray.iw.points.dao.PointsTaskDao;
+import com.itwray.iw.points.dao.PointsTotalDao;
+import com.itwray.iw.points.mapper.PointsTaskMapper;
+import com.itwray.iw.points.model.entity.PointsRecordsEntity;
+import com.itwray.iw.points.model.entity.PointsTaskEntity;
+import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
+import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
+import com.itwray.iw.points.model.vo.PointsTaskDetailVo;
+import com.itwray.iw.points.model.vo.PointsTaskListVo;
+import com.itwray.iw.points.service.PointsTaskService;
+import com.itwray.iw.web.service.impl.WebServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 积分记录 服务实现层
+ *
+ * @author wray
+ * @since 2024/9/26
+ */
+@Service
+public class PointsTaskServiceImpl extends WebServiceImpl<PointsTaskMapper, PointsTaskEntity,
+        PointsTaskDao, PointsTaskDetailVo> implements PointsTaskService {
+
+    private final PointsTotalDao pointsTotalDao;
+
+    private final PointsRecordsDao pointsRecordsDao;
+
+    @Autowired
+    public PointsTaskServiceImpl(PointsTaskDao baseDao, PointsTotalDao pointsTotalDao, PointsRecordsDao pointsRecordsDao) {
+        super(baseDao);
+        this.pointsTotalDao = pointsTotalDao;
+        this.pointsRecordsDao = pointsRecordsDao;
+    }
+
+    @Override
+    @Transactional
+    public void submit(Integer id) {
+        // 查询积分任务
+        PointsTaskEntity pointsTaskEntity = getBaseDao().queryById(id);
+        // TODO 后期改为MQ消息同步，避免业务冗余
+        pointsTotalDao.updatePointsBalance(pointsTaskEntity.getTaskPoints());
+        PointsRecordsEntity pointsRecordsEntity = new PointsRecordsEntity();
+        pointsRecordsEntity.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(pointsTaskEntity.getTaskPoints()));
+        pointsRecordsEntity.setPoints(pointsTaskEntity.getTaskPoints());
+        pointsRecordsEntity.setSource(pointsTaskEntity.getTaskName());
+        pointsRecordsEntity.setSourceType(PointsSourceTypeEnum.POINTS_TASK_MANUAL.getCode());
+        pointsRecordsDao.save(pointsRecordsEntity);
+    }
+
+    /**
+     * 查询当前用户的任务列表
+     *
+     * @return 任务列表
+     */
+    @Override
+    public List<PointsTaskListVo> list() {
+        return getBaseDao().list().stream().map(t -> BeanUtil.copyProperties(t, PointsTaskListVo.class)).collect(Collectors.toList());
+    }
+}

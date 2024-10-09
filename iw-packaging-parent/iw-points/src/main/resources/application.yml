@@ -5,6 +5,7 @@ iw:
       enabled: true
       enable-table-names:
         - points_records
+        - points_task
 
 # 服务器配置
 server:
