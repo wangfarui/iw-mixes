@@ -6,16 +6,14 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.web.controller.WebController;
+import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,5 +51,13 @@ public class BookkeepingRecordsController extends WebController<BookkeepingRecor
     @Operation(summary = "查询记账统计信息")
     public BookkeepingRecordsStatisticsVo statistics(@RequestBody BookkeepingRecordsStatisticsDto dto) {
         return getWebService().statistics(dto);
+    }
+
+    /**
+     * 记账记录不支持修改
+     */
+    @PutMapping("/update")
+    public void update() {
+        throw new IwWebException("不支持的操作!");
     }
 }

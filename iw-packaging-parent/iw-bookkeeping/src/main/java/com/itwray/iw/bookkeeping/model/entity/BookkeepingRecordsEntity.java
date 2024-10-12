@@ -64,4 +64,9 @@ public class BookkeepingRecordsEntity extends UserEntity {
      * 备注
      */
     private String remark;
+
+    /**
+     * 是否为激励记录
+     */
+    private Integer isExcitationRecord;
 }

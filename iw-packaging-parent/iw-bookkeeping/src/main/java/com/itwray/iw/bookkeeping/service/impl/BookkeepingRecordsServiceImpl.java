@@ -95,20 +95,21 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     @Transactional
-    public void update(UpdateDto dto) {
-        super.update(dto);
-        // 保存标签
-        if (dto instanceof BookkeepingRecordUpdateDto recordUpdateDto) {
-            baseDictBusinessRelationDao.saveRelation(recordUpdateDto.getId(), recordUpdateDto.getRecordTags());
-        }
-    }
-
-    @Override
-    @Transactional
     public void delete(Serializable id) {
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = getBaseDao().queryById(id);
         super.delete(id);
         // 删除标签
         baseDictBusinessRelationDao.removeRelation(id);
+        // 同步积分数据
+        if (RecordCategoryEnum.INCOME.getCode().equals(bookkeepingRecordsEntity.getRecordCategory())
+                && BoolEnums.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
+            PointsRecordsAddDto recordsAddDto = new PointsRecordsAddDto();
+            recordsAddDto.setTransactionType(PointsTransactionTypeEnum.DEDUCT.getCode());
+            recordsAddDto.setPoints(-1);
+            recordsAddDto.setSource("记账收入被删除");
+            recordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
+            pointsRecordsClient.add(recordsAddDto);
+        }
     }
 
     @Override
