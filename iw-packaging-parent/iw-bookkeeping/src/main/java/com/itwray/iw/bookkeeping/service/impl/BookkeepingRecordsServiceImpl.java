@@ -12,10 +12,12 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
+import com.itwray.iw.common.constants.BoolEnums;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.points.client.PointsRecordsClient;
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
+import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.model.dto.AddDto;
 import com.itwray.iw.web.model.dto.UpdateDto;
@@ -76,15 +78,15 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 保存标签
         if (dto instanceof BookkeepingRecordAddDto recordAddDto) {
             baseDictBusinessRelationDao.saveRelation(bookkeepingRecords.getId(), recordAddDto.getRecordTags());
-            // 收入时，积分+1
-            if (RecordCategoryEnum.INCOME.getCode().equals(recordAddDto.getRecordCategory())) {
+            // 记录为激励收入时，积分+1
+            if (RecordCategoryEnum.INCOME.getCode().equals(recordAddDto.getRecordCategory())
+                    && BoolEnums.TRUE.getCode().equals(recordAddDto.getIsExcitationRecord())) {
                 PointsRecordsAddDto recordsAddDto = new PointsRecordsAddDto();
-                recordsAddDto.setTransactionType(1);
+                recordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
                 recordsAddDto.setPoints(1);
                 recordsAddDto.setSource("记账收入");
                 recordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
-                Integer pointsRecordId = pointsRecordsClient.add(recordsAddDto);
-                System.out.println("新增积分成功：" + pointsRecordId);
+                pointsRecordsClient.add(recordsAddDto);
             }
         }
 

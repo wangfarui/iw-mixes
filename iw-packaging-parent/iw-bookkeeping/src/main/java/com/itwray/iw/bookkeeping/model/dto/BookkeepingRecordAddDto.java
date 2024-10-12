@@ -57,4 +57,9 @@ public class BookkeepingRecordAddDto implements AddDto {
      * 记录标签
      */
     private List<Integer> recordTags;
+
+    /**
+     * 是否为激励记录
+     */
+    private Integer isExcitationRecord;
 }
