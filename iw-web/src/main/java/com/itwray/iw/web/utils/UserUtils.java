@@ -27,6 +27,11 @@ public abstract class UserUtils {
 
     /**
      * 获取当前登录用户的id
+     * <ul>常用于如下地方：
+     *     <li>用户数据权限</li>
+     *     <li>mybatis-plus默认数据填充</li>
+     *     <li>业务层手动引用</li>
+     * </ul>
      */
     public static Integer getUserId() {
         Integer userId = USER_ID.get();
@@ -37,9 +42,19 @@ public abstract class UserUtils {
                 throw new AuthorizedException("当前未登录，请先登录");
             }
 
-            USER_ID.set(userId = ClientHelper.getAuthClient().getUserIdByToken(token));
+            setUserId(userId = ClientHelper.getAuthClient().getUserIdByToken(token));
         }
         return userId;
+    }
+
+    /**
+     * 设置当前用户id
+     * <p>当线程上下文不存在token时，可手动赋值</p>
+     *
+     * @param userId 用户id
+     */
+    public static void setUserId(Integer userId) {
+        USER_ID.set(userId);
     }
 
     /**
