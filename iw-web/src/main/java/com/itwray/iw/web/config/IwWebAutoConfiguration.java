@@ -4,6 +4,7 @@ import com.itwray.iw.web.client.AuthClient;
 import com.itwray.iw.web.client.ClientHelper;
 import com.itwray.iw.web.core.ExceptionHandlerInterceptor;
 import com.itwray.iw.web.core.GeneralResponseWrapperAdvice;
+import com.itwray.iw.web.core.rocketmq.RocketMQConfiguration;
 import com.itwray.iw.web.mybatis.MybatisPlusConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -22,7 +23,7 @@ import org.springframework.context.annotation.Import;
  */
 @AutoConfiguration
 @EnableConfigurationProperties({IwWebProperties.class, IwDaoProperties.class})
-@Import({IwWebConfig.class, MybatisPlusConfig.class, FeignConfiguration.class})
+@Import({IwWebConfig.class, MybatisPlusConfig.class, FeignConfiguration.class, RocketMQConfiguration.class})
 @ComponentScan(basePackages = "com.itwray.iw.web.service.impl")
 public class IwWebAutoConfiguration implements ApplicationContextAware {
 

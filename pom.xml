@@ -38,6 +38,7 @@
         <springdoc.version>2.3.0</springdoc.version>
         <spring.cloud.alibaba.version>2023.0.1.0</spring.cloud.alibaba.version>
         <spring-cloud.version>4.1.0</spring-cloud.version>
+        <rocketmq.spring.boot.version>2.3.1</rocketmq.spring.boot.version>
 
         <!-- other properties -->
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
@@ -108,6 +109,13 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <!-- Message Queue -->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-v5-client-spring-boot-starter</artifactId>
+                <version>${rocketmq.spring.boot.version}</version>
             </dependency>
 
             <!-- mybatis -->
