@@ -38,6 +38,7 @@ public abstract class MQProducerHelper {
     public static void send(String topic, Object obj) {
         Message<byte[]> message = buildMessage(obj);
         rocketMQClientTemplate.send(topic, message);
+        System.out.println("消息同步发送成功. topic: " + topic);
     }
 
     /**

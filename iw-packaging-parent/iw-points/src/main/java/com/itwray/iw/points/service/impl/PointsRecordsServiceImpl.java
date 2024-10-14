@@ -17,10 +17,13 @@ import com.itwray.iw.points.model.vo.PointsRecordsDetailVo;
 import com.itwray.iw.points.model.vo.PointsRecordsPageVo;
 import com.itwray.iw.points.model.vo.PointsRecordsStatisticsVo;
 import com.itwray.iw.points.service.PointsRecordsService;
+import com.itwray.iw.web.constants.MQTopicConstants;
+import com.itwray.iw.web.core.rocketmq.RocketMQClientListener;
 import com.itwray.iw.web.model.dto.AddDto;
 import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +39,9 @@ import java.util.stream.Collectors;
  * @since 2024/9/26
  */
 @Service
+@RocketMQMessageListener(consumerGroup = "points-records-service", topic = MQTopicConstants.POINTS_RECORDS, tag = "*")
 public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper, PointsRecordsEntity,
-        PointsRecordsDao, PointsRecordsDetailVo> implements PointsRecordsService {
+        PointsRecordsDao, PointsRecordsDetailVo> implements PointsRecordsService, RocketMQClientListener<PointsRecordsAddDto> {
 
     private final PointsTotalDao pointsTotalDao;
 
@@ -115,5 +119,16 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
         statisticsVo.setIncreasePoints(pointsMap.getOrDefault(PointsTransactionTypeEnum.INCREASE.getCode(), 0));
         statisticsVo.setDeductPoints(pointsMap.getOrDefault(PointsTransactionTypeEnum.DEDUCT.getCode(), 0));
         return statisticsVo;
+    }
+
+
+    @Override
+    public Class<PointsRecordsAddDto> getGenericClass() {
+        return PointsRecordsAddDto.class;
+    }
+
+    @Override
+    public void doConsume(PointsRecordsAddDto recordsAddDto) {
+        this.add(recordsAddDto);
     }
 }

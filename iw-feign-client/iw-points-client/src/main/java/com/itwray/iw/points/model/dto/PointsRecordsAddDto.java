@@ -1,6 +1,7 @@
 package com.itwray.iw.points.model.dto;
 
 import com.itwray.iw.web.model.dto.AddDto;
+import com.itwray.iw.web.model.dto.UserDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.Data;
  * @since 2024/9/26
  */
 @Data
-public class PointsRecordsAddDto implements AddDto {
+public class PointsRecordsAddDto implements AddDto, UserDto {
 
     /**
      * 积分变动类型(1表示增加, 2表示扣减)
@@ -40,4 +41,9 @@ public class PointsRecordsAddDto implements AddDto {
      * 积分变动备注
      */
     private String remark;
+
+    /**
+     * 用户id
+     */
+    private Integer userId;
 }

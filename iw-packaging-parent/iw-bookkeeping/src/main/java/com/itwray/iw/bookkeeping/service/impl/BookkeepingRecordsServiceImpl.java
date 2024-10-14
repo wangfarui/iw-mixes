@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
 import com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo;
-import com.itwray.iw.bookkeeping.model.dto.*;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordAddDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordListDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordsStatisticsDto;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
@@ -14,16 +17,16 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.common.constants.BoolEnums;
 import com.itwray.iw.common.utils.DateUtils;
-import com.itwray.iw.points.client.PointsRecordsClient;
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
 import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
+import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.model.dto.AddDto;
-import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
-import org.springframework.beans.factory.ObjectProvider;
+import com.itwray.iw.web.utils.MQProducerHelper;
+import com.itwray.iw.web.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +38,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -50,15 +52,11 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;
 
-    private final PointsRecordsClient pointsRecordsClient;
-
     @Autowired
     public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao,
-                                         BaseDictBusinessRelationDao baseDictBusinessRelationDao,
-                                         ObjectProvider<PointsRecordsClient> pointsRecordsClient) {
+                                         BaseDictBusinessRelationDao baseDictBusinessRelationDao) {
         super(baseDao);
         this.baseDictBusinessRelationDao = baseDictBusinessRelationDao;
-        this.pointsRecordsClient = pointsRecordsClient.getIfAvailable();
     }
 
     @Override
@@ -81,12 +79,13 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             // 记录为激励收入时，积分+1
             if (RecordCategoryEnum.INCOME.getCode().equals(recordAddDto.getRecordCategory())
                     && BoolEnums.TRUE.getCode().equals(recordAddDto.getIsExcitationRecord())) {
-                PointsRecordsAddDto recordsAddDto = new PointsRecordsAddDto();
-                recordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
-                recordsAddDto.setPoints(1);
-                recordsAddDto.setSource("记账收入");
-                recordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
-                pointsRecordsClient.add(recordsAddDto);
+                PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
+                pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
+                pointsRecordsAddDto.setPoints(1);
+                pointsRecordsAddDto.setSource("记账收入");
+                pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
+                pointsRecordsAddDto.setUserId(UserUtils.getUserId());
+                MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
             }
         }
 
@@ -103,12 +102,13 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 同步积分数据
         if (RecordCategoryEnum.INCOME.getCode().equals(bookkeepingRecordsEntity.getRecordCategory())
                 && BoolEnums.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
-            PointsRecordsAddDto recordsAddDto = new PointsRecordsAddDto();
-            recordsAddDto.setTransactionType(PointsTransactionTypeEnum.DEDUCT.getCode());
-            recordsAddDto.setPoints(-1);
-            recordsAddDto.setSource("记账收入被删除");
-            recordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
-            pointsRecordsClient.add(recordsAddDto);
+            PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
+            pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.DEDUCT.getCode());
+            pointsRecordsAddDto.setPoints(-1);
+            pointsRecordsAddDto.setSource("记账收入被删除");
+            pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
+            pointsRecordsAddDto.setUserId(bookkeepingRecordsEntity.getUserId());
+            MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
         }
     }
 
