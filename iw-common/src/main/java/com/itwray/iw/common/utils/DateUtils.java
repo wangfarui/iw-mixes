@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 日期工具类
@@ -22,6 +23,11 @@ public abstract class DateUtils {
      * 日期时间字符串格式
      */
     public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    /**
+     * 日期时间的格式化器
+     */
+    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT);
 
     /**
      * 返回当前月的开始日期
@@ -90,5 +96,15 @@ public abstract class DateUtils {
 
         // 将时间设置为 23:59:59
         return LocalDateTime.of(lastDayOfMonth, LocalTime.of(23, 59, 59));
+    }
+
+    /**
+     * 格式化日期时间
+     *
+     * @param dateTime LocalDateTime
+     * @return yyyy-MM-dd HH:mm:ss
+     */
+    public static String formatLocalDateTime(LocalDateTime dateTime) {
+        return dateTime.format(DATETIME_FORMATTER);
     }
 }
