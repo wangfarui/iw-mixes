@@ -14,14 +14,16 @@
             resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo">
         SELECT SUM(amount) AS totalAmount, count(*) AS totalRecordNum
         FROM bookkeeping_records
-        WHERE record_category = #{dto.recordCategory}
+        WHERE deleted = 0
+          AND record_category = #{dto.recordCategory}
           AND record_date BETWEEN #{dto.currentStartMonth} AND #{dto.currentEndMonth}
     </select>
     <select id="categoryStatistics"
             resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo">
         SELECT record_type, sum(amount) AS amount, count(*) AS recordNum
         FROM bookkeeping_records
-        WHERE record_category = #{dto.recordCategory}
+        WHERE deleted = 0
+          AND record_category = #{dto.recordCategory}
           AND record_date BETWEEN #{dto.currentStartMonth} AND #{dto.currentEndMonth}
         GROUP BY record_type
         ORDER BY amount desc
