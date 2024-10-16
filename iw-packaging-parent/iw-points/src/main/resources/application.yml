@@ -42,9 +42,3 @@ springdoc:
     path: /doc.html
   packages-to-scan:
     - com.itwray.iw.points.controller
-
-# mybatis-plus 配置
-mybatis-plus:
-  configuration:
-    # sql日志打印
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

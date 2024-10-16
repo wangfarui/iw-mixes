@@ -41,8 +41,3 @@ springdoc:
     path: /doc.html
   packages-to-scan:
     - com.itwray.iw.bookkeeping.controller
-
-# mybatis-plus 配置
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
