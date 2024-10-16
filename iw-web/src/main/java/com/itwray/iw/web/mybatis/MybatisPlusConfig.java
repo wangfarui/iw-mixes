@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * Mybatis-Plus配置类
  */
 @Configuration
-@MapperScan(basePackages = "com.itwray.iw.*.mapper")
+@MapperScan(basePackages = {"com.itwray.iw.web.mapper"})
 @ComponentScan(basePackages = "com.itwray.iw.web.dao")
 public class MybatisPlusConfig {
 
