@@ -1,12 +1,22 @@
-package com.itwray.iw.web.config;
+package com.itwray.iw.web.core.webmvc;
 
-import com.itwray.iw.web.core.WebHandlerInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class IwWebConfig implements WebMvcConfigurer {
+public class IwWebMvcConfiguration implements WebMvcConfigurer {
+
+    @Bean
+    public ExceptionHandlerInterceptor exceptionHandlerInterceptor() {
+        return new ExceptionHandlerInterceptor();
+    }
+
+    @Bean
+    public GeneralResponseWrapperAdvice generalResponseWrapperAdvice() {
+        return new GeneralResponseWrapperAdvice();
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -1,4 +1,4 @@
-package com.itwray.iw.web.mybatis.type.handlers;
+package com.itwray.iw.web.core.mybatis.type.handlers;
 
 import com.itwray.iw.common.utils.DateUtils;
 import org.apache.ibatis.type.BaseTypeHandler;

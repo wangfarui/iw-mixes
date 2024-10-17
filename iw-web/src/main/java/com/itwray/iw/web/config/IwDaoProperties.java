@@ -3,7 +3,7 @@ package com.itwray.iw.web.config;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
-import com.itwray.iw.web.mybatis.UserDataPermissionHandler;
+import com.itwray.iw.web.core.mybatis.UserDataPermissionHandler;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.annotation.AnnotationUtils;

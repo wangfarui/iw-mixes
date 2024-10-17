@@ -1,6 +1,6 @@
-package com.itwray.iw.web.config;
+package com.itwray.iw.web.core.feign;
 
-import com.itwray.iw.web.core.GeneralResponseDecoder;
+import com.itwray.iw.web.core.webmvc.GeneralResponseWrapperAdvice;
 import com.itwray.iw.web.utils.UserUtils;
 import feign.RequestInterceptor;
 import feign.codec.Decoder;
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Feign配置类
  * <p>
- * 要求所有Feign接口返回对象都要经过 {@link com.itwray.iw.web.core.GeneralResponseWrapperAdvice}
+ * 要求所有Feign接口返回对象都要经过 {@link GeneralResponseWrapperAdvice}
  * </p>
  *
  * @author wray

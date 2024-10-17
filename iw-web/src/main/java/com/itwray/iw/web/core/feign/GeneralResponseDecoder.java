@@ -1,4 +1,4 @@
-package com.itwray.iw.web.core;
+package com.itwray.iw.web.core.feign;
 
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.web.exception.FeignClientException;

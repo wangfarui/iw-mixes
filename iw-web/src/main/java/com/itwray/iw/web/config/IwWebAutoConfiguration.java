@@ -2,16 +2,15 @@ package com.itwray.iw.web.config;
 
 import com.itwray.iw.web.client.AuthClient;
 import com.itwray.iw.web.client.ClientHelper;
-import com.itwray.iw.web.core.ExceptionHandlerInterceptor;
-import com.itwray.iw.web.core.GeneralResponseWrapperAdvice;
+import com.itwray.iw.web.core.feign.FeignConfiguration;
+import com.itwray.iw.web.core.mybatis.MybatisPlusConfiguration;
 import com.itwray.iw.web.core.rocketmq.RocketMQConfiguration;
-import com.itwray.iw.web.mybatis.MybatisPlusConfig;
+import com.itwray.iw.web.core.webmvc.IwWebMvcConfiguration;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
@@ -23,22 +22,13 @@ import org.springframework.context.annotation.Import;
  */
 @AutoConfiguration
 @EnableConfigurationProperties({IwWebProperties.class, IwDaoProperties.class})
-@Import({IwWebConfig.class, MybatisPlusConfig.class, FeignConfiguration.class, RocketMQConfiguration.class})
+@Import({IwWebMvcConfiguration.class, MybatisPlusConfiguration.class, FeignConfiguration.class, RocketMQConfiguration.class})
 @ComponentScan(basePackages = "com.itwray.iw.web.service.impl")
 public class IwWebAutoConfiguration implements ApplicationContextAware {
 
-    @Bean
-    public ExceptionHandlerInterceptor exceptionHandlerInterceptor() {
-        return new ExceptionHandlerInterceptor();
-    }
-
-    @Bean
-    public GeneralResponseWrapperAdvice generalResponseWrapperAdvice() {
-        return new GeneralResponseWrapperAdvice();
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        // 初始化AuthClient变量
         ClientHelper.setAuthClient(applicationContext.getBean(AuthClient.class));
     }
 }

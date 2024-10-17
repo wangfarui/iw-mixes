@@ -1,6 +1,6 @@
 package com.itwray.iw.web.annotation;
 
-import com.itwray.iw.web.core.GeneralResponseWrapperAdvice;
+import com.itwray.iw.web.core.webmvc.GeneralResponseWrapperAdvice;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

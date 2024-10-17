@@ -1,4 +1,4 @@
-package com.itwray.iw.web.mybatis;
+package com.itwray.iw.web.core.mybatis;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.MultiDataPermissionHandler;
 import com.itwray.iw.web.config.IwDaoProperties;

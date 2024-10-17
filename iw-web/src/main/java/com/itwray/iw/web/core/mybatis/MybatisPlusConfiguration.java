@@ -1,4 +1,4 @@
-package com.itwray.iw.web.mybatis;
+package com.itwray.iw.web.core.mybatis;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @MapperScan(basePackages = {"com.itwray.iw.web.mapper"})
 @ComponentScan(basePackages = "com.itwray.iw.web.dao")
-public class MybatisPlusConfig {
+public class MybatisPlusConfiguration {
 
     /**
      * 添加分页插件

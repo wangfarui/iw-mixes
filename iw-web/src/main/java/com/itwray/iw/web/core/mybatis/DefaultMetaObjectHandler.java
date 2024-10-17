@@ -1,4 +1,4 @@
-package com.itwray.iw.web.mybatis;
+package com.itwray.iw.web.core.mybatis;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.itwray.iw.web.utils.UserUtils;

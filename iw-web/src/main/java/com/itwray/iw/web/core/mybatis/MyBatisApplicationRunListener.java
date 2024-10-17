@@ -1,4 +1,4 @@
-package com.itwray.iw.web.mybatis;
+package com.itwray.iw.web.core.mybatis;
 
 import org.apache.ibatis.logging.stdout.StdOutImpl;
 import org.springframework.boot.ConfigurableBootstrapContext;

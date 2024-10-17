@@ -1,4 +1,4 @@
-package com.itwray.iw.web.core;
+package com.itwray.iw.web.core.webmvc;
 
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
