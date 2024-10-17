@@ -20,6 +20,7 @@
         <module>iw-bookkeeping</module>
         <module>iw-gateway</module>
         <module>iw-points</module>
+        <module>iw-external</module>
     </modules>
 
     <properties>

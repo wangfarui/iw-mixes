@@ -60,6 +60,12 @@
     <td>积分服务</td>
 </tr>
 <tr>
+    <td>iw-external</td>
+    <td>0.0.1-SNAPSHOT</td>
+    <td>18006</td>
+    <td>外部服务（需要外网支持）</td>
+</tr>
+<tr>
     <td>iw-oauth2-authorization-server</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18101</td>

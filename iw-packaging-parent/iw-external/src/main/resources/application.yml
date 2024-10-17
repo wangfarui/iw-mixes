@@ -1,0 +1,34 @@
+# iw配置
+iw:
+  dao:
+    dataPermission:
+      enabled: false
+
+# 服务器配置
+server:
+  servlet:
+    context-path: /external-service
+  port: 18006
+
+# spring 配置
+spring:
+  application:
+    name: iw-external-service
+  datasource:
+    driver-class-name: ${iw.db.driver-class}
+    url: ${iw.db.url}
+    username: ${iw.db.username}
+    password: ${iw.db.password}
+  config:
+    import:
+      - optional:nacos:iw-web
+      - optional:nacos:${spring.application.name}.yml
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+      config:
+        file-extension: yaml
+      password: ${SPRING_CLOUD_NACOS_PASSWORD}
+      username: ${SPRING_CLOUD_NACOS_USERNAME}
+      server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR}
