@@ -10,6 +10,8 @@ spring:
       - optional:nacos:${spring.application.name}.yml
   cloud:
     gateway:
+      forwarded:
+        enabled: true
       globalcors:
         cors-configurations:
           '[/**]': # 匹配所有路由
