@@ -59,6 +59,10 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         Map<Object, Object> ipAddress = getIpAddress();
         // 获取ip的城市编码
         String adcode = (String) ipAddress.get("adcode");
+        if (StringUtils.isBlank(adcode)) {
+            throw new IwWebException("获取城市信息失败");
+        }
+
         Map<Object, Object> adcodeCache = (Map<Object, Object>) RedisUtil.get(adcode);
         if (adcodeCache != null) {
             return adcodeCache;
