@@ -23,4 +23,11 @@ public interface ExternalApiService {
      * @return 实况天气数据信息
      */
     Map<Object, Object> getWeather();
+
+    /**
+     * 根据UptimeRobot获取站点监测情况
+     *
+     * @return 站点监测情况
+     */
+    Map<Object, Object> getMonitorsByUptimeRobot(Map<String, Object> bodyParam);
 }

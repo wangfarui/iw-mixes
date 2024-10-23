@@ -30,6 +30,12 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     @Value("${iw.amap.key:}")
     private String amapKey;
 
+    /**
+     * UptimeRobot API Key
+     */
+    @Value("${iw.uptimerobot.key:}")
+    private String uptimeRobotKey;
+
     @Override
     @SuppressWarnings("unchecked")
     public Map<Object, Object> getIpAddress() {
@@ -43,7 +49,7 @@ public class ExternalApiServiceImpl implements ExternalApiService {
             return ipCache;
         }
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("key", amapKey);
+        paramMap.put("key", this.amapKey);
         paramMap.put("ip", clientIp);
         String res = HttpUtil.get("https://restapi.amap.com/v3/ip", paramMap);
         Map<Object, Object> resMap = (Map<Object, Object>) JSONUtil.toBean(res, Map.class);
@@ -68,12 +74,27 @@ public class ExternalApiServiceImpl implements ExternalApiService {
             return adcodeCache;
         }
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("key", amapKey);
+        paramMap.put("key", this.amapKey);
         paramMap.put("city", adcode);
         String res = HttpUtil.get("https://restapi.amap.com/v3/weather/weatherInfo", paramMap);
         Map<Object, Object> resMap = (Map<Object, Object>) JSONUtil.toBean(res, Map.class);
         // 城市天气缓存3小时
         RedisUtil.set(adcode, resMap, 60 * 60 * 3);
+        return resMap;
+    }
+
+    @Override
+    public Map<Object, Object> getMonitorsByUptimeRobot(Map<String, Object> bodyParam) {
+        Map<Object, Object> monitorsCache = (Map<Object, Object>) RedisUtil.get("wray-site-monitors");
+        if (monitorsCache != null) {
+            return monitorsCache;
+        }
+
+        bodyParam.put("api_key", this.uptimeRobotKey);
+        String res = HttpUtil.post("https://api.uptimerobot.com/v2/getMonitors", bodyParam);
+        Map<Object, Object> resMap = (Map<Object, Object>) JSONUtil.toBean(res, Map.class);
+        // 监控信息缓存10分钟
+        RedisUtil.set("wray-site-monitors", resMap, 60 * 10);
         return resMap;
     }
 }
