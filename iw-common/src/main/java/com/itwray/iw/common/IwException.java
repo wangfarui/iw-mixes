@@ -1,9 +1,13 @@
 package com.itwray.iw.common;
 
 import com.itwray.iw.common.constants.GeneralApiCode;
+import com.itwray.iw.common.utils.ExceptionUtils;
 
 /**
- * IW Project Exception
+ * IW项目顶层异常对象
+ * <p>项目内所有自定义异常对象，都应该继承该对象。
+ * <p>经由{@link ExceptionUtils#isInternalException(RuntimeException)}方法验证时，必定返回true。
+ * <p>可以通过{@link ExceptionUtils#extractIwException(RuntimeException)}方法提取IwException对象。
  *
  * @author wray
  * @since 2024/4/3
