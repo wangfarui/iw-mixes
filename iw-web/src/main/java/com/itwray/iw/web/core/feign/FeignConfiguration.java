@@ -36,7 +36,7 @@ public class FeignConfiguration {
     }
 
     /**
-     * feign解码器
+     * Feign响应对象解码器
      *
      * @param customizers HTTP消息转换器自定义器
      * @return 默认解码器
@@ -47,6 +47,12 @@ public class FeignConfiguration {
         return new GeneralResponseDecoder(new OptionalDecoder(new SpringDecoder(messageConverters, customizers)));
     }
 
+    /**
+     * Feign请求拦截器
+     * <p>在请求头中插入Token</p>
+     *
+     * @return RequestInterceptor
+     */
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
