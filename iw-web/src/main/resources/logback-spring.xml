@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 从Spring属性中读取应用程序名称 -->
+    <springProperty name="APP_NAME" source="spring.application.name"/>
+
+    <!-- 定义全局变量，日志文件路径和格式 -->
+    <property name="log.path" value="${user.home}/logs/iw-mixes/${APP_NAME}"/>
+    <property name="log.name" value="${APP_NAME}"/>
+    <property name="file.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} - %msg%n"/>
+
+    <!-- 控制台输出配置 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${file.pattern}</pattern>
+        </encoder>
+        <!-- 只输出DEBUG级别及以上的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <!-- 文件输出配置 -->
+    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/${log.name}.info.log</file>
+        <encoder>
+            <pattern>${file.pattern}</pattern>
+        </encoder>
+        <!-- 只输出INFO级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/%d{yyyy-MM-dd}/${log.name}.info.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 每个文件最大10MB -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 最多保留30天的历史记录 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 文件输出配置 -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/${log.name}.error.log</file>
+        <encoder>
+            <pattern>${file.pattern}</pattern>
+        </encoder>
+        <!-- 只输出ERROR级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/%d{yyyy-MM-dd}/${log.name}.error.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 每个文件最大10MB -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 最多保留30天的历史记录 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 设置root logger -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="INFO_FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+</configuration>
