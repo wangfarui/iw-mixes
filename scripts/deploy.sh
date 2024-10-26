@@ -76,6 +76,6 @@ if [ -n "\$pid" ]; then
 fi
 
 # 9. 启动java服务并退出远程服务器
-nohup java -Xms64m -Xmx128m -jar $PROJECT_NAME-$VERSION.jar > $PROJECT_NAME.log 2>&1 &
+nohup java -Xms64m -Xmx128m -jar $PROJECT_NAME-$VERSION.jar > /dev/null 2>&1 &
 exit
 EOF
