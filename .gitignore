@@ -53,3 +53,6 @@ activemq-data/
 # javac编译生成目录
 out/
 *.class
+
+# Log日志目录
+logs/
