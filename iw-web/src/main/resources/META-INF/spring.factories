@@ -1,1 +1,3 @@
-org.springframework.boot.SpringApplicationRunListener=com.itwray.iw.web.core.mybatis.MyBatisApplicationRunListener
+org.springframework.boot.SpringApplicationRunListener=\
+  com.itwray.iw.web.core.mybatis.MyBatisApplicationRunListener,\
+  com.itwray.iw.web.core.tracing.TracingApplicationRunListener
