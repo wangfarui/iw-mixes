@@ -6,12 +6,12 @@
     <!-- 定义全局变量，日志文件路径和格式 -->
     <property name="log.path" value="${user.home}/logs/iw-mixes/${APP_NAME}"/>
     <property name="log.name" value="${APP_NAME}"/>
-    <property name="file.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{50} - %msg%n"/>
+    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%X{traceId:-}] [%X{spanId:-}] %logger{50} - %msg%n"/>
 
     <!-- 控制台输出配置 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${file.pattern}</pattern>
+            <pattern>${log.pattern}</pattern>
         </encoder>
         <!-- 只输出DEBUG级别及以上的日志 -->
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -23,7 +23,7 @@
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.path}/${log.name}.info.log</file>
         <encoder>
-            <pattern>${file.pattern}</pattern>
+            <pattern>${log.pattern}</pattern>
         </encoder>
         <!-- 只输出INFO级别的日志 -->
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -44,7 +44,7 @@
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.path}/${log.name}.error.log</file>
         <encoder>
-            <pattern>${file.pattern}</pattern>
+            <pattern>${log.pattern}</pattern>
         </encoder>
         <!-- 只输出ERROR级别的日志 -->
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
