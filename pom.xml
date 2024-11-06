@@ -13,6 +13,7 @@
         <module>iw-packaging-parent</module>
         <module>iw-starter</module>
         <module>iw-web</module>
+        <module>iw-code-generator</module>
     </modules>
     <name>iw-parent</name>
     <description>IW Mixes Project Parent</description>
@@ -118,11 +119,13 @@
                 <version>${rocketmq.spring.boot.version}</version>
             </dependency>
 
-            <!-- mybatis -->
+            <!-- mybatis plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <artifactId>mybatis-plus-bom</artifactId>
                 <version>${mybatis-plus.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- hutool -->
