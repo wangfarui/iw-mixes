@@ -1,1 +1,1 @@
-com.itwray.iw.starter.redis.config.RedisAutoConfiguration
+com.itwray.iw.starter.redis.config.IwRedisAutoConfiguration

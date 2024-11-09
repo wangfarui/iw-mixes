@@ -11,12 +11,12 @@ import org.springframework.core.env.MapPropertySource;
 import java.util.HashMap;
 
 /**
- * Redis 自定义属性初始化器
+ * Redis 属性初始化器
  *
  * @author wray
  * @since 2024/9/6
  */
-public class RedisCustomPropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class IwRedisPropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {

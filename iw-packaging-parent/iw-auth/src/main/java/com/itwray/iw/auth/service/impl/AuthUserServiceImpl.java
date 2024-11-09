@@ -10,6 +10,7 @@ import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.starter.redis.RedisUtil;
+import com.itwray.iw.starter.redis.lock.DistributedLock;
 import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.IwWebException;
@@ -53,6 +54,7 @@ public class AuthUserServiceImpl implements AuthUserService {
      * @return 用户登录信息
      */
     @Override
+    @DistributedLock(lockName = "'login:' + #dto.username") // TODO 验证分布式锁，后期会删除
     public UserInfoVo loginByPassword(LoginPasswordDto dto) {
         AuthUserEntity authUserEntity = authUserDao.queryOneByUsername(dto.getUsername());
         if (authUserEntity == null) {

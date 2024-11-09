@@ -4,10 +4,15 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itwray.iw.starter.redis.RedisUtil;
+import com.itwray.iw.starter.redis.lock.RedisDistributedLockAspect;
+import org.redisson.spring.starter.RedissonAutoConfigurationV2;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -20,8 +25,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * @since 2024/8/26
  */
 @Configuration
+@AutoConfigureAfter({RedisAutoConfiguration.class, RedissonAutoConfigurationV2.class})
 @EnableConfigurationProperties(IwRedisProperties.class)
-public class RedisAutoConfiguration {
+@Import(RedisDistributedLockAspect.class)
+public class IwRedisAutoConfiguration {
 
 
     @Bean(name = "customRedisTemplate")
