@@ -3,8 +3,7 @@ package com.itwray.iw.starter.redis.lock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Redis分布式锁工具
@@ -21,8 +20,6 @@ public abstract class RedisLockUtil {
 
     private static RedissonClient redissonClient;
 
-    private static final Map<String, RLock> LOCK_MAP = new HashMap<>();
-
     static void setRedissonClient(RedissonClient redissonClient) {
         RedisLockUtil.redissonClient = redissonClient;
     }
@@ -35,9 +32,28 @@ public abstract class RedisLockUtil {
      * @param lockName 锁名称
      */
     public static void lock(String lockName) {
-        RLock lock = redissonClient.getLock(fullLockName(lockName));
+        RLock lock = getRLockByName(lockName);
         lock.lock();
-        LOCK_MAP.put(lockName, lock);
+    }
+
+    /**
+     * 获取分布式锁
+     * <p>在 waitTime(s) 时间范围内尝试获取锁
+     * <p>获取到锁后，持有 leaseTime(s) 后释放（不会进行锁续期）
+     *
+     * @param lockName  锁名称
+     * @param waitTime  获取分布式锁的等待时间
+     * @param leaseTime 分布式锁的持有时间
+     * @return 获取分布式锁的结果 true -> 成功获取
+     */
+    public static boolean tryLock(String lockName, long waitTime, long leaseTime) {
+        RLock lock = getRLockByName(lockName);
+        try {
+            return lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
     }
 
     /**
@@ -46,13 +62,13 @@ public abstract class RedisLockUtil {
      * @param lockName 锁名称
      */
     public static void unlock(String lockName) {
-        RLock lock = LOCK_MAP.get(lockName);
-        if (lock != null) {
+        RLock lock = getRLockByName(lockName);
+        if (lock.isHeldByCurrentThread()) {
             lock.unlock();
         }
     }
 
-    private static String fullLockName(String lockName) {
-        return DISTRIBUTED_LOCK_NAME_PREFIX + lockName;
+    private static RLock getRLockByName(String lockName) {
+        return redissonClient.getLock(DISTRIBUTED_LOCK_NAME_PREFIX + lockName);
     }
 }
