@@ -1,4 +1,4 @@
-package com.itwray.iw.web.utils;
+package com.itwray.iw.starter.rocketmq;
 
 import cn.hutool.json.JSONUtil;
 import org.apache.rocketmq.client.apis.producer.SendReceipt;

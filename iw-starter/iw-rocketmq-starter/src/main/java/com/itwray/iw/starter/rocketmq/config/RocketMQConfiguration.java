@@ -1,6 +1,6 @@
-package com.itwray.iw.web.core.rocketmq;
+package com.itwray.iw.starter.rocketmq.config;
 
-import com.itwray.iw.web.utils.MQProducerHelper;
+import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import org.apache.rocketmq.client.core.RocketMQClientTemplate;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

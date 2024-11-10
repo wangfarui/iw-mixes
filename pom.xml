@@ -70,6 +70,11 @@
                 <artifactId>iw-redis-starter</artifactId>
                 <version>${iw.starter.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.itwray.mixes</groupId>
+                <artifactId>iw-rocketmq-starter</artifactId>
+                <version>${iw.starter.version}</version>
+            </dependency>
 
             <!-- spring boot dependencies -->
             <dependency>

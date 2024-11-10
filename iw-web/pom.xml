@@ -74,12 +74,6 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
-        <!-- Message Queue -->
-        <dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>rocketmq-v5-client-spring-boot-starter</artifactId>
-        </dependency>
-
         <!-- Web Modules -->
         <dependency>
             <groupId>jakarta.servlet</groupId>

@@ -1,4 +1,4 @@
-package com.itwray.iw.web.core.rocketmq;
+package com.itwray.iw.starter.rocketmq.config;
 
 import cn.hutool.json.JSONUtil;
 import com.itwray.iw.web.model.dto.UserDto;

@@ -21,6 +21,10 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-rocketmq-starter</artifactId>
+        </dependency>
 
         <!-- iw-feign-client -->
         <dependency>
