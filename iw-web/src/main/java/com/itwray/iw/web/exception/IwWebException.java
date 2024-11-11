@@ -14,6 +14,10 @@ public class IwWebException extends IwException {
         super();
     }
 
+    public IwWebException(Throwable cause) {
+        super(cause);
+    }
+
     public IwWebException(String message) {
         super(message);
     }
