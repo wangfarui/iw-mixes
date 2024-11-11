@@ -30,4 +30,12 @@ public interface ExternalApiService {
      * @return 站点监测情况
      */
     Map<Object, Object> getMonitorsByUptimeRobot(Map<String, Object> bodyParam);
+
+    /**
+     * 获取每日热点数据
+     *
+     * @param source 热点来源
+     * @return 热点数据
+     */
+    Map<Object, Object> getDailyHot(String source);
 }

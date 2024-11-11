@@ -2,6 +2,8 @@ package com.itwray.iw.external.service.impl;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itwray.iw.external.service.ExternalApiService;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.core.SpringWebHolder;
@@ -27,14 +29,25 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     /**
      * 高德地图API Key
      */
-    @Value("${iw.amap.key:}")
+    @Value("${iw.external.amap.key:}")
     private String amapKey;
 
     /**
      * UptimeRobot API Key
      */
-    @Value("${iw.uptimerobot.key:}")
+    @Value("${iw.external.uptimerobot.key:}")
     private String uptimeRobotKey;
+
+    /**
+     * 每日热点API接口地址
+     */
+    @Value("${iw.external.dailyhot.api:}")
+    private String dailyHotApi;
+
+    /**
+     * 每日热点Key
+     */
+    private static final String DAILY_HOT_KEY = "DailyHot:";
 
     @Override
     @SuppressWarnings("unchecked")
@@ -96,5 +109,24 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         // 监控信息缓存10分钟
         RedisUtil.set("wray-site-monitors", resMap, 60 * 10);
         return resMap;
+    }
+
+    @Override
+    public Map<Object, Object> getDailyHot(String source) {
+        Map<Object, Object> cache = (Map<Object, Object>) RedisUtil.get(DAILY_HOT_KEY + source);
+        if (cache != null) {
+            return cache;
+        }
+
+        String res = HttpUtil.get(dailyHotApi + "/" + source + "?cache=true");
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Map<Object, Object> resMap = objectMapper.readValue(res, Map.class);
+            // 热点信息缓存30分钟
+            RedisUtil.set(DAILY_HOT_KEY + source, resMap, 60 * 30);
+            return resMap;
+        } catch (JsonProcessingException e) {
+            throw new IwWebException(e);
+        }
     }
 }

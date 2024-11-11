@@ -20,6 +20,7 @@ import java.util.Map;
 @RequestMapping("/api")
 @Validated
 @Tag(name = "外部API接口")
+@SkipWrapper
 public class ExternalApiController {
 
     private final ExternalApiService externalApiService;
@@ -37,15 +38,20 @@ public class ExternalApiController {
 
     @GetMapping("/getWeather")
     @Operation(summary = "查询天气")
-    @SkipWrapper
     public Map<Object, Object> getWeather() {
         return externalApiService.getWeather();
     }
 
     @PostMapping("/getMonitors")
     @Operation(summary = "查询站点监测情况")
-    @SkipWrapper
     public Map<Object, Object> getMonitors(@RequestBody Map<String, Object> bodyParam) {
         return externalApiService.getMonitorsByUptimeRobot(bodyParam);
     }
+
+    @GetMapping("/getDailyHot/{source}")
+    @Operation(summary = "查询每日热点")
+    public Map<Object, Object> getDailyHot(@PathVariable String source) {
+        return externalApiService.getDailyHot(source);
+    }
+
 }
