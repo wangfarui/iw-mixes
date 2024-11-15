@@ -56,3 +56,6 @@ out/
 
 # Log日志目录
 logs/
+
+# Arthas
+arthas-output/
