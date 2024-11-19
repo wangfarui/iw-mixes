@@ -29,4 +29,9 @@ public class BookkeepingRecordPageDto extends PageDto {
      */
     @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate recordEndDate;
+
+    /**
+     * 记录分类
+     */
+    private Integer recordType;
 }
