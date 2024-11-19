@@ -3,11 +3,13 @@
 <mapper namespace="com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper">
 
     <select id="statistics" resultType="com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo">
-        SELECT record_category AS recordCategory,
-               SUM(amount) AS totalAmount
+        SELECT record_category AS recordCategory, SUM(amount) AS totalAmount
         FROM bookkeeping_records
         WHERE deleted = 0
-          AND record_date BETWEEN #{dto.recordStartDate} AND #{dto.recordEndDate}
+        AND record_date BETWEEN #{dto.recordStartDate} AND #{dto.recordEndDate}
+        <if test="dto.recordType != null">
+            AND record_type = #{dto.recordType}
+        </if>
         GROUP BY record_category
     </select>
     <select id="totalStatistics"
