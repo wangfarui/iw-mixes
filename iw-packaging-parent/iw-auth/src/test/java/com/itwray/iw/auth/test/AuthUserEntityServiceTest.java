@@ -25,7 +25,7 @@ public class AuthUserEntityServiceTest {
         RegisterFormDto dto = new RegisterFormDto();
         dto.setUsername("wray");
         dto.setPassword("123456");
-        authUserService.registerByForm(dto);
+        authUserService.registerByForm(dto, "0.0.0.0");
         System.out.println("注册成功");
     }
 

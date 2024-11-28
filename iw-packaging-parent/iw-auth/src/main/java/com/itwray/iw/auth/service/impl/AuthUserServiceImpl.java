@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.dao.AuthUserDao;
+import com.itwray.iw.auth.model.RedisKeyConstants;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
@@ -16,6 +17,7 @@ import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.IwWebException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,7 +56,6 @@ public class AuthUserServiceImpl implements AuthUserService {
      * @return 用户登录信息
      */
     @Override
-    @DistributedLock(lockName = "'login:' + #dto.username") // TODO 验证分布式锁，后期会删除
     public UserInfoVo loginByPassword(LoginPasswordDto dto) {
         AuthUserEntity authUserEntity = authUserDao.queryOneByUsername(dto.getUsername());
         if (authUserEntity == null) {
@@ -104,11 +105,20 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Override
     @Transactional
-    public void registerByForm(RegisterFormDto dto) {
+    @DistributedLock(lockName = "'register:' + #dto.username")
+    public void registerByForm(RegisterFormDto dto, String clientIp) {
+        if (StringUtils.isNotBlank(clientIp)) {
+            // 获取当前ip注册失败的次数
+            Long registerCount = (Long) RedisUtil.get(RedisKeyConstants.REGISTER_IP_KEY + clientIp);
+            if (registerCount > 5) {
+                throw new AuthServiceException("注册频率太快，请稍后重试");
+            }
+        }
         // 校验用户名是否已注册
         AuthUserEntity authUserEntity = authUserDao.queryOneByUsername(dto.getUsername());
         if (authUserEntity != null) {
-            // TODO 为防止用户恶意猜测用户名，需要增加注册次数限制
+            // 为防止用户恶意猜测用户名，需要增加注册次数限制
+            RedisUtil.increment(RedisKeyConstants.REGISTER_IP_KEY + clientIp, 1L);
             throw new AuthServiceException("用户名已注册");
         }
         AuthUserEntity addUser = new AuthUserEntity();
