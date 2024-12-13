@@ -28,9 +28,10 @@ public interface AuthUserService {
     /**
      * 用户注册-通过表单方式注册
      *
-     * @param dto 用户注册信息
+     * @param dto      用户注册信息
+     * @param clientIp 客户端ip
      */
-    void registerByForm(RegisterFormDto dto);
+    void registerByForm(RegisterFormDto dto, String clientIp);
 
     /**
      * 校验Token有效性

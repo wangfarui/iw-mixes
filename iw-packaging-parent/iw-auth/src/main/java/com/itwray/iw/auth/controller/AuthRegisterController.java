@@ -2,8 +2,10 @@ package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.service.AuthUserService;
+import com.itwray.iw.web.utils.IpUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +31,7 @@ public class AuthRegisterController {
 
     @PostMapping("/form")
     @Operation(summary = "根据表单注册")
-    public void registerByForm(@RequestBody @Valid RegisterFormDto dto) {
-        authUserService.registerByForm(dto);
+    public void registerByForm(@RequestBody @Valid RegisterFormDto dto, HttpServletRequest request) {
+        authUserService.registerByForm(dto, IpUtils.getClientIp(request));
     }
 }
