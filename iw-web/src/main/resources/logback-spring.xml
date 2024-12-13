@@ -35,8 +35,8 @@
             <fileNamePattern>${log.path}/%d{yyyy-MM-dd}/${log.name}.info.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
             <!-- 每个文件最大10MB -->
             <maxFileSize>10MB</maxFileSize>
-            <!-- 最多保留30天的历史记录 -->
-            <maxHistory>30</maxHistory>
+            <!-- 最多保留2天的历史记录 -->
+            <maxHistory>2</maxHistory>
         </rollingPolicy>
     </appender>
 
@@ -56,8 +56,8 @@
             <fileNamePattern>${log.path}/%d{yyyy-MM-dd}/${log.name}.error.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
             <!-- 每个文件最大10MB -->
             <maxFileSize>10MB</maxFileSize>
-            <!-- 最多保留30天的历史记录 -->
-            <maxHistory>30</maxHistory>
+            <!-- 最多保留2天的历史记录 -->
+            <maxHistory>2</maxHistory>
         </rollingPolicy>
     </appender>
 
