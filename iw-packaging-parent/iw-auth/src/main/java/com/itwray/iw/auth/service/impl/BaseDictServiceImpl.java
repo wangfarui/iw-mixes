@@ -11,6 +11,7 @@ import com.itwray.iw.common.constants.EnableEnums;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.dao.BaseDictDao;
+import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.mapper.BaseDictMapper;
 import com.itwray.iw.web.model.dto.AddDto;
 import com.itwray.iw.web.model.dto.UpdateDto;
@@ -18,6 +19,7 @@ import com.itwray.iw.web.model.entity.BaseDictEntity;
 import com.itwray.iw.web.model.enums.DictTypeEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import com.itwray.iw.web.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +67,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
     public Map<String, List<DictAllListVo>> getAllDictList(Boolean latest) {
         // 默认不查询最新实时字典数据
         if (latest == null || !latest) {
-            Map<Object, Object> dictMapCache = RedisUtil.getHashEntries(RedisKeyConstants.DICT_KEY);
+            Map<Object, Object> dictMapCache = RedisUtil.getHashEntries(this.obtainDictRedisKeyByUser());
             if (!dictMapCache.isEmpty()) {
                 return (Map) dictMapCache;
             }
@@ -94,7 +96,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
                                 }
                         )));
 
-        RedisUtil.add(RedisKeyConstants.DICT_KEY, dictMap);
+        RedisUtil.add(this.obtainDictRedisKeyByUser(), dictMap);
 
         return dictMap;
     }
@@ -115,7 +117,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
         if (dto instanceof DictAddDto dictAddDto) {
             // 更新Redis缓存
             List<DictAllListVo> dictAllListVos = queryAllDictByType(dictAddDto.getDictType());
-            RedisUtil.putHashKey(RedisKeyConstants.DICT_KEY, dictAddDto.getDictType().toString(), dictAllListVos);
+            RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dictAddDto.getDictType(), dictAllListVos);
         }
 
         return id;
@@ -124,26 +126,27 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
     @Override
     @Transactional
     public void update(UpdateDto dto) {
+        // 根据id查询字典类型
+        BaseDictEntity baseDictEntity = this.checkDataSecurity(dto.getId());
+
         super.update(dto);
 
-        if (dto instanceof DictAddDto dictAddDto) {
-            // 更新Redis缓存
-            List<DictAllListVo> dictAllListVos = queryAllDictByType(dictAddDto.getDictType());
-            RedisUtil.putHashKey(RedisKeyConstants.DICT_KEY, dictAddDto.getDictType().toString(), dictAllListVos);
-        }
+        // 更新Redis缓存
+        List<DictAllListVo> dictAllListVos = queryAllDictByType(baseDictEntity.getDictType());
+        RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), baseDictEntity.getDictType(), dictAllListVos);
     }
 
     @Override
     @Transactional
     public void delete(Serializable id) {
         // 根据id查询字典类型
-        BaseDictEntity dictEntity = getBaseDao().queryById(id);
+        BaseDictEntity dictEntity = this.checkDataSecurity(id);
 
         super.delete(id);
 
         // 更新Redis缓存
         List<DictAllListVo> dictAllListVos = queryAllDictByType(dictEntity.getDictType());
-        RedisUtil.putHashKey(RedisKeyConstants.DICT_KEY, dictEntity.getDictType().toString(), dictAllListVos);
+        RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dictEntity.getDictType(), dictAllListVos);
     }
 
     @Override
@@ -170,5 +173,35 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
                 .stream()
                 .map(t -> new DictAllListVo(t.getId(), t.getDictCode(), t.getDictName()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 校验数据安全
+     *
+     * @param id 字典id
+     * @return BaseDictEntity
+     */
+    private BaseDictEntity checkDataSecurity(Serializable id) {
+        BaseDictEntity dictEntity = getBaseDao().queryById(id);
+
+        // 判断当前字典类型是否少于1个值
+        Long dictEntityCounts = getBaseDao().lambdaQuery()
+                .eq(BaseDictEntity::getDictType, dictEntity.getDictType())
+                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .count();
+        if (dictEntityCounts <= 1) {
+            throw new IwWebException("当前字典类型至少需要包含一个启用的字典值！");
+        }
+
+        return dictEntity;
+    }
+
+    /**
+     * 通过用户获取字典redisKey
+     *
+     * @return dict:[userId]
+     */
+    private String obtainDictRedisKeyByUser() {
+        return RedisKeyConstants.DICT_KEY + UserUtils.getUserId();
     }
 }

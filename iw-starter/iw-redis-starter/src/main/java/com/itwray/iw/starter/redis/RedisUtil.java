@@ -326,7 +326,7 @@ public class RedisUtil {
      * @param value
      */
     public static void putHashKey(String key, Object hashKey, Object value) {
-        redisTemplate.opsForHash().put(key, hashKey, value);
+        redisTemplate.opsForHash().put(key, hashKey.toString(), value);
     }
 
 

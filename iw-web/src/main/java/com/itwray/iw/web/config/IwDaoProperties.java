@@ -78,12 +78,12 @@ public class IwDaoProperties {
          */
         private static final Set<String> BASE_TABLE_NAMES = new HashSet<>();
 
-        static {
-            TableName tableName = AnnotationUtils.findAnnotation(BaseDictEntity.class, TableName.class);
-            if (tableName != null) {
-                BASE_TABLE_NAMES.add(tableName.value());
-            }
-        }
+//        static {
+//            TableName tableName = AnnotationUtils.findAnnotation(BaseDictEntity.class, TableName.class);
+//            if (tableName != null) {
+//                BASE_TABLE_NAMES.add(tableName.value());
+//            }
+//        }
 
         /**
          * 数据表的数据权限是否被禁用

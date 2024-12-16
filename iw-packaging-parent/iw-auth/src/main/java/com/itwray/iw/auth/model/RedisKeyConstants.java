@@ -9,9 +9,9 @@ package com.itwray.iw.auth.model;
 public abstract class RedisKeyConstants {
 
     /**
-     * 字典缓存信息key
+     * 字典缓存信息key:[userId]
      */
-    public static final String DICT_KEY = "dict";
+    public static final String DICT_KEY = "dict:";
 
     /**
      * 用户注册时ip次数的key

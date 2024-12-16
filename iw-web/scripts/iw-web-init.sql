@@ -16,11 +16,15 @@ create table base_dict
     key idx_dict_type (dict_type)
 ) comment '字典表';
 
+# 字典表的用户id应该是非空且有实际用户id的，当 user_id == 0 时，表示该字典值为模板字典
+alter table base_dict
+    modify column user_id int unsigned not null comment '用户id';
+
 drop table if exists base_dict_business_relation;
 create table base_dict_business_relation
 (
-    id int unsigned not null  comment '业务id',
-    dict_id int unsigned not null  comment '字典id',
+    id      int unsigned not null comment '业务id',
+    dict_id int unsigned not null comment '字典id',
     primary key (id, dict_id),
     key idx_dict_id (dict_id)
 ) comment '字典业务关联表';

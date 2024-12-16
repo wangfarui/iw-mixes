@@ -2,7 +2,9 @@
 iw:
   dao:
     dataPermission:
-      enabled: false
+      enabled: true
+      enable-table-names:
+        - base_dict
 
 # 服务器配置
 server:
