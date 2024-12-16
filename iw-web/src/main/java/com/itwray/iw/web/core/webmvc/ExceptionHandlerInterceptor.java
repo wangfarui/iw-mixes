@@ -5,6 +5,7 @@ import com.itwray.iw.common.IwException;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.common.utils.ExceptionUtils;
 import com.itwray.iw.web.exception.AuthorizedException;
+import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.exception.FeignClientException;
 import com.itwray.iw.web.exception.IwWebException;
 import feign.codec.DecodeException;
@@ -46,10 +47,16 @@ public class ExceptionHandlerInterceptor {
         return new GeneralResponse<>(GeneralApiCode.UNAUTHORIZED.getCode(), authorizedException.getMessage());
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public GeneralResponse<?> businessExceptionHandler(BusinessException businessException) {
+        log.error("[业务异常]" + businessException.getMessage(), businessException);
+        return GeneralResponse.fail(businessException.getMessage());
+    }
+
     @ExceptionHandler(IwWebException.class)
     public GeneralResponse<?> iwWebExceptionHandler(IwWebException iwWebException) {
         log.error("[IW Web异常]" + iwWebException.getMessage(), iwWebException);
-        return GeneralResponse.fail(iwWebException.getMessage());
+        return GeneralResponse.fail();
     }
 
     @ExceptionHandler({MyBatisSystemException.class, PersistenceException.class})
