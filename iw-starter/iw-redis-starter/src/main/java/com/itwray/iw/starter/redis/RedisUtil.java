@@ -1,6 +1,9 @@
 package com.itwray.iw.starter.redis;
 
+import com.itwray.iw.common.IwException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -74,8 +77,32 @@ public class RedisUtil {
      * @param key 键
      * @return 值
      */
+    @Nullable
     public static Object get(String key) {
-        return key == null ? null : redisTemplate.opsForValue().get(key);
+        return StringUtils.isBlank(key) ? null : redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 根据key获取指定类型的值
+     *
+     * @param key       key名称
+     * @param typeClass 值的数据类型
+     * @param <T>       value的数据类型
+     * @return typeClass value
+     */
+    @Nullable
+    public static <T> T get(String key, Class<T> typeClass) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+        Object value = redisTemplate.opsForValue().get(key);
+        if (value == null) {
+            return null;
+        }
+        if (!typeClass.isAssignableFrom(value.getClass())) {
+            throw new IwException("Target Class Type Mismatch!");
+        }
+        return (T) value;
     }
 
     /**
