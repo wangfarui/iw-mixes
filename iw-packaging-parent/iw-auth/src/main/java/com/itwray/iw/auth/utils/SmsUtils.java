@@ -8,6 +8,7 @@ import com.aliyun.teaopenapi.models.Config;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.web.core.EnvironmentHolder;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.model.enums.RuntimeEnvironmentEnum;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -35,6 +36,11 @@ public abstract class SmsUtils {
     private static volatile String templateCode;
 
     /**
+     * 运行环境
+     */
+    private static volatile RuntimeEnvironmentEnum env;
+
+    /**
      * 发送授权验证码短信
      */
     public static void sendSms(String phone, String code) {
@@ -51,6 +57,10 @@ public abstract class SmsUtils {
      * 发送短信
      */
     public static void sendSms(SendSmsRequest sendSmsRequest) {
+        if (!RuntimeEnvironmentEnum.PROD.name().equals(SmsUtils.getEnv().name())) {
+            log.info("非生产环境, 已跳过短信发送流程");
+            return;
+        }
         try {
             SendSmsResponse sendSmsResponse = getClient().sendSms(sendSmsRequest);
             if (!sendSmsResponse.getStatusCode().equals(GeneralApiCode.SUCCESS.getCode())) {
@@ -103,5 +113,16 @@ public abstract class SmsUtils {
             }
         }
         return templateCode;
+    }
+
+    public static RuntimeEnvironmentEnum getEnv() {
+        if (env == null) {
+            synchronized (SmsUtils.class) {
+                if (env == null) {
+                    env = EnvironmentHolder.getProperty("iw.web.env", RuntimeEnvironmentEnum.class, RuntimeEnvironmentEnum.DEV);
+                }
+            }
+        }
+        return env;
     }
 }

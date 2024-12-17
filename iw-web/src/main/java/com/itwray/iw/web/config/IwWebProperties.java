@@ -1,5 +1,6 @@
 package com.itwray.iw.web.config;
 
+import com.itwray.iw.web.model.enums.RuntimeEnvironmentEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -18,8 +19,16 @@ import org.springframework.validation.annotation.Validated;
 @Data
 public class IwWebProperties {
 
+    /**
+     * 服务接口
+     */
     @NotNull(message = "Web服务 API 不能为空")
     private Api api;
+
+    /**
+     * 服务运行环境
+     */
+    private RuntimeEnvironmentEnum env = RuntimeEnvironmentEnum.DEV;
 
     @Data
     @Valid

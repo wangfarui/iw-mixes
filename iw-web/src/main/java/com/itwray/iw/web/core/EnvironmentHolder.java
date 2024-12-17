@@ -33,7 +33,7 @@ public class EnvironmentHolder implements EnvironmentAware {
     }
 
     @Nullable
-    public static String getProperties(String key) {
+    public static String getProperty(String key) {
         return environment.getProperty(key);
     }
 
