@@ -26,11 +26,23 @@ public class AuthUserEntityServiceTest {
 
     @Test
     public void testRegisterByForm() {
+        String clientIp = "0.0.0.0";
+        String phoneNumber = "13312345678";
         RegisterFormDto dto = new RegisterFormDto();
         dto.setUsername("wray");
         dto.setPassword("123456");
-        authRegisterService.registerByForm(dto, "0.0.0.0");
+        dto.setPhoneNumber(phoneNumber);
+        dto.setVerificationCode("111111");
+        authRegisterService.registerByForm(dto, clientIp);
         System.out.println("注册成功");
+    }
+
+    @Test
+    public void testGetVerificationCode() {
+        String clientIp = "0.0.0.0";
+        String phoneNumber = "13312345678";
+        String result = authRegisterService.getVerificationCode(phoneNumber, clientIp);
+        System.out.println(result);
     }
 
     @Test

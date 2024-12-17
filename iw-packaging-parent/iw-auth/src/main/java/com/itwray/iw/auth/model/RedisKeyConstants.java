@@ -15,6 +15,7 @@ public abstract class RedisKeyConstants {
 
     /**
      * 指定ip的用户注册次数:[ipAddress]
+     * <p>防止用户恶意注册</p>
      */
     public static final String REGISTER_IP_KEY = "register:ip:";
 

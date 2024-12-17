@@ -27,6 +27,11 @@ public class AuthUserEntity extends IdEntity {
     private Integer id;
 
     /**
+     * 电话号码
+     */
+    private String phoneNumber;
+
+    /**
      * 用户名
      */
     private String username;

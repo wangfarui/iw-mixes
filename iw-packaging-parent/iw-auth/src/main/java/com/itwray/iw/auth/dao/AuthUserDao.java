@@ -22,7 +22,7 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
      * 根据用户名查询唯一的用户
      *
      * @param username 用户名
-     * @return 可能为空的用户
+     * @return 用户实体
      */
     public @Nullable AuthUserEntity queryOneByUsername(String username) {
         if (StringUtils.isBlank(username)) {
@@ -35,9 +35,25 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
     }
 
     /**
+     * 根据电话号码查询唯一的用户
+     *
+     * @param phoneNumber 电话号码
+     * @return 用户实体
+     */
+    public @Nullable AuthUserEntity queryOneByPhoneNumber(String phoneNumber) {
+        if (StringUtils.isBlank(phoneNumber)) {
+            throw new BusinessException("电话号码不能为空");
+        }
+        return this.lambdaQuery()
+                .eq(AuthUserEntity::getPhoneNumber, phoneNumber)
+                .last(WebCommonConstants.LIMIT_ONE)
+                .one();
+    }
+
+    /**
      * 根据用户名修改用户密码
      *
-     * @param username 用户名
+     * @param username        用户名
      * @param encodedPassword 加密过后的密码
      * @return 是否修改成功
      */
