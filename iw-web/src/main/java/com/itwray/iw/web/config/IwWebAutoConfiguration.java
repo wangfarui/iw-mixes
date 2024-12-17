@@ -2,6 +2,7 @@ package com.itwray.iw.web.config;
 
 import com.itwray.iw.web.client.AuthClient;
 import com.itwray.iw.web.client.ClientHelper;
+import com.itwray.iw.web.core.EnvironmentHolder;
 import com.itwray.iw.web.core.feign.FeignConfiguration;
 import com.itwray.iw.web.core.mybatis.MybatisPlusConfiguration;
 import com.itwray.iw.web.core.webmvc.IwWebMvcConfiguration;
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
@@ -29,5 +31,10 @@ public class IwWebAutoConfiguration implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         // 初始化AuthClient变量
         ClientHelper.setAuthClient(applicationContext.getBean(AuthClient.class));
+    }
+
+    @Bean
+    public EnvironmentHolder environmentHolder() {
+        return new EnvironmentHolder();
     }
 }
