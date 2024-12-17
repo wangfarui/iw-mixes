@@ -13,9 +13,6 @@ create table auth_user
     last_login_time         datetime                               null comment '最后登录时间'
 ) comment '用户表';
 
-insert into auth_user(username, password, name)
-values ('wray', '$2a$10$67.UXGSk9a5Ajw4mOfRH.uURUjl/.uVNVzl4oAS/KvCAuEBJWLYU2', 'wray'),
-       ('1', '$2a$10$xZrFIUcXgMUvG7NMCAFT9eGTcC7ZPwkzU6aOM/FcaOfjnXnmgR/zG', '1');
-
-insert into auth_user(username, password, name)
-values ('joyce', '$2a$10$oTVXo.gi.NIpqqSoY0GZluA2q0.l/2a0w36j07CRRFB3Xm6UdpsZm', '乖乖');
+alter table auth_user
+    add column phone_number char(11) null comment '电话号码' after id,
+    add unique index uid_phone_number (phone_number);

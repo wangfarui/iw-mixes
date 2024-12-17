@@ -1,24 +1,17 @@
 package com.itwray.iw.auth.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
-import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.dao.AuthUserDao;
-import com.itwray.iw.auth.model.RedisKeyConstants;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
-import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.starter.redis.RedisUtil;
-import com.itwray.iw.starter.redis.lock.DistributedLock;
 import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
-import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +58,7 @@ public class AuthUserServiceImpl implements AuthUserService {
                 throw new RuntimeException(e);
             }
             // 为防止用户恶意猜测用户名，异常信息同密码错误一样
-            throw new AuthServiceException("用户名或密码错误");
+            throw new BusinessException("用户名或密码错误");
         }
         if (!BCrypt.checkpw(dto.getPassword(), authUserEntity.getPassword())) {
             try {
@@ -73,7 +66,7 @@ public class AuthUserServiceImpl implements AuthUserService {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            throw new IwWebException("用户名或密码错误");
+            throw new BusinessException("用户名或密码错误");
         }
 
         // 生成Token并缓存
@@ -101,35 +94,6 @@ public class AuthUserServiceImpl implements AuthUserService {
         }
         // 移除token缓存
         RedisUtil.delete(token);
-    }
-
-    @Override
-    @Transactional
-    @DistributedLock(lockName = "'register:' + #dto.username")
-    public void registerByForm(RegisterFormDto dto, String clientIp) {
-        if (StringUtils.isNotBlank(clientIp)) {
-            // 获取当前ip注册失败的次数
-            Long registerCount = (Long) RedisUtil.get(RedisKeyConstants.REGISTER_IP_KEY + clientIp);
-            if (registerCount > 5) {
-                throw new AuthServiceException("注册频率太快，请稍后重试");
-            }
-        }
-        // 校验用户名是否已注册
-        AuthUserEntity authUserEntity = authUserDao.queryOneByUsername(dto.getUsername());
-        if (authUserEntity != null) {
-            // 为防止用户恶意猜测用户名，需要增加注册次数限制
-            RedisUtil.increment(RedisKeyConstants.REGISTER_IP_KEY + clientIp, 1L);
-            throw new AuthServiceException("用户名已注册");
-        }
-        AuthUserEntity addUser = new AuthUserEntity();
-        BeanUtils.copyProperties(dto, addUser);
-        // 姓名为空时，默认使用用户名作为姓名
-        if (StrUtil.isBlank(addUser.getName())) {
-            addUser.setName(addUser.getUsername());
-        }
-        // 密码加密存储
-        addUser.setPassword(BCrypt.hashpw((addUser.getPassword())));
-        authUserDao.save(addUser);
     }
 
     /**

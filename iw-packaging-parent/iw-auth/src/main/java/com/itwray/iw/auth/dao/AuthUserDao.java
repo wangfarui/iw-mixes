@@ -1,10 +1,10 @@
 package com.itwray.iw.auth.dao;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itwray.iw.auth.core.AuthServiceException;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.web.constants.WebCommonConstants;
+import com.itwray.iw.web.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
      */
     public @Nullable AuthUserEntity queryOneByUsername(String username) {
         if (StringUtils.isBlank(username)) {
-            throw new AuthServiceException("用户名不能为空");
+            throw new BusinessException("用户名不能为空");
         }
         return this.lambdaQuery()
                 .eq(AuthUserEntity::getUsername, username)

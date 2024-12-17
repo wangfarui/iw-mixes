@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * 注册-表单填写方式 DTO
@@ -28,4 +29,8 @@ public class RegisterFormDto {
     @Schema(title = "姓名")
     @Size(max = 32, message = "姓名不能超过32位")
     private String name;
+
+    @Schema(title = "电话号码")
+    @Length(min = 11, max = 11, message = "电话号码长度要求为11位")
+    private String phoneNumber;
 }
