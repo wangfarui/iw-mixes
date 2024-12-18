@@ -63,4 +63,12 @@ public interface AuthUserService {
      * @param dto 用户密码信息
      */
     void editPassword(UserPasswordEditDto dto);
+
+    /**
+     * 根据操作行为获取验证码
+     *
+     * @param action   操作行为{@link com.itwray.iw.auth.model.enums.VerificationCodeActionEnum}
+     * @param clientIp 客户端ip
+     */
+    void getVerificationCodeByAction(Integer action, String clientIp);
 }

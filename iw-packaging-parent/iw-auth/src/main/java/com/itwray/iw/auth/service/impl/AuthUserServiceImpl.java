@@ -8,7 +8,9 @@ import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
+import com.itwray.iw.auth.model.enums.VerificationCodeActionEnum;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
+import com.itwray.iw.auth.service.AuthRegisterService;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
@@ -18,6 +20,7 @@ import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,9 +37,12 @@ import static com.itwray.iw.web.utils.UserUtils.TOKEN_HEADER;
  * @since 2024/3/2
  */
 @Service
+@Slf4j
 public class AuthUserServiceImpl implements AuthUserService {
 
     private final AuthUserDao authUserDao;
+
+    private AuthRegisterService authRegisterService;
 
     /**
      * token固定的存活时间 3天
@@ -46,6 +52,11 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Autowired
     public AuthUserServiceImpl(AuthUserDao authUserDao) {
         this.authUserDao = authUserDao;
+    }
+
+    @Autowired
+    public void setAuthRegisterService(AuthRegisterService authRegisterService) {
+        this.authRegisterService = authRegisterService;
     }
 
     /**
@@ -189,6 +200,27 @@ public class AuthUserServiceImpl implements AuthUserService {
         RedisUtil.delete(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId());
     }
 
+    @Override
+    public void getVerificationCodeByAction(Integer action, String clientIp) {
+        VerificationCodeActionEnum actionEnum = VerificationCodeActionEnum.of(action);
+        String phoneNumber = null;
+        switch (actionEnum) {
+            case EDIT_PASSWORD -> {
+                Integer userId = UserUtils.getUserId();
+                AuthUserEntity authUserEntity = authUserDao.getById(userId);
+                if (authUserEntity == null) {
+                    throw new BusinessException("用户不存在，请刷新重试");
+                }
+                phoneNumber = authUserEntity.getPhoneNumber();
+            }
+            case OTHER -> log.info("忽略其他操作");
+        }
+        // TODO 暂时直接使用注册服务获取短信验证码的机制
+        if (phoneNumber != null) {
+            authRegisterService.getVerificationCode(phoneNumber, clientIp);
+        }
+    }
+
     /**
      * 登录成功之后的操作
      *
@@ -308,7 +340,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return new BusinessException(exceptionMessage != null ? exceptionMessage[0] : "账号密码错误");
+        return new BusinessException(exceptionMessage != null && exceptionMessage.length > 0 ? exceptionMessage[0] : "账号密码错误");
     }
 
 }

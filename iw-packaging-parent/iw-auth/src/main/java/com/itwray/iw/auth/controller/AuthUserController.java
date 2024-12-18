@@ -2,14 +2,13 @@ package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.service.AuthUserService;
+import com.itwray.iw.web.utils.IpUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -25,7 +24,7 @@ import java.util.Map;
 @Tag(name = "用户接口")
 public class AuthUserController {
 
-    private AuthUserService authUserService;
+    private final AuthUserService authUserService;
 
     @Autowired
     public AuthUserController(AuthUserService authUserService) {
@@ -43,5 +42,11 @@ public class AuthUserController {
     @Operation(summary = "修改用户密码")
     public void editPassword(@RequestBody UserPasswordEditDto dto) {
         authUserService.editPassword(dto);
+    }
+
+    @GetMapping("/verificationCode")
+    @Operation(summary = "根据操作行为获取验证码")
+    public void getVerificationCodeByAction(@RequestParam("action") Integer action, HttpServletRequest request) {
+        authUserService.getVerificationCodeByAction(action, IpUtils.getClientIp(request));
     }
 }
