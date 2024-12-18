@@ -35,7 +35,7 @@ public class AuthRegisterController {
 
     @GetMapping("/getVerificationCode")
     @Operation(summary = "获取验证码")
-    public GeneralResponse<String> getVerificationCode(@RequestParam("phoneNumber") String phoneNumber, HttpServletRequest request) {
-        return GeneralResponse.success(authRegisterService.getVerificationCode(phoneNumber, IpUtils.getClientIp(request)));
+    public void getVerificationCode(@RequestParam("phoneNumber") String phoneNumber, HttpServletRequest request) {
+        authRegisterService.getVerificationCode(phoneNumber, IpUtils.getClientIp(request));
     }
 }

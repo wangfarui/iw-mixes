@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
+import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,5 +59,11 @@ public class AuthLoginController {
     @Operation(summary = "根据账号密码登录")
     public UserInfoVo loginByPassword(@RequestBody @Valid LoginPasswordDto dto) {
         return authUserService.loginByPassword(dto);
+    }
+
+    @PostMapping("/verificationCode")
+    @Operation(summary = "根据验证码登录")
+    public UserInfoVo loginByVerificationCode(@RequestBody @Valid LoginVerificationCodeDto dto) {
+        return authUserService.loginByVerificationCode(dto);
     }
 }

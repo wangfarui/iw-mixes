@@ -23,7 +23,6 @@ public interface AuthRegisterService {
      *
      * @param phoneNumber 电话号码
      * @param clientIp    客户端请求ip
-     * @return 返回结果
      */
-    String getVerificationCode(String phoneNumber, String clientIp);
+    void getVerificationCode(String phoneNumber, String clientIp);
 }

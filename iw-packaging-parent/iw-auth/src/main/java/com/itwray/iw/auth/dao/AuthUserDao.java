@@ -1,13 +1,23 @@
 package com.itwray.iw.auth.dao;
 
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
+import com.itwray.iw.auth.model.RedisKeyConstants;
+import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
+import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.constants.WebCommonConstants;
+import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.utils.IpUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户 Dao
@@ -17,6 +27,43 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
+
+    /**
+     * 新增用户
+     *
+     * @param bo 用户新增对象
+     * @return 用户实体
+     */
+    @Transactional
+    public AuthUserEntity addNewUser(UserAddBo bo) {
+        if (StringUtils.isBlank(bo.getPhoneNumber())) {
+            throw new IwWebException("电话号码不能为空");
+        }
+
+        // 校验用户唯一性
+        this.checkUserUnique(bo.getPhoneNumber(), bo.getUsername());
+
+        // 如果密码为空，则生成随机密码
+        if (StringUtils.isBlank(bo.getPassword())) {
+            bo.setPassword(RandomUtil.randomString(64));
+        }
+        // 填充用户名和姓名
+        if (StringUtils.isBlank(bo.getUsername())) {
+            bo.setUsername(bo.getPhoneNumber());
+        }
+        if (StringUtils.isBlank(bo.getName())) {
+            bo.setName(bo.getUsername());
+        }
+
+        // 保存用户
+        AuthUserEntity addUser = new AuthUserEntity();
+        BeanUtils.copyProperties(bo, addUser);
+        // 密码基于 BCrypt 加密存储
+        addUser.setPassword(BCrypt.hashpw((addUser.getPassword())));
+        this.save(addUser);
+
+        return addUser;
+    }
 
     /**
      * 根据用户名查询唯一的用户
@@ -62,5 +109,56 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
                 .eq(AuthUserEntity::getUsername, username)
                 .set(AuthUserEntity::getPassword, encodedPassword)
                 .update();
+    }
+
+    /**
+     * 自增客户端锁次数
+     *
+     * @param clientIp 客户端ip
+     */
+    public void incrementClientIpLockCount(String clientIp) {
+        // 不限制内部客户端ip
+        if (WebCommonConstants.INNER_CLIENT_IP.equals(clientIp)) {
+            return;
+        }
+        RedisUtil.increment(RedisKeyConstants.REGISTER_IP_KEY + clientIp, 1L);
+        RedisUtil.expire(RedisKeyConstants.REGISTER_IP_KEY + clientIp, 60 * 60);
+    }
+
+    /**
+     * 校验用户是否唯一
+     *
+     * @param phoneNumber 唯一电话号码
+     * @param username    唯一用户名
+     */
+    private void checkUserUnique(@Nullable String phoneNumber, @Nullable String username) {
+        // 获取客户端ip
+        String clientIp;
+        if (SpringWebHolder.isWeb()) {
+            clientIp = IpUtils.getClientIp(SpringWebHolder.getRequest());
+        } else {
+            // 非web请求，则为内部客户端ip
+            clientIp = WebCommonConstants.INNER_CLIENT_IP;
+        }
+
+        // 校验电话号码是否已注册
+        if (StringUtils.isNotBlank(phoneNumber)) {
+            AuthUserEntity authUserEntity = this.queryOneByPhoneNumber(phoneNumber);
+            if (authUserEntity != null) {
+                // 为防止用户恶意猜测电话号码，增加注册次数限制
+                this.incrementClientIpLockCount(clientIp);
+                throw new BusinessException("用户已存在");
+            }
+        }
+
+        // 校验用户名是否已注册
+        if (StringUtils.isNotBlank(username)) {
+            AuthUserEntity authUserEntity = this.queryOneByUsername(username);
+            if (authUserEntity != null) {
+                // 为防止用户恶意猜测用户名，增加注册次数限制
+                this.incrementClientIpLockCount(clientIp);
+                throw new BusinessException("用户已存在");
+            }
+        }
     }
 }

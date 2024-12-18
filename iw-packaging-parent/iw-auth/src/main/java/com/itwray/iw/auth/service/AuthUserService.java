@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.service;
 
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
+import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 
@@ -19,6 +20,14 @@ public interface AuthUserService {
      * @return 用户信息
      */
     UserInfoVo loginByPassword(LoginPasswordDto dto);
+
+    /**
+     * 用户登录-通过验证码校验方式登录
+     *
+     * @param dto 登录验证码信息
+     * @return 用户信息
+     */
+    UserInfoVo loginByVerificationCode(LoginVerificationCodeDto dto);
 
     /**
      * 退出登录

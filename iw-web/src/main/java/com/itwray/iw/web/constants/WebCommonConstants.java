@@ -19,6 +19,11 @@ public abstract class WebCommonConstants {
     public static final Integer AMOUNT_SCALE = 2;
 
     /**
+     * 内部客户端ip
+     */
+    public static final String INNER_CLIENT_IP = "-1";
+
+    /**
      * 返回标准的limit语法
      *
      * @param limitNum limit数量

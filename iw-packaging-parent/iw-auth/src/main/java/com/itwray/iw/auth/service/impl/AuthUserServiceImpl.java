@@ -3,7 +3,9 @@ package com.itwray.iw.auth.service.impl;
 import cn.hutool.crypto.digest.BCrypt;
 import com.itwray.iw.auth.dao.AuthUserDao;
 import com.itwray.iw.auth.model.RedisKeyConstants;
+import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
+import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
@@ -70,34 +72,31 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 校验密码正确性, 通过后表示登录成功
         this.verifyPassword(dto.getPassword(), authUserEntity.getPassword());
 
-        // TODO 后期改定时执行 先清除历史过期token set
-        Set<String> userTokens = RedisUtil.members(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), String.class);
-        if (userTokens != null) {
-            for (String token : userTokens) {
-                // 如果token已过期，则删除set集合中的value
-                if (!RedisUtil.hasKey(RedisKeyConstants.USER_TOKEN_KEY + token)) {
-                    RedisUtil.remove(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
-                }
-            }
+        return this.loginSuccessAfter(authUserEntity);
+    }
+
+    @Override
+    public UserInfoVo loginByVerificationCode(LoginVerificationCodeDto dto) {
+        // 校验电话号码是否正确
+        if (!NumberUtils.isValidPhoneNumber(dto.getPhoneNumber())) {
+            throw this.accountVerifyException("电话号码格式错误");
         }
 
-        // 生成Token并缓存
-        String token = UUID.randomUUID().toString();
-        RedisUtil.set(RedisKeyConstants.USER_TOKEN_KEY + token, authUserEntity.getId(), ACTIVE_TIME);
-        RedisUtil.sSet(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
-        RedisUtil.expire(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), ACTIVE_TIME);
+        // 校验电话号码验证码的正确性, 通过后表示登录成功
+        String verificationCode = RedisUtil.get(RedisKeyConstants.PHONE_VERIFY_KEY + dto.getPhoneNumber(), String.class);
+        if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
+            throw this.accountVerifyException("验证码错误");
+        }
 
-        // 将token写入到请求头中
-        this.setTokenValue(token);
+        // 根据电话号码查询用户
+        AuthUserEntity authUserEntity = authUserDao.queryOneByPhoneNumber(dto.getPhoneNumber());
+        // 如果用户不存在，则在验证码校验通过的前提下，自动注册新用户
+        if (authUserEntity == null) {
+            UserAddBo userAddBo = new UserAddBo(dto.getPhoneNumber());
+            authUserEntity = authUserDao.addNewUser(userAddBo);
+        }
 
-        // 构建响应对象
-        UserInfoVo userInfoVo = new UserInfoVo();
-        userInfoVo.setName(authUserEntity.getName());
-        userInfoVo.setAvatar(authUserEntity.getAvatar());
-        userInfoVo.setTokenName(TOKEN_HEADER);
-        userInfoVo.setTokenValue(token);
-
-        return userInfoVo;
+        return this.loginSuccessAfter(authUserEntity);
     }
 
     @Override
@@ -191,6 +190,43 @@ public class AuthUserServiceImpl implements AuthUserService {
     }
 
     /**
+     * 登录成功之后的操作
+     *
+     * @param authUserEntity 用户实体
+     * @return 用户登录信息
+     */
+    private UserInfoVo loginSuccessAfter(AuthUserEntity authUserEntity) {
+        // TODO 后期改定时执行 先清除历史过期token set
+        Set<String> userTokens = RedisUtil.members(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), String.class);
+        if (userTokens != null) {
+            for (String token : userTokens) {
+                // 如果token已过期，则删除set集合中的value
+                if (!RedisUtil.hasKey(RedisKeyConstants.USER_TOKEN_KEY + token)) {
+                    RedisUtil.remove(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
+                }
+            }
+        }
+
+        // 生成Token并缓存
+        String token = UUID.randomUUID().toString();
+        RedisUtil.set(RedisKeyConstants.USER_TOKEN_KEY + token, authUserEntity.getId(), ACTIVE_TIME);
+        RedisUtil.sSet(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
+        RedisUtil.expire(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), ACTIVE_TIME);
+
+        // 将token写入到请求头中
+        this.setTokenValue(token);
+
+        // 构建响应对象
+        UserInfoVo userInfoVo = new UserInfoVo();
+        userInfoVo.setName(authUserEntity.getName());
+        userInfoVo.setAvatar(authUserEntity.getAvatar());
+        userInfoVo.setTokenName(TOKEN_HEADER);
+        userInfoVo.setTokenValue(token);
+
+        return userInfoVo;
+    }
+
+    /**
      * 存放token至请求头中
      *
      * @param tokenValue token值
@@ -265,13 +301,14 @@ public class AuthUserServiceImpl implements AuthUserService {
      *
      * @return 账号或密码错误
      */
-    private BusinessException accountVerifyException() {
+    private BusinessException accountVerifyException(String... exceptionMessage) {
+        // TODO 针对任何登录方式，加上登录失败的重试次数
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return new BusinessException("账号密码错误");
+        return new BusinessException(exceptionMessage != null ? exceptionMessage[0] : "账号密码错误");
     }
 
 }
