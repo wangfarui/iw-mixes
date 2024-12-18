@@ -48,7 +48,7 @@ public class AuthUserEntityServiceTest {
     @Test
     public void testLoginByPassword() {
         LoginPasswordDto dto = new LoginPasswordDto();
-        dto.setUsername("wray");
+        dto.setAccount("wray");
         dto.setPassword("123456");
         UserInfoVo vo = authUserService.loginByPassword(dto);
         System.out.println(vo);

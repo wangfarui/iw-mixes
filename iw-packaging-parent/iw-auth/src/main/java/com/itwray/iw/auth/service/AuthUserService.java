@@ -1,7 +1,7 @@
 package com.itwray.iw.auth.service;
 
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
-import com.itwray.iw.auth.model.dto.RegisterFormDto;
+import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 
 /**
@@ -47,4 +47,11 @@ public interface AuthUserService {
      * @param avatar 头像地址
      */
     void editAvatar(String avatar);
+
+    /**
+     * 修改密码
+     *
+     * @param dto 用户密码信息
+     */
+    void editPassword(UserPasswordEditDto dto);
 }

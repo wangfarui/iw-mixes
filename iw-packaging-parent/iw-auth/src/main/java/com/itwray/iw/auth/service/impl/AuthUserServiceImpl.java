@@ -2,24 +2,28 @@ package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.crypto.digest.BCrypt;
 import com.itwray.iw.auth.dao.AuthUserDao;
+import com.itwray.iw.auth.model.RedisKeyConstants;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
+import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
+import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static com.itwray.iw.web.utils.UserUtils.TOKEN_HEADER;
-import static com.itwray.iw.web.utils.UserUtils.getToken;
 
 /**
  * 用户服务实现层
@@ -50,28 +54,38 @@ public class AuthUserServiceImpl implements AuthUserService {
      */
     @Override
     public UserInfoVo loginByPassword(LoginPasswordDto dto) {
-        AuthUserEntity authUserEntity = authUserDao.queryOneByUsername(dto.getUsername());
-        if (authUserEntity == null) {
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            // 为防止用户恶意猜测用户名，异常信息同密码错误一样
-            throw new BusinessException("用户名或密码错误");
+        // 查询用户是否存在
+        AuthUserEntity authUserEntity;
+        if (NumberUtils.isValidPhoneNumber(dto.getAccount())) {
+            authUserEntity = authUserDao.queryOneByPhoneNumber(dto.getAccount());
+        } else {
+            authUserEntity = authUserDao.queryOneByUsername(dto.getAccount());
         }
-        if (!BCrypt.checkpw(dto.getPassword(), authUserEntity.getPassword())) {
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+
+        // 用户不存在，抛出账号验证异常信息
+        if (authUserEntity == null) {
+            throw this.accountVerifyException();
+        }
+
+        // 校验密码正确性, 通过后表示登录成功
+        this.verifyPassword(dto.getPassword(), authUserEntity.getPassword());
+
+        // TODO 后期改定时执行 先清除历史过期token set
+        Set<String> userTokens = RedisUtil.members(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), String.class);
+        if (userTokens != null) {
+            for (String token : userTokens) {
+                // 如果token已过期，则删除set集合中的value
+                if (!RedisUtil.hasKey(RedisKeyConstants.USER_TOKEN_KEY + token)) {
+                    RedisUtil.remove(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
+                }
             }
-            throw new BusinessException("用户名或密码错误");
         }
 
         // 生成Token并缓存
         String token = UUID.randomUUID().toString();
-        RedisUtil.set(token, authUserEntity.getId(), ACTIVE_TIME);
+        RedisUtil.set(RedisKeyConstants.USER_TOKEN_KEY + token, authUserEntity.getId(), ACTIVE_TIME);
+        RedisUtil.sSet(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
+        RedisUtil.expire(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), ACTIVE_TIME);
 
         // 将token写入到请求头中
         this.setTokenValue(token);
@@ -88,12 +102,18 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Override
     public void logout() {
-        String token = getToken();
+        // 获取当前请求token
+        String token = UserUtils.getToken();
         if (token == null) {
             return;
         }
+
+        // 获取当前token的用户id
+        Integer userId = this.getUserId(token);
+
         // 移除token缓存
-        RedisUtil.delete(token);
+        RedisUtil.delete(RedisKeyConstants.USER_TOKEN_KEY + token);
+        RedisUtil.remove(RedisKeyConstants.USER_TOKEN_SET_KEY + userId, token);
     }
 
     /**
@@ -127,13 +147,13 @@ public class AuthUserServiceImpl implements AuthUserService {
      */
     public Boolean validateToken(String token, boolean isRenew) {
         // token不存在 或者 token过期自动删除
-        if (!RedisUtil.hasKey(token)) {
+        if (!RedisUtil.hasKey(RedisKeyConstants.USER_TOKEN_KEY + token)) {
             return false;
         }
 
         // 自动续签
         if (isRenew) {
-            RedisUtil.expire(token, ACTIVE_TIME);
+            RedisUtil.expire(RedisKeyConstants.USER_TOKEN_KEY + token, ACTIVE_TIME);
         }
 
         return true;
@@ -142,15 +162,32 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     @Transactional
     public void editAvatar(String avatar) {
-        Integer loginId = this.getLoginId();
-        AuthUserEntity userEntity = authUserDao.getById(loginId);
-        if (userEntity == null) {
-            throw new AuthorizedException("用户不存在，请重新登录");
-        }
+        AuthUserEntity authUserEntity = getCurrentUser();
         authUserDao.lambdaUpdate()
-                .eq(AuthUserEntity::getId, loginId)
+                .eq(AuthUserEntity::getId, authUserEntity.getId())
                 .set(AuthUserEntity::getAvatar, avatar)
                 .update();
+    }
+
+    @Override
+    @Transactional
+    public void editPassword(UserPasswordEditDto dto) {
+        AuthUserEntity authUserEntity = getCurrentUser();
+        this.verifyPassword(dto.getOldPassword(), authUserEntity.getPassword());
+
+        authUserDao.lambdaUpdate()
+                .eq(AuthUserEntity::getId, authUserEntity.getId())
+                .set(AuthUserEntity::getPassword, BCrypt.hashpw((dto.getNewPassword())))
+                .update();
+
+        // 密码修改成功之后，清除历史token缓存
+        Set<String> userTokens = RedisUtil.members(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), String.class);
+        if (userTokens != null) {
+            for (String token : userTokens) {
+                RedisUtil.delete(RedisKeyConstants.USER_TOKEN_KEY + token);
+            }
+        }
+        RedisUtil.delete(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId());
     }
 
     /**
@@ -185,10 +222,56 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (!validity) {
             throw new AuthorizedException("登录状态已失效，请重新登录");
         }
-        Object userId = RedisUtil.get(token);
+        Object userId = RedisUtil.get(RedisKeyConstants.USER_TOKEN_KEY + token);
         if (userId == null) {
             throw new AuthorizedException("登录状态已失效，请重新登录");
         }
         return (Integer) userId;
     }
+
+    /**
+     * 获取当前登录用户
+     *
+     * @return AuthUserEntity
+     */
+    private AuthUserEntity getCurrentUser() {
+        Integer loginId = this.getLoginId();
+        AuthUserEntity userEntity = authUserDao.getById(loginId);
+        if (userEntity == null) {
+            throw new AuthorizedException("用户不存在，请重新登录");
+        }
+        return userEntity;
+    }
+
+    /**
+     * 校验密码是否一致
+     *
+     * @param originalPassword 原始密码
+     * @param encryptPassword  加密密码
+     */
+    private void verifyPassword(String originalPassword, String encryptPassword) {
+        if (!BCrypt.checkpw(originalPassword, encryptPassword)) {
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            throw this.accountVerifyException();
+        }
+    }
+
+    /**
+     * 账号验证异常
+     *
+     * @return 账号或密码错误
+     */
+    private BusinessException accountVerifyException() {
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return new BusinessException("账号密码错误");
+    }
+
 }

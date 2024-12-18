@@ -131,12 +131,21 @@ public class RedisUtil {
     }
 
     /**
+     * 删除String类型的指定key
+     *
+     * @param key
+     */
+    public static void deleteString(String key) {
+        redisTemplate.opsForValue().getAndDelete(key);
+    }
+
+    /**
      * 删除指定key
      *
      * @param key
      */
     public static void delete(String key) {
-        redisTemplate.opsForValue().getAndDelete(key);
+        redisTemplate.delete(key);
     }
 
     /**
@@ -202,6 +211,30 @@ public class RedisUtil {
      */
     public static Set<Object> members(String key) {
         return redisTemplate.opsForSet().members(key);
+    }
+
+    /**
+     * 根据key获取指定类型的Set值
+     *
+     * @param key       key名称
+     * @param typeClass 值的数据类型
+     * @param <T>       value的数据类型
+     * @return typeClass value
+     */
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static <T> Set<T> members(String key, Class<T> typeClass) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+        Set<Object> set = redisTemplate.opsForSet().members(key);
+        if (set == null || set.isEmpty()) {
+            return null;
+        }
+        if (!typeClass.isAssignableFrom(set.stream().findAny().get().getClass())) {
+            throw new IwException("Target Class Type Mismatch!");
+        }
+        return (Set<T>) set;
     }
 
     /**

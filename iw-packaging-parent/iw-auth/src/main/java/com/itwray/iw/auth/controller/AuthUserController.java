@@ -1,5 +1,6 @@
 package com.itwray.iw.auth.controller;
 
+import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.service.AuthUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,9 +33,15 @@ public class AuthUserController {
     }
 
     @PostMapping("/editAvatar")
-    @Operation(summary = "编辑头像")
+    @Operation(summary = "编辑用户头像")
     public void editAvatar(@RequestBody Map<String, Object> body) {
         String avatar = (String) body.get("avatar");
         authUserService.editAvatar(avatar);
+    }
+
+    @PostMapping("/editPassword")
+    @Operation(summary = "修改用户密码")
+    public void editPassword(@RequestBody UserPasswordEditDto dto) {
+        authUserService.editPassword(dto);
     }
 }

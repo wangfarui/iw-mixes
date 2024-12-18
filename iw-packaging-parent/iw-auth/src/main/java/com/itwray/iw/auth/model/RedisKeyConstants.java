@@ -9,6 +9,18 @@ package com.itwray.iw.auth.model;
 public abstract class RedisKeyConstants {
 
     /**
+     * 用户token key:[token]
+     * <p>用户:token = 1:n</p>
+     */
+    public static final String USER_TOKEN_KEY = "token:";
+
+    /**
+     * 用户token集合key:[userId]
+     * <p>用户已登录的所有token</p>
+     */
+    public static final String USER_TOKEN_SET_KEY = "token:set:";
+
+    /**
      * 字典缓存信息key:[userId]
      */
     public static final String DICT_KEY = "dict:";
