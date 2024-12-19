@@ -8,6 +8,8 @@ import com.itwray.iw.auth.model.RedisKeyConstants;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.starter.redis.RedisUtil;
+import com.itwray.iw.starter.rocketmq.MQProducerHelper;
+import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.BusinessException;
@@ -61,6 +63,10 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
         // 密码基于 BCrypt 加密存储
         addUser.setPassword(BCrypt.hashpw((addUser.getPassword())));
         this.save(addUser);
+
+        // 发送注册新用户成功的MQ消息
+        bo.setUserId(addUser.getId());
+        MQProducerHelper.send(MQTopicConstants.REGISTER_NEW_USER, bo);
 
         return addUser;
     }

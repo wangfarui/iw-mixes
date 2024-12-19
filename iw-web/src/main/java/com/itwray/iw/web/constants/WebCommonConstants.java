@@ -24,6 +24,11 @@ public abstract class WebCommonConstants {
     public static final String INNER_CLIENT_IP = "-1";
 
     /**
+     * 数据库默认int值
+     */
+    public static final Integer DATABASE_DEFAULT_INT_VALUE = 0;
+
+    /**
      * 返回标准的limit语法
      *
      * @param limitNum limit数量

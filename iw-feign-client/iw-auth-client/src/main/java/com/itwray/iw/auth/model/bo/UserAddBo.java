@@ -1,6 +1,6 @@
 package com.itwray.iw.auth.model.bo;
 
-import com.itwray.iw.auth.dao.AuthUserDao;
+import com.itwray.iw.web.model.dto.UserDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,12 +8,18 @@ import lombok.NoArgsConstructor;
  * 用户新增对象
  *
  * @author wray
- * @see AuthUserDao#addNewUser(UserAddBo)
+ * @see com.itwray.iw.auth.dao.AuthUserDao#addNewUser(UserAddBo)
  * @since 2024/12/18
  */
+@SuppressWarnings("all")
 @Data
 @NoArgsConstructor
-public class UserAddBo {
+public class UserAddBo implements UserDto {
+
+    /**
+     * 当前注册的用户id
+     */
+    private Integer userId;
 
     /**
      * 电话号码
