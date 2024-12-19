@@ -6,6 +6,7 @@ import com.itwray.iw.web.utils.IpUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class AuthUserController {
 
     @PostMapping("/editPassword")
     @Operation(summary = "修改用户密码")
-    public void editPassword(@RequestBody UserPasswordEditDto dto) {
+    public void editPassword(@RequestBody @Valid UserPasswordEditDto dto) {
         authUserService.editPassword(dto);
     }
 

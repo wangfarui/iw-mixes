@@ -21,6 +21,7 @@ import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -182,9 +183,23 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     @Transactional
     public void editPassword(UserPasswordEditDto dto) {
+        // 获取当前用户实体
         AuthUserEntity authUserEntity = getCurrentUser();
-        this.verifyPassword(dto.getOldPassword(), authUserEntity.getPassword());
 
+        // 验证码不为空的情况下, 优先使用验证码校验
+        if (StringUtils.isNotBlank(dto.getVerificationCode())) {
+            // 校验电话号码验证码的正确性, 通过后表示登录成功
+            String verificationCode = RedisUtil.get(RedisKeyConstants.PHONE_VERIFY_KEY + authUserEntity.getPhoneNumber(), String.class);
+            if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
+                throw this.accountVerifyException("验证码错误");
+            }
+        } else if (StringUtils.isNotBlank(dto.getOldPassword())) {
+            this.verifyPassword(dto.getOldPassword(), authUserEntity.getPassword());
+        } else {
+            throw new BusinessException("无法识别的操作");
+        }
+
+        // 验证成功后, 修改密码
         authUserDao.lambdaUpdate()
                 .eq(AuthUserEntity::getId, authUserEntity.getId())
                 .set(AuthUserEntity::getPassword, BCrypt.hashpw((dto.getNewPassword())))
