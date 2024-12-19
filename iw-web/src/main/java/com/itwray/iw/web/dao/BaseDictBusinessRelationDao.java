@@ -57,7 +57,7 @@ public class BaseDictBusinessRelationDao extends BaseDao<BaseDictBusinessRelatio
     public void removeRelation(DictBusinessTypeEnum businessTypeEnum, Serializable businessId) {
         this.lambdaUpdate()
                 .eq(BaseDictBusinessRelationEntity::getBusinessType, businessTypeEnum.getCode())
-                .eq(BaseDictBusinessRelationEntity::getId, businessId)
+                .eq(BaseDictBusinessRelationEntity::getBusinessId, businessId)
                 .remove();
     }
 
@@ -71,7 +71,7 @@ public class BaseDictBusinessRelationDao extends BaseDao<BaseDictBusinessRelatio
     public List<Integer> queryDictIdList(DictBusinessTypeEnum businessTypeEnum, Serializable businessId) {
         return this.lambdaQuery()
                 .eq(BaseDictBusinessRelationEntity::getBusinessType, businessTypeEnum.getCode())
-                .eq(BaseDictBusinessRelationEntity::getId, businessId)
+                .eq(BaseDictBusinessRelationEntity::getBusinessId, businessId)
                 .list()
                 .stream()
                 .map(BaseDictBusinessRelationEntity::getDictId)
