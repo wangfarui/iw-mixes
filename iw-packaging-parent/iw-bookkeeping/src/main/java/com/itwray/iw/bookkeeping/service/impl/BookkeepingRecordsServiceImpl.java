@@ -24,6 +24,7 @@ import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.model.dto.AddDto;
+import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.UserUtils;
@@ -75,7 +76,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
         // 保存标签
         if (dto instanceof BookkeepingRecordAddDto recordAddDto) {
-            baseDictBusinessRelationDao.saveRelation(bookkeepingRecords.getId(), recordAddDto.getRecordTags());
+            baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, bookkeepingRecords.getId(), recordAddDto.getRecordTags());
             // 记录为激励收入时，积分+1
             if (RecordCategoryEnum.INCOME.getCode().equals(recordAddDto.getRecordCategory())
                     && BoolEnums.TRUE.getCode().equals(recordAddDto.getIsExcitationRecord())) {
@@ -98,7 +99,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         BookkeepingRecordsEntity bookkeepingRecordsEntity = getBaseDao().queryById(id);
         super.delete(id);
         // 删除标签
-        baseDictBusinessRelationDao.removeRelation(id);
+        baseDictBusinessRelationDao.removeRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, id);
         // 同步积分数据
         if (RecordCategoryEnum.INCOME.getCode().equals(bookkeepingRecordsEntity.getRecordCategory())
                 && BoolEnums.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
@@ -117,7 +118,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         BookkeepingRecordDetailVo vo = super.detail(id);
 
         // 查询标签
-        List<Integer> tagIdList = baseDictBusinessRelationDao.queryDictIdList(id);
+        List<Integer> tagIdList = baseDictBusinessRelationDao.queryDictIdList(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, id);
         vo.setRecordTags(tagIdList);
 
         return vo;

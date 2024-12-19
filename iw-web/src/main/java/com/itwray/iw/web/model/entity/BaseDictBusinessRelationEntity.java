@@ -1,10 +1,11 @@
 package com.itwray.iw.web.model.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
+import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 /**
  * 字典业务关联表
@@ -13,16 +14,27 @@ import lombok.NoArgsConstructor;
  * @since 2024-05-26
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("base_dict_business_relation")
 public class BaseDictBusinessRelationEntity extends IdEntity {
 
     /**
+     * 主键id
+     */
+    @TableId(type = IdType.AUTO)
+    private Integer id;
+
+    /**
+     * 业务类型(枚举code)
+     *
+     * @see DictBusinessTypeEnum#getCode()
+     */
+    private Integer businessType;
+
+    /**
      * 业务表id
      */
-    private Integer id;
+    private Integer businessId;
 
     /**
      * 字典id

@@ -23,37 +23,39 @@ alter table base_dict
 drop table if exists base_dict_business_relation;
 create table base_dict_business_relation
 (
-    id      int unsigned not null comment '业务id',
-    dict_id int unsigned not null comment '字典id',
-    primary key (id, dict_id),
-    key idx_dict_id (dict_id)
+    id            int unsigned      not null comment '主键id',
+    business_type smallint unsigned not null comment '业务类型(枚举code)',
+    business_id   int unsigned      not null comment '业务id',
+    dict_id       int unsigned      not null comment '字典id',
+    primary key (id),
+    key idx_business_column (business_type, business_id)
 ) comment '字典业务关联表';
 
-## 初始字典数据
-insert into base_dict (dict_type, dict_code, dict_name, sort)
-values (3002, 0, '任意时间', 1),
-       (3002, 1, '早餐', 2),
-       (3002, 2, '午餐', 3),
-       (3002, 3, '晚餐', 4),
-       (3003, 1, '荤菜', 1),
-       (3003, 2, '素菜', 2),
-       (3003, 3, '荤素搭配', 3),
-       (3004, 1, '正常', 1),
-       (3004, 2, '禁用', 2),
-       (3004, 3, '售空', 3),
-       (4002, 1, '餐饮美食', 1),
-       (4002, 2, '日用百货', 2),
-       (4002, 3, '交通出行', 3),
-       (4002, 4, '充值缴费', 4),
-       (4002, 5, '生活服务', 5),
-       (4003, 1, '支出', 1),
-       (4003, 2, '收入', 2)
+## 初始字典模板数据
+insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
+values (3002, 0, '任意时间', 1, 0),
+       (3002, 1, '早餐', 2, 0),
+       (3002, 2, '午餐', 3, 0),
+       (3002, 3, '晚餐', 4, 0),
+       (3003, 1, '荤菜', 1, 0),
+       (3003, 2, '素菜', 2, 0),
+       (3003, 3, '荤素搭配', 3, 0),
+       (3004, 1, '正常', 1, 0),
+       (3004, 2, '禁用', 2, 0),
+       (3004, 3, '售空', 3, 0),
+       (4002, 1, '餐饮美食', 1, 0),
+       (4002, 2, '日用百货', 2, 0),
+       (4002, 3, '交通出行', 3, 0),
+       (4002, 4, '充值缴费', 4, 0),
+       (4002, 5, '生活服务', 5, 0),
+       (4003, 1, '支出', 1, 0),
+       (4003, 2, '收入', 2, 0)
 ;
-insert into base_dict (dict_type, dict_name, sort)
-values (4001, '买菜', 1),
-       (4001, '外卖', 2),
-       (4001, '朴朴', 3),
-       (4001, '聚餐', 4),
-       (4001, '固定支出', 5),
-       (4001, '旅游', 6)
+insert into base_dict (dict_type, dict_name, sort, user_id)
+values (4001, '买菜', 1, 0),
+       (4001, '外卖', 2, 0),
+       (4001, '朴朴', 3, 0),
+       (4001, '聚餐', 4, 0),
+       (4001, '固定支出', 5, 0),
+       (4001, '旅游', 6, 0)
 ;
