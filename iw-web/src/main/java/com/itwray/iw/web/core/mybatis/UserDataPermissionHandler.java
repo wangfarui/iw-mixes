@@ -30,6 +30,11 @@ public class UserDataPermissionHandler implements MultiDataPermissionHandler {
             // 表示不追加任何条件
             return null;
         }
+        String whereSql = where.toString();
+        // 如果where中已包含user_id查询条件，则不追加 where 条件
+        if (whereSql != null && whereSql.contains("user_id")) {
+            return null;
+        }
         String sqlSegment = "user_id = " + UserUtils.getUserId();
         try {
             return CCJSqlParserUtil.parseCondExpression(sqlSegment);
