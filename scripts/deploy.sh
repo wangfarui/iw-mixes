@@ -54,7 +54,7 @@ fi
 
 # 4. 清空目录下的内容
 cd $TARGET_DIR/$PROJECT_NAME || exit 1
-rm -f ./*
+rm -rf ./*
 
 # 5. 退出远程服务器
 exit
