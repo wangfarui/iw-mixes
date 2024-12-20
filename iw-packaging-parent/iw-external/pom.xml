@@ -21,5 +21,22 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-external-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-rocketmq-starter</artifactId>
+        </dependency>
+
+        <!-- 阿里云sms短信服务依赖 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20170525</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 </project>

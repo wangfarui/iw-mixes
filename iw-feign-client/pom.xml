@@ -17,6 +17,7 @@
         <module>iw-bookkeeping-client</module>
         <module>iw-eat-client</module>
         <module>iw-auth-client</module>
+        <module>iw-external-client</module>
     </modules>
 
     <packaging>pom</packaging>

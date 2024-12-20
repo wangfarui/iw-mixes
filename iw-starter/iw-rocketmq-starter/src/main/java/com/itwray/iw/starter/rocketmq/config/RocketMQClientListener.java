@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * @author wray
  * @since 2024/10/14
  */
-public interface RocketMQClientListener<T extends UserDto> extends RocketMQListener {
+public interface RocketMQClientListener<T> extends RocketMQListener {
 
     /**
      * 消费实例接收的参数类型
@@ -43,8 +43,8 @@ public interface RocketMQClientListener<T extends UserDto> extends RocketMQListe
 
         // 转换JSON字符串为Object对象
         T t = JSONUtil.toBean(messageBody, getGenericClass());
-        if (t.getUserId() != null) {
-            UserUtils.setUserId(t.getUserId());
+        if (t instanceof UserDto userDto) {
+            UserUtils.setUserId(userDto.getUserId());
         }
 
         // 执行业务消费逻辑

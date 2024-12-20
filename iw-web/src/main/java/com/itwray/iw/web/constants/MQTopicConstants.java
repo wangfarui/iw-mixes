@@ -17,4 +17,9 @@ public abstract class MQTopicConstants {
      * 注册新用户
      */
     public static final String REGISTER_NEW_USER = "register_new_user";
+
+    /**
+     * 发送短信验证码
+     */
+    public static final String SEND_VERIFICATION_CODE = "send_verification_code";
 }

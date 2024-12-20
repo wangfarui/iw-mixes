@@ -49,6 +49,11 @@
                 <artifactId>iw-auth-client</artifactId>
                 <version>${iw.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.itwray.mixes</groupId>
+                <artifactId>iw-external-client</artifactId>
+                <version>${iw.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

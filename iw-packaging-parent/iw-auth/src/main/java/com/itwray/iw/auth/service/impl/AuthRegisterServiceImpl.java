@@ -7,13 +7,16 @@ import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.service.AuthRegisterService;
-import com.itwray.iw.auth.utils.SmsUtils;
+import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.redis.lock.DistributedLock;
+import com.itwray.iw.starter.rocketmq.MQProducerHelper;
+import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +31,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthRegisterServiceImpl implements AuthRegisterService {
 
     private final AuthUserDao authUserDao;
+
+    /**
+     * 签名名称
+     */
+    @Value("${aliyun.sms.sign-name}")
+    private String signName;
+
+    /**
+     * 模板CODE
+     */
+    @Value("${aliyun.sms.template-code}")
+    private String templateCode;
 
     @Autowired
     public AuthRegisterServiceImpl(AuthUserDao authUserDao) {
@@ -91,14 +106,20 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         // 生成6位验证码
         Integer[] codes = NumberUtil.generateBySet(100000, 999999, 1);
         String verificationCode = codes[0].toString();
-        // 同一号码, 2分钟内只发1次
-        RedisUtil.set(RedisKeyConstants.PHONE_VERIFY_KEY + phoneNumber, verificationCode, 60 * 2);
-        // 同一ip, 6小时内只发5次
+        // 同一号码, 1分钟内只发1次
+        RedisUtil.set(RedisKeyConstants.PHONE_VERIFY_KEY + phoneNumber, verificationCode, 60);
+        // 同一ip, 1小时内只发5次
         RedisUtil.increment(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, 1L);
-        RedisUtil.expire(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, 60 * 60 * 6);
+        RedisUtil.expire(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, 60 * 60);
 
         // 发送短信
-        SmsUtils.sendSms(phoneNumber, verificationCode);
+        SmsSendVerificationCodeDto dto = new SmsSendVerificationCodeDto();
+        dto.setPhoneNumber(phoneNumber);
+        dto.setSignName(this.signName);
+        dto.setTemplateCode(this.templateCode);
+        dto.setTemplateParam("{\"code\":\"" + verificationCode + "\"}");
+        // TODO 后期改为同步Feign调用
+        MQProducerHelper.send(MQTopicConstants.SEND_VERIFICATION_CODE, dto);
     }
 
 
