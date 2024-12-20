@@ -23,10 +23,10 @@ alter table base_dict
 drop table if exists base_dict_business_relation;
 create table base_dict_business_relation
 (
-    id            int unsigned      not null comment '主键id',
-    business_type smallint unsigned not null comment '业务类型(枚举code)',
-    business_id   int unsigned      not null comment '业务id',
-    dict_id       int unsigned      not null comment '字典id',
+    id            int unsigned auto_increment not null comment '主键id',
+    business_type smallint unsigned           not null comment '业务类型(枚举code)',
+    business_id   int unsigned                not null comment '业务id',
+    dict_id       int unsigned                not null comment '字典id',
     primary key (id),
     key idx_business_column (business_type, business_id)
 ) comment '字典业务关联表';
