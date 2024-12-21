@@ -1,5 +1,6 @@
 package com.itwray.iw.web.utils;
 
+import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.web.client.ClientHelper;
 import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
@@ -13,16 +14,11 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public abstract class UserUtils {
 
-    /**
-     * token的固定header
-     */
-    public static final String TOKEN_HEADER = "iwtoken";
-
     private static final ThreadLocal<Integer> USER_ID = new ThreadLocal<>();
 
     public static String getToken() {
         HttpServletRequest request = SpringWebHolder.getRequest();
-        return request.getHeader(TOKEN_HEADER);
+        return request.getHeader(RequestHeaderConstants.TOKEN_HEADER);
     }
 
     /**

@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.itwray.iw.web.utils.UserUtils.TOKEN_HEADER;
+import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER;
 
 /**
  * 用户服务实现层

@@ -1,5 +1,6 @@
 package com.itwray.iw.web.core.feign;
 
+import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.web.core.webmvc.GeneralResponseWrapperAdvice;
 import com.itwray.iw.web.utils.UserUtils;
 import feign.RequestInterceptor;
@@ -60,7 +61,7 @@ public class FeignConfiguration {
             String token = UserUtils.getToken();
             if (token != null) {
                 // 将 token 添加到请求头中
-                requestTemplate.header(UserUtils.TOKEN_HEADER, token);
+                requestTemplate.header(RequestHeaderConstants.TOKEN_HEADER, token);
             }
         };
     }
