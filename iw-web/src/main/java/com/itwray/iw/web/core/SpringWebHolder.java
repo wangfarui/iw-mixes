@@ -16,6 +16,11 @@ public class SpringWebHolder {
     private SpringWebHolder() {
     }
 
+    /**
+     * 获取当前线程的Http请求
+     *
+     * @return HttpServletRequest
+     */
     public static HttpServletRequest getRequest() {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (servletRequestAttributes == null) {
@@ -25,6 +30,11 @@ public class SpringWebHolder {
         }
     }
 
+    /**
+     * 获取当前线程的Http响应对象
+     *
+     * @return HttpServletResponse
+     */
     public static HttpServletResponse getResponse() {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (servletRequestAttributes == null) {
@@ -34,6 +44,22 @@ public class SpringWebHolder {
         }
     }
 
+    /**
+     * 获取请求头信息
+     *
+     * @param headerName header名称
+     * @return header值
+     */
+    public static String getHeader(String headerName) {
+        HttpServletRequest request = getRequest();
+        return request.getHeader(headerName);
+    }
+
+    /**
+     * 判断当前线程是否来自于HTTP Web请求
+     *
+     * @return true -> 是来自于HTTP Web请求
+     */
     public static boolean isWeb() {
         return RequestContextHolder.getRequestAttributes() != null;
     }
