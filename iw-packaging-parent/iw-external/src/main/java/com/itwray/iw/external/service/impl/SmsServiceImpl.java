@@ -8,15 +8,14 @@ import com.aliyun.teaopenapi.models.Config;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.external.service.SmsService;
-import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
-import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.core.EnvironmentHolder;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.enums.RuntimeEnvironmentEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,8 +26,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-@RocketMQMessageListener(consumerGroup = "external-sms-service", topic = MQTopicConstants.SEND_VERIFICATION_CODE, tag = "*")
-public class SmsServiceImpl implements SmsService, RocketMQClientListener<SmsSendVerificationCodeDto>, ApplicationRunner {
+@RefreshScope
+public class SmsServiceImpl implements SmsService, ApplicationRunner {
 
     /**
      * 短信服务Client
@@ -38,11 +37,12 @@ public class SmsServiceImpl implements SmsService, RocketMQClientListener<SmsSen
     /**
      * 运行环境
      */
-    private static volatile RuntimeEnvironmentEnum env;
+    @Value("${iw.web.env:dev}")
+    private RuntimeEnvironmentEnum env;
 
     @Override
     public void sendVerificationCode(SmsSendVerificationCodeDto dto) {
-        if (!RuntimeEnvironmentEnum.PROD.name().equals(getEnv().name())) {
+        if (!RuntimeEnvironmentEnum.PROD.name().equals(env.name())) {
             log.info("非生产环境, 已跳过短信发送流程");
             return;
         }
@@ -66,27 +66,9 @@ public class SmsServiceImpl implements SmsService, RocketMQClientListener<SmsSen
         }
     }
 
-    private static RuntimeEnvironmentEnum getEnv() {
-        if (env == null) {
-            synchronized (SmsServiceImpl.class) {
-                if (env == null) {
-                    env = EnvironmentHolder.getProperty("iw.web.env", RuntimeEnvironmentEnum.class, RuntimeEnvironmentEnum.DEV);
-                }
-            }
-        }
-        return env;
-    }
-
-    @Override
-    public Class<SmsSendVerificationCodeDto> getGenericClass() {
-        return SmsSendVerificationCodeDto.class;
-    }
-
-    @Override
-    public void doConsume(SmsSendVerificationCodeDto dto) {
-        this.sendVerificationCode(dto);
-    }
-
+    /**
+     * 应用启动后，初始化连接sms客户端
+     */
     @Override
     public void run(ApplicationArguments args) throws Exception {
         Config config = new Config()

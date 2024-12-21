@@ -7,11 +7,10 @@ import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.service.AuthRegisterService;
+import com.itwray.iw.external.client.SmsClient;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.redis.lock.DistributedLock;
-import com.itwray.iw.starter.rocketmq.MQProducerHelper;
-import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -32,6 +31,8 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
 
     private final AuthUserDao authUserDao;
 
+    private SmsClient smsClient;
+
     /**
      * 签名名称
      */
@@ -47,6 +48,11 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
     @Autowired
     public AuthRegisterServiceImpl(AuthUserDao authUserDao) {
         this.authUserDao = authUserDao;
+    }
+
+    @Autowired
+    public void setSmsClient(SmsClient smsClient) {
+        this.smsClient = smsClient;
     }
 
     @Override
@@ -118,8 +124,9 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         dto.setSignName(this.signName);
         dto.setTemplateCode(this.templateCode);
         dto.setTemplateParam("{\"code\":\"" + verificationCode + "\"}");
-        // TODO 后期改为同步Feign调用
-        MQProducerHelper.send(MQTopicConstants.SEND_VERIFICATION_CODE, dto);
+
+        // 同步调用发送验证码
+        smsClient.sendVerificationCode(dto);
     }
 
 

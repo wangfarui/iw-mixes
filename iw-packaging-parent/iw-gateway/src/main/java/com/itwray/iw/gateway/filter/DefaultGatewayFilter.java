@@ -3,6 +3,7 @@ package com.itwray.iw.gateway.filter;
 import cn.hutool.json.JSONUtil;
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.constants.GeneralApiCode;
+import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.gateway.config.IwGatewayProperties;
 import com.itwray.iw.starter.redis.RedisUtil;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -47,7 +48,7 @@ public class DefaultGatewayFilter implements GlobalFilter {
         if (path != null && gatewayProperties.isIgnoreValidateApi(path)) {
             return chain.filter(exchange);
         }
-        String token = request.getHeaders().getFirst("iwtoken");
+        String token = request.getHeaders().getFirst(RequestHeaderConstants.TOKEN_HEADER);
         if (token == null) {
             return createUnauthorizedResponse(exchange.getResponse(), "未登录，请登录后再试");
         }
