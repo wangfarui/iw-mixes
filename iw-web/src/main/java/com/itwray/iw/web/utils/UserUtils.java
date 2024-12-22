@@ -5,6 +5,7 @@ import com.itwray.iw.web.client.ClientHelper;
 import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.lang.Nullable;
 
 /**
  * 用户工具类
@@ -16,7 +17,7 @@ public abstract class UserUtils {
 
     private static final ThreadLocal<Integer> USER_ID = new ThreadLocal<>();
 
-    public static String getToken() {
+    public static @Nullable String getToken() {
         HttpServletRequest request = SpringWebHolder.getRequest();
         return request.getHeader(RequestHeaderConstants.TOKEN_HEADER);
     }
