@@ -2,7 +2,7 @@ package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.core.util.NumberUtil;
 import com.itwray.iw.auth.dao.AuthUserDao;
-import com.itwray.iw.auth.model.RedisKeyConstants;
+import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
@@ -62,14 +62,14 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         // 校验同一ip的注册失败次数
         if (StringUtils.isNotBlank(clientIp)) {
             // 获取当前ip注册失败的次数
-            Integer registerCount = RedisUtil.get(RedisKeyConstants.REGISTER_IP_KEY + clientIp, Integer.class);
+            Integer registerCount = RedisUtil.get(AuthRedisKeyEnum.REGISTER_IP_KEY.getKey(clientIp), Integer.class);
             if (registerCount != null && registerCount > 5) {
                 throw new BusinessException("注册频率太快，请稍后重试");
             }
         }
 
         // 获取电话号码验证码
-        String phoneVerifyCode = RedisUtil.get(RedisKeyConstants.PHONE_VERIFY_KEY + dto.getPhoneNumber(), String.class);
+        String phoneVerifyCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
         if (phoneVerifyCode == null) {
             throw new BusinessException("验证码已失效，请重新获取");
         }
@@ -98,13 +98,13 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
     @DistributedLock(lockName = "'getVerificationCode:' + #phoneNumber")
     public void getVerificationCode(String phoneNumber, String clientIp) {
         // 查询当前电话号码是否已生成过验证码
-        String oldVerificationCode = RedisUtil.get(RedisKeyConstants.PHONE_VERIFY_KEY + phoneNumber, String.class);
+        String oldVerificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(phoneNumber), String.class);
         if (oldVerificationCode != null) {
             throw new BusinessException("操作频繁，请稍后再试");
         }
 
         // 校验当前ip获取验证码的次数
-        Integer verifyCount = RedisUtil.get(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, Integer.class);
+        Integer verifyCount = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), Integer.class);
         if (verifyCount != null && verifyCount >= 5) {
             throw new BusinessException("操作频繁，请稍后再试");
         }
@@ -113,10 +113,10 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         Integer[] codes = NumberUtil.generateBySet(100000, 999999, 1);
         String verificationCode = codes[0].toString();
         // 同一号码, 验证码5分钟内有效，5分钟内重复发送则覆盖
-        RedisUtil.set(RedisKeyConstants.PHONE_VERIFY_KEY + phoneNumber, verificationCode, 60 * 5);
+        RedisUtil.set(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(phoneNumber), verificationCode, 60 * 5);
         // 同一ip, 1小时内只发5次
-        RedisUtil.increment(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, 1L);
-        RedisUtil.expire(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, 60 * 60);
+        RedisUtil.increment(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 1L);
+        RedisUtil.expire(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 60 * 60);
 
         // 发送短信
         SmsSendVerificationCodeDto dto = new SmsSendVerificationCodeDto();

@@ -3,7 +3,7 @@ package com.itwray.iw.auth.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.itwray.iw.auth.model.RedisKeyConstants;
+import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.DictAddDto;
 import com.itwray.iw.auth.model.dto.DictPageDto;
@@ -212,7 +212,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
      * @return dict:[userId]
      */
     private String obtainDictRedisKeyByUser() {
-        return RedisKeyConstants.DICT_KEY + UserUtils.getUserId();
+        return AuthRedisKeyEnum.DICT_KEY.getKey(UserUtils.getUserId());
     }
 
     @Override

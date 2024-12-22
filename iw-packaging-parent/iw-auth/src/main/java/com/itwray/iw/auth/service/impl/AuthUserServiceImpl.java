@@ -2,7 +2,7 @@ package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.crypto.digest.BCrypt;
 import com.itwray.iw.auth.dao.AuthUserDao;
-import com.itwray.iw.auth.model.RedisKeyConstants;
+import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
@@ -14,9 +14,9 @@ import com.itwray.iw.auth.service.AuthRegisterService;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
-import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -95,7 +95,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         }
 
         // 校验电话号码验证码的正确性, 通过后表示登录成功
-        String verificationCode = RedisUtil.get(RedisKeyConstants.PHONE_VERIFY_KEY + dto.getPhoneNumber(), String.class);
+        String verificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
         if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
             throw this.accountVerifyException("验证码错误");
         }
@@ -123,8 +123,8 @@ public class AuthUserServiceImpl implements AuthUserService {
         Integer userId = this.getUserId(token);
 
         // 移除token缓存
-        RedisUtil.delete(RedisKeyConstants.USER_TOKEN_KEY + token);
-        RedisUtil.remove(RedisKeyConstants.USER_TOKEN_SET_KEY + userId, token);
+        RedisUtil.delete(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token));
+        RedisUtil.remove(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(userId), token);
     }
 
     /**
@@ -158,13 +158,13 @@ public class AuthUserServiceImpl implements AuthUserService {
      */
     public Boolean validateToken(String token, boolean isRenew) {
         // token不存在 或者 token过期自动删除
-        if (!RedisUtil.hasKey(RedisKeyConstants.USER_TOKEN_KEY + token)) {
+        if (!RedisUtil.hasKey(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token))) {
             return false;
         }
 
         // 自动续签
         if (isRenew) {
-            RedisUtil.expire(RedisKeyConstants.USER_TOKEN_KEY + token, ACTIVE_TIME);
+            RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), ACTIVE_TIME);
         }
 
         return true;
@@ -189,7 +189,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 验证码不为空的情况下, 优先使用验证码校验
         if (StringUtils.isNotBlank(dto.getVerificationCode())) {
             // 校验电话号码验证码的正确性, 通过后表示登录成功
-            String verificationCode = RedisUtil.get(RedisKeyConstants.PHONE_VERIFY_KEY + authUserEntity.getPhoneNumber(), String.class);
+            String verificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(authUserEntity.getPhoneNumber()), String.class);
             if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
                 throw this.accountVerifyException("验证码错误");
             }
@@ -206,13 +206,13 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .update();
 
         // 密码修改成功之后，清除历史token缓存
-        Set<String> userTokens = RedisUtil.members(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), String.class);
+        Set<String> userTokens = RedisUtil.members(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), String.class);
         if (userTokens != null) {
             for (String token : userTokens) {
-                RedisUtil.delete(RedisKeyConstants.USER_TOKEN_KEY + token);
+                RedisUtil.delete(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token));
             }
         }
-        RedisUtil.delete(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId());
+        RedisUtil.delete(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()));
     }
 
     @Override
@@ -244,21 +244,21 @@ public class AuthUserServiceImpl implements AuthUserService {
      */
     private UserInfoVo loginSuccessAfter(AuthUserEntity authUserEntity) {
         // TODO 后期改定时执行 先清除历史过期token set
-        Set<String> userTokens = RedisUtil.members(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), String.class);
+        Set<String> userTokens = RedisUtil.members(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), String.class);
         if (userTokens != null) {
             for (String token : userTokens) {
                 // 如果token已过期，则删除set集合中的value
-                if (!RedisUtil.hasKey(RedisKeyConstants.USER_TOKEN_KEY + token)) {
-                    RedisUtil.remove(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
+                if (!RedisUtil.hasKey(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token))) {
+                    RedisUtil.remove(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
                 }
             }
         }
 
         // 生成Token并缓存
         String token = UUID.randomUUID().toString();
-        RedisUtil.set(RedisKeyConstants.USER_TOKEN_KEY + token, authUserEntity.getId(), ACTIVE_TIME);
-        RedisUtil.sSet(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), token);
-        RedisUtil.expire(RedisKeyConstants.USER_TOKEN_SET_KEY + authUserEntity.getId(), ACTIVE_TIME);
+        RedisUtil.set(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), authUserEntity.getId(), ACTIVE_TIME);
+        RedisUtil.sSet(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
+        RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), ACTIVE_TIME);
 
         // 将token写入到请求头中
         this.setTokenValue(token);
@@ -305,7 +305,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (!validity) {
             throw new AuthorizedException("登录状态已失效，请重新登录");
         }
-        Object userId = RedisUtil.get(RedisKeyConstants.USER_TOKEN_KEY + token);
+        Object userId = RedisUtil.get(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token));
         if (userId == null) {
             throw new AuthorizedException("登录状态已失效，请重新登录");
         }

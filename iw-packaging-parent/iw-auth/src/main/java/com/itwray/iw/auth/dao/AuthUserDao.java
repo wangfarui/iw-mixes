@@ -4,7 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
-import com.itwray.iw.auth.model.RedisKeyConstants;
+import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.starter.redis.RedisUtil;
@@ -127,8 +127,8 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
         if (WebCommonConstants.INNER_CLIENT_IP.equals(clientIp)) {
             return;
         }
-        RedisUtil.increment(RedisKeyConstants.REGISTER_IP_KEY + clientIp, 1L);
-        RedisUtil.expire(RedisKeyConstants.REGISTER_IP_KEY + clientIp, 60 * 60);
+        RedisUtil.increment(AuthRedisKeyEnum.REGISTER_IP_KEY.getKey(clientIp), 1L);
+        RedisUtil.expire(AuthRedisKeyEnum.REGISTER_IP_KEY.getKey(clientIp), 60 * 60);
     }
 
     /**

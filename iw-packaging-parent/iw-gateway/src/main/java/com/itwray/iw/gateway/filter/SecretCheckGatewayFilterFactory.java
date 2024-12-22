@@ -2,7 +2,7 @@ package com.itwray.iw.gateway.filter;
 
 import cn.hutool.core.collection.CollUtil;
 import com.itwray.iw.common.constants.RequestHeaderConstants;
-import com.itwray.iw.starter.redis.RedisKeyConstants;
+import com.itwray.iw.starter.redis.RedisKeyEnum;
 import com.itwray.iw.starter.redis.RedisUtil;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -36,7 +36,7 @@ public class SecretCheckGatewayFilterFactory extends AbstractGatewayFilterFactor
                 exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                 return exchange.getResponse().setComplete();
             }
-            String redisKey = RedisKeyConstants.FEIGN_SECRET_KEY + secrets.get(0);
+            String redisKey = RedisKeyEnum.FEIGN_SECRET_KEY.getKey(secrets.get(0));
             if (!RedisUtil.hasKey(redisKey)) {
                 // 密钥失效，拒绝请求
                 exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
