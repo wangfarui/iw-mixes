@@ -100,7 +100,8 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         // 查询当前电话号码是否已生成过验证码
         String oldVerificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(phoneNumber), String.class);
         if (oldVerificationCode != null) {
-            throw new BusinessException("操作频繁，请稍后再试");
+            // 如果缓存中存在验证码，则表示短时间内已发送过验证码，直接返回成功
+            return;
         }
 
         // 校验当前ip获取验证码的次数
@@ -112,21 +113,21 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         // 生成6位验证码
         Integer[] codes = NumberUtil.generateBySet(100000, 999999, 1);
         String verificationCode = codes[0].toString();
-        // 同一号码, 验证码5分钟内有效，5分钟内重复发送则覆盖
-        RedisUtil.set(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(phoneNumber), verificationCode, 60 * 5);
-        // 同一ip, 1小时内只发5次
-        RedisUtil.increment(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 1L);
-        RedisUtil.expire(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 60 * 60);
 
-        // 发送短信
+        // 构建发送短信验证码对象
         SmsSendVerificationCodeDto dto = new SmsSendVerificationCodeDto();
         dto.setPhoneNumber(phoneNumber);
         dto.setSignName(this.signName);
         dto.setTemplateCode(this.templateCode);
         dto.setTemplateParam("{\"code\":\"" + verificationCode + "\"}");
-
         // 同步调用发送验证码
         smsClient.sendVerificationCode(dto);
+
+        // 同一号码, 验证码5分钟内有效，5分钟内重复发送则覆盖
+        RedisUtil.set(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(phoneNumber), verificationCode, 60 * 5);
+        // 同一ip, 1小时内只发5次
+        RedisUtil.increment(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 1L);
+        RedisUtil.expire(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 60 * 60);
     }
 
 
