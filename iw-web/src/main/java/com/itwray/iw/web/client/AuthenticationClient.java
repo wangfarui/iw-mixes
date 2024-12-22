@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * Auth服务Client
+ * Auth服务的权限认证Client
  *
  * @author wray
  * @since 2024/9/9
  */
-@FeignClient(value = "iw-auth-service", path = "/auth-service")
-public interface AuthClient {
+@FeignClient(value = "iw-auth-service", path = "/auth-service/authentication")
+public interface AuthenticationClient {
 
-    @GetMapping("/authentication/getUserIdByToken")
+    @GetMapping("/getUserIdByToken")
     @Operation(summary = "获取指定token的用户id")
     Integer getUserIdByToken(@RequestParam("token") String token);
 }

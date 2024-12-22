@@ -1,7 +1,7 @@
 package com.itwray.iw.web.utils;
 
 import com.itwray.iw.common.constants.RequestHeaderConstants;
-import com.itwray.iw.web.client.ClientHelper;
+import com.itwray.iw.web.client.AuthenticationClient;
 import com.itwray.iw.web.exception.AuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
@@ -15,6 +15,13 @@ import org.springframework.lang.Nullable;
 public abstract class UserUtils {
 
     private static final ThreadLocal<Integer> USER_ID = new ThreadLocal<>();
+
+    private static volatile AuthenticationClient authenticationClient;
+
+    /**
+     * authenticationClient 对象锁
+     */
+    private static final Object AUTHENTICATION_CLIENT_LOCK = new Object();
 
     public static @Nullable String getToken() {
         HttpServletRequest request = SpringWebHolder.getRequest();
@@ -38,7 +45,7 @@ public abstract class UserUtils {
                 throw new AuthorizedException("当前未登录，请先登录");
             }
 
-            setUserId(userId = ClientHelper.getAuthClient().getUserIdByToken(token));
+            setUserId(userId = getAuthClient().getUserIdByToken(token));
         }
         return userId;
     }
@@ -60,4 +67,14 @@ public abstract class UserUtils {
         USER_ID.remove();
     }
 
+    private static AuthenticationClient getAuthClient() {
+        if (authenticationClient == null) {
+            synchronized (AUTHENTICATION_CLIENT_LOCK) {
+                if (authenticationClient == null) {
+                    authenticationClient = ApplicationContextHolder.getBean(AuthenticationClient.class);
+                }
+            }
+        }
+        return authenticationClient;
+    }
 }
