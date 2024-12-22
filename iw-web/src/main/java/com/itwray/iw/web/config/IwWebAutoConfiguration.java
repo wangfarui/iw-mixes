@@ -1,10 +1,10 @@
 package com.itwray.iw.web.config;
 
-import com.itwray.iw.web.core.EnvironmentHolder;
 import com.itwray.iw.web.core.feign.FeignConfiguration;
 import com.itwray.iw.web.core.mybatis.MybatisPlusConfiguration;
 import com.itwray.iw.web.core.webmvc.IwWebMvcConfiguration;
 import com.itwray.iw.web.utils.ApplicationContextHolder;
+import com.itwray.iw.web.utils.EnvironmentHolder;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

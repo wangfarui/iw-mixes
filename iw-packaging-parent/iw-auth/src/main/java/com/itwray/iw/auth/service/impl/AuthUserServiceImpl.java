@@ -14,7 +14,7 @@ import com.itwray.iw.auth.service.AuthRegisterService;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
-import com.itwray.iw.web.core.SpringWebHolder;
+import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.utils.UserUtils;

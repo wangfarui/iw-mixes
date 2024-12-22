@@ -3,7 +3,7 @@ package com.itwray.iw.web.json.serialize;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.itwray.iw.web.core.EnvironmentHolder;
+import com.itwray.iw.web.utils.EnvironmentHolder;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;

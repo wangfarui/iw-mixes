@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itwray.iw.external.service.ExternalApiService;
 import com.itwray.iw.starter.redis.RedisUtil;
-import com.itwray.iw.web.core.SpringWebHolder;
+import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.utils.IpUtils;
 import jakarta.servlet.http.HttpServletRequest;

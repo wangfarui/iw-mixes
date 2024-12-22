@@ -8,7 +8,7 @@ import com.aliyun.teaopenapi.models.Config;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.external.service.SmsService;
-import com.itwray.iw.web.core.EnvironmentHolder;
+import com.itwray.iw.web.utils.EnvironmentHolder;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.enums.RuntimeEnvironmentEnum;
 import lombok.extern.slf4j.Slf4j;

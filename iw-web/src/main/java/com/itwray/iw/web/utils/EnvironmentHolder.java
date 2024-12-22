@@ -1,4 +1,4 @@
-package com.itwray.iw.web.core;
+package com.itwray.iw.web.utils;
 
 import com.itwray.iw.web.exception.IwWebException;
 import org.springframework.context.EnvironmentAware;

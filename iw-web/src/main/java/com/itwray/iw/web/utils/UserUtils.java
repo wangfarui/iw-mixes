@@ -2,7 +2,6 @@ package com.itwray.iw.web.utils;
 
 import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.web.client.ClientHelper;
-import com.itwray.iw.web.core.SpringWebHolder;
 import com.itwray.iw.web.exception.AuthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
