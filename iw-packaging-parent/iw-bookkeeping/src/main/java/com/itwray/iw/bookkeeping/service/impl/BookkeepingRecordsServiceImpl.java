@@ -15,7 +15,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
-import com.itwray.iw.common.constants.BoolEnums;
+import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
@@ -79,7 +79,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, bookkeepingRecords.getId(), recordAddDto.getRecordTags());
             // 记录为激励收入时，积分+1
             if (RecordCategoryEnum.INCOME.getCode().equals(recordAddDto.getRecordCategory())
-                    && BoolEnums.TRUE.getCode().equals(recordAddDto.getIsExcitationRecord())) {
+                    && BoolEnum.TRUE.getCode().equals(recordAddDto.getIsExcitationRecord())) {
                 PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
                 pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
                 pointsRecordsAddDto.setPoints(1);
@@ -102,7 +102,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         baseDictBusinessRelationDao.removeRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, id);
         // 同步积分数据
         if (RecordCategoryEnum.INCOME.getCode().equals(bookkeepingRecordsEntity.getRecordCategory())
-                && BoolEnums.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
+                && BoolEnum.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
             PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
             pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.DEDUCT.getCode());
             pointsRecordsAddDto.setPoints(-1);

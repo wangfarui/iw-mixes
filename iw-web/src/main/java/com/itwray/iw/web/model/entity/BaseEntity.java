@@ -3,11 +3,10 @@ package com.itwray.iw.web.model.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.itwray.iw.common.constants.BoolEnums;
+import com.itwray.iw.common.constants.BoolEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -25,7 +24,7 @@ public abstract class BaseEntity extends IdEntity {
      * <p>false -> 未删除</p>
      * <p>true -> 已删除</p>
      *
-     * @see BoolEnums
+     * @see BoolEnum
      */
     @TableLogic
     private Boolean deleted;

@@ -1,7 +1,7 @@
 package com.itwray.iw.points.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.itwray.iw.common.constants.BoolEnums;
+import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.web.model.entity.UserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,7 +33,7 @@ public class PointsTotalEntity extends UserEntity {
      * <p>false -> 未删除</p>
      * <p>true -> 已删除</p>
      *
-     * @see BoolEnums
+     * @see BoolEnum
      */
     @TableField(exist = false)
     private Boolean deleted;

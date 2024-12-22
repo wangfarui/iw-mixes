@@ -10,7 +10,7 @@ import lombok.Getter;
  * @since 2024/4/25
  */
 @Getter
-public enum BoolEnums implements ConstantEnum {
+public enum BoolEnum implements ConstantEnum {
     FALSE(0, "否"),
     TRUE(1, "是");
 
@@ -18,7 +18,7 @@ public enum BoolEnums implements ConstantEnum {
 
     private final String name;
 
-    BoolEnums(Integer code, String name) {
+    BoolEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
     }

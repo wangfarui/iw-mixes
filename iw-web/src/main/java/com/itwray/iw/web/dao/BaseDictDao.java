@@ -1,6 +1,6 @@
 package com.itwray.iw.web.dao;
 
-import com.itwray.iw.common.constants.EnableEnums;
+import com.itwray.iw.common.constants.EnableEnum;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.mapper.BaseDictMapper;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
@@ -24,7 +24,7 @@ public class BaseDictDao extends BaseDao<BaseDictMapper, BaseDictEntity> {
     public Integer queryNextSortValue(Integer dictType) {
         BaseDictEntity baseDictEntity = this.lambdaQuery()
                 .eq(BaseDictEntity::getDictType, dictType)
-                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
                 .orderByDesc(BaseDictEntity::getSort)
                 .last(WebCommonConstants.LIMIT_ONE)
                 .one();

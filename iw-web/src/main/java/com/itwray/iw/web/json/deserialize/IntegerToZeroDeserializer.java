@@ -3,7 +3,7 @@ package com.itwray.iw.web.json.deserialize;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.itwray.iw.common.constants.BoolEnums;
+import com.itwray.iw.common.constants.BoolEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -19,8 +19,8 @@ public class IntegerToZeroDeserializer extends JsonDeserializer<Integer> {
     @Override
     public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         if (StringUtils.isBlank(p.getText())) {
-            return BoolEnums.FALSE.getCode();
+            return BoolEnum.FALSE.getCode();
         }
-        return p.getValueAsInt(BoolEnums.FALSE.getCode());
+        return p.getValueAsInt(BoolEnum.FALSE.getCode());
     }
 }

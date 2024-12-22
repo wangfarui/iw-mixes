@@ -10,7 +10,7 @@ import lombok.Getter;
  * @since 2024/9/12
  */
 @Getter
-public enum EnableEnums implements ConstantEnum {
+public enum EnableEnum implements ConstantEnum {
     ENABLE(1, "启用"),
     DISABLE(0, "禁用");
 
@@ -18,7 +18,7 @@ public enum EnableEnums implements ConstantEnum {
 
     private final String name;
 
-    EnableEnums(Integer code, String name) {
+    EnableEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
     }

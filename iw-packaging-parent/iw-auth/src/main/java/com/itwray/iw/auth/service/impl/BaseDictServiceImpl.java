@@ -9,7 +9,7 @@ import com.itwray.iw.auth.model.dto.DictAddDto;
 import com.itwray.iw.auth.model.dto.DictPageDto;
 import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
-import com.itwray.iw.common.constants.EnableEnums;
+import com.itwray.iw.common.constants.EnableEnum;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
@@ -66,7 +66,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
     public List<DictListVo> getDictList(Integer dictType) {
         return getBaseDao().lambdaQuery()
                 .eq(BaseDictEntity::getDictType, dictType)
-                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
                 .orderByAsc(BaseDictEntity::getSort)
                 .list()
                 .stream().map(t -> BeanUtil.copyProperties(t, DictListVo.class))
@@ -84,7 +84,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
         }
 
         Map<String, List<DictAllListVo>> dictMap = getBaseDao().lambdaQuery()
-                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
                 .list()
                 .stream()
                 .collect(Collectors.groupingBy(t -> t.getDictType().toString(),
@@ -177,7 +177,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
     private List<DictAllListVo> queryAllDictByType(Integer dictType) {
         return getBaseDao().lambdaQuery()
                 .eq(BaseDictEntity::getDictType, dictType)
-                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
                 .orderByAsc(BaseDictEntity::getSort)
                 .list()
                 .stream()
@@ -197,7 +197,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
         // 判断当前字典类型是否少于1个值
         Long dictEntityCounts = getBaseDao().lambdaQuery()
                 .eq(BaseDictEntity::getDictType, dictEntity.getDictType())
-                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
                 .count();
         if (dictEntityCounts <= 1) {
             throw new IwWebException("当前字典类型至少需要包含一个启用的字典值！");
@@ -243,7 +243,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
         List<BaseDictEntity> parentTemplateDictList = getBaseDao().lambdaQuery()
                 .eq(BaseDictEntity::getUserId, WebCommonConstants.DATABASE_DEFAULT_INT_VALUE)
                 .eq(BaseDictEntity::getParentId, WebCommonConstants.DATABASE_DEFAULT_INT_VALUE)
-                .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
                 .list();
         if (CollectionUtil.isEmpty(parentTemplateDictList)) {
             log.info("数据库内无模板字典数据, 用户[{}]默认跳过初始化基础字典数据操作", bo.getUserId());
@@ -260,7 +260,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
             List<BaseDictEntity> sonTemplateDictList = getBaseDao().lambdaQuery()
                     .eq(BaseDictEntity::getUserId, WebCommonConstants.DATABASE_DEFAULT_INT_VALUE)
                     .eq(BaseDictEntity::getParentId, parentDict.getId())
-                    .eq(BaseDictEntity::getDictStatus, EnableEnums.ENABLE.getCode())
+                    .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
                     .list();
             if (CollectionUtil.isEmpty(sonTemplateDictList)) {
                 continue;
