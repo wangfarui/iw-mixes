@@ -112,8 +112,8 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         // 生成6位验证码
         Integer[] codes = NumberUtil.generateBySet(100000, 999999, 1);
         String verificationCode = codes[0].toString();
-        // 同一号码, 1分钟内只发1次
-        RedisUtil.set(RedisKeyConstants.PHONE_VERIFY_KEY + phoneNumber, verificationCode, 60);
+        // 同一号码, 验证码5分钟内有效，5分钟内重复发送则覆盖
+        RedisUtil.set(RedisKeyConstants.PHONE_VERIFY_KEY + phoneNumber, verificationCode, 60 * 5);
         // 同一ip, 1小时内只发5次
         RedisUtil.increment(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, 1L);
         RedisUtil.expire(RedisKeyConstants.PHONE_VERIFY_IP_KEY + clientIp, 60 * 60);
