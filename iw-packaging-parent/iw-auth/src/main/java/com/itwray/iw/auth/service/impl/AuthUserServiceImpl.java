@@ -105,6 +105,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 如果用户不存在，则在验证码校验通过的前提下，自动注册新用户
         if (authUserEntity == null) {
             UserAddBo userAddBo = new UserAddBo(dto.getPhoneNumber());
+            userAddBo.setPassword(dto.getPassword());
             authUserEntity = authUserDao.addNewUser(userAddBo);
         }
 

@@ -21,6 +21,10 @@ public class LoginVerificationCodeDto {
     @NotBlank(message = "电话号码不能为空")
     private String phoneNumber;
 
+    @Schema(title = "密码")
+    @Size(max = 64, message = "密码不能超过64位")
+    private String password;
+
     @Schema(title = "验证码")
     @NotBlank(message = "验证码不能为空")
     @Length(min = 6, max = 6, message = "验证码固定为6位数字")
