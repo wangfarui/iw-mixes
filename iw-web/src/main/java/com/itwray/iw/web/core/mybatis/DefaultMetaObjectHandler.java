@@ -1,6 +1,8 @@
 package com.itwray.iw.web.core.mybatis;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.itwray.iw.web.model.entity.BaseEntity;
+import com.itwray.iw.web.model.entity.UserEntity;
 import com.itwray.iw.web.utils.UserUtils;
 import org.apache.ibatis.reflection.MetaObject;
 
@@ -16,12 +18,21 @@ public class DefaultMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-        this.strictInsertFill(metaObject, "userId", Integer.class, UserUtils.getUserId());
+        Object originalObject = metaObject.getOriginalObject();
+        if (originalObject instanceof BaseEntity) {
+            LocalDateTime now = LocalDateTime.now();
+            this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
+            this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
+        }
+        if (originalObject instanceof UserEntity) {
+            this.strictInsertFill(metaObject, "userId", Integer.class, UserUtils.getUserId());
+        }
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+        if (metaObject.getOriginalObject() instanceof BaseEntity) {
+            this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+        }
     }
 }
