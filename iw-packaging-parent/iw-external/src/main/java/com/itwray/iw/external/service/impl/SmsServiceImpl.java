@@ -8,13 +8,12 @@ import com.aliyun.teaopenapi.models.Config;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.external.service.SmsService;
-import com.itwray.iw.web.utils.EnvironmentHolder;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.enums.RuntimeEnvironmentEnum;
+import com.itwray.iw.web.utils.EnvironmentHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
@@ -27,18 +26,23 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RefreshScope
-public class SmsServiceImpl implements SmsService, ApplicationRunner {
-
-    /**
-     * 短信服务Client
-     */
-    private Client client;
+public class SmsServiceImpl implements SmsService {
 
     /**
      * 运行环境
      */
     @Value("${iw.web.env:dev}")
     private RuntimeEnvironmentEnum env;
+
+    /**
+     * 短信服务Client
+     */
+    private static volatile Client client;
+
+    /**
+     * 短信服务Client锁
+     */
+    private static final Object CLIENT_LOCK = new Object();
 
     @Override
     public void sendVerificationCode(SmsSendVerificationCodeDto dto) {
@@ -52,7 +56,7 @@ public class SmsServiceImpl implements SmsService, ApplicationRunner {
                 .setTemplateCode(dto.getTemplateCode())
                 .setTemplateParam(dto.getTemplateParam());
         try {
-            SendSmsResponse sendSmsResponse = client.sendSms(sendSmsRequest);
+            SendSmsResponse sendSmsResponse = getClient().sendSms(sendSmsRequest);
             if (!sendSmsResponse.getStatusCode().equals(GeneralApiCode.SUCCESS.getCode())) {
                 throw new BusinessException("短信发送失败，请重试");
             }
@@ -66,16 +70,22 @@ public class SmsServiceImpl implements SmsService, ApplicationRunner {
         }
     }
 
-    /**
-     * 应用启动后，初始化连接sms客户端
-     */
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        Config config = new Config()
-                .setAccessKeyId(EnvironmentHolder.getRequiredProperty("aliyun.sms.access-key-id"))
-                .setAccessKeySecret(EnvironmentHolder.getRequiredProperty("aliyun.sms.access-key-secret"))
-                .setEndpoint(EnvironmentHolder.getProperty("aliyun.sms.endpoint", "dysmsapi.aliyuncs.com"));
-
-        client = new Client(config);
+    public Client getClient() {
+        if (client == null) {
+            synchronized (CLIENT_LOCK) {
+                if (client == null) {
+                    Config config = new Config()
+                            .setAccessKeyId(EnvironmentHolder.getRequiredProperty("aliyun.sms.access-key-id"))
+                            .setAccessKeySecret(EnvironmentHolder.getRequiredProperty("aliyun.sms.access-key-secret"))
+                            .setEndpoint(EnvironmentHolder.getProperty("aliyun.sms.endpoint", "dysmsapi.aliyuncs.com"));
+                    try {
+                        client = new Client(config);
+                    } catch (Exception e) {
+                        throw new IwWebException(e);
+                    }
+                }
+            }
+        }
+        return client;
     }
 }
