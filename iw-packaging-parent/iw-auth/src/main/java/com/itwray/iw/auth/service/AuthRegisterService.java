@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.service;
 
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 
 /**
  * 授权注册服务
@@ -15,8 +16,9 @@ public interface AuthRegisterService {
      *
      * @param dto      用户注册信息
      * @param clientIp 客户端ip
+     * @return 用户信息
      */
-    void registerByForm(RegisterFormDto dto, String clientIp);
+    UserInfoVo registerByForm(RegisterFormDto dto, String clientIp);
 
     /**
      * 获取短信验证码

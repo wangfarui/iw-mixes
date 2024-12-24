@@ -7,6 +7,7 @@ import com.itwray.iw.auth.mapper.AuthUserMapper;
 import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.MQTopicConstants;
@@ -15,11 +16,17 @@ import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.utils.IpUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
+import java.util.UUID;
+
+import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER;
 
 /**
  * 用户 Dao
@@ -29,6 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
+
+    /**
+     * token固定的存活时间 3天
+     */
+    public static final Long TOKEN_ACTIVE_TIME = 3 * 24 * 60 * 60L;
 
     /**
      * 新增用户
@@ -69,6 +81,43 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
         MQProducerHelper.send(MQTopicConstants.REGISTER_NEW_USER, bo);
 
         return addUser;
+    }
+
+    /**
+     * 登录成功之后的操作
+     *
+     * @param authUserEntity 用户实体
+     * @return 用户登录信息
+     */
+    public UserInfoVo loginSuccessAfter(AuthUserEntity authUserEntity) {
+        // TODO 后期改定时执行 先清除历史过期token set
+        Set<String> userTokens = RedisUtil.members(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), String.class);
+        if (userTokens != null) {
+            for (String token : userTokens) {
+                // 如果token已过期，则删除set集合中的value
+                if (!RedisUtil.hasKey(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token))) {
+                    RedisUtil.remove(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
+                }
+            }
+        }
+
+        // 生成Token并缓存
+        String token = UUID.randomUUID().toString();
+        RedisUtil.set(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), authUserEntity.getId(), TOKEN_ACTIVE_TIME);
+        RedisUtil.sSet(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
+        RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), TOKEN_ACTIVE_TIME);
+
+        // 将token写入到请求头中
+        this.setTokenValue(token);
+
+        // 构建响应对象
+        UserInfoVo userInfoVo = new UserInfoVo();
+        userInfoVo.setName(authUserEntity.getName());
+        userInfoVo.setAvatar(authUserEntity.getAvatar());
+        userInfoVo.setTokenName(TOKEN_HEADER);
+        userInfoVo.setTokenValue(token);
+
+        return userInfoVo;
     }
 
     /**
@@ -166,5 +215,17 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
                 throw new BusinessException("用户已存在");
             }
         }
+    }
+
+    /**
+     * 存放token至请求头中
+     *
+     * @param tokenValue token值
+     */
+    private void setTokenValue(String tokenValue) {
+        HttpServletResponse response = SpringWebHolder.getResponse();
+        response.setHeader(TOKEN_HEADER, tokenValue);
+        // 此处必须在响应头里指定 Access-Control-Expose-Headers: token-name，否则前端无法读取到这个响应头
+        response.addHeader("Access-Control-Expose-Headers", TOKEN_HEADER);
     }
 }

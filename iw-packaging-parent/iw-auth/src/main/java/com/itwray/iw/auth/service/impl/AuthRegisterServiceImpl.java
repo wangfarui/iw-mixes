@@ -6,6 +6,7 @@ import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthRegisterService;
 import com.itwray.iw.external.client.SmsClient;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
@@ -58,7 +59,7 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
     @Override
     @Transactional
     @DistributedLock(lockName = "'register:' + #dto.phoneNumber")
-    public void registerByForm(RegisterFormDto dto, String clientIp) {
+    public UserInfoVo registerByForm(RegisterFormDto dto, String clientIp) {
         // 校验同一ip的注册失败次数
         if (StringUtils.isNotBlank(clientIp)) {
             // 获取当前ip注册失败的次数
@@ -83,7 +84,9 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         // 新增用户
         UserAddBo userAddBo = new UserAddBo();
         BeanUtils.copyProperties(dto, userAddBo);
-        authUserDao.addNewUser(userAddBo);
+        AuthUserEntity authUserEntity = authUserDao.addNewUser(userAddBo);
+
+        return authUserDao.loginSuccessAfter(authUserEntity);
     }
 
     /**

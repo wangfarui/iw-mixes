@@ -19,7 +19,6 @@ import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
-import java.util.UUID;
 
 import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER;
 
@@ -44,11 +42,6 @@ public class AuthUserServiceImpl implements AuthUserService {
     private final AuthUserDao authUserDao;
 
     private AuthRegisterService authRegisterService;
-
-    /**
-     * token固定的存活时间 3天
-     */
-    private static final Long ACTIVE_TIME = 3 * 24 * 60 * 60L;
 
     @Autowired
     public AuthUserServiceImpl(AuthUserDao authUserDao) {
@@ -84,7 +77,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 校验密码正确性, 通过后表示登录成功
         this.verifyPassword(dto.getPassword(), authUserEntity.getPassword());
 
-        return this.loginSuccessAfter(authUserEntity);
+        return authUserDao.loginSuccessAfter(authUserEntity);
     }
 
     @Override
@@ -109,7 +102,7 @@ public class AuthUserServiceImpl implements AuthUserService {
             authUserEntity = authUserDao.addNewUser(userAddBo);
         }
 
-        return this.loginSuccessAfter(authUserEntity);
+        return authUserDao.loginSuccessAfter(authUserEntity);
     }
 
     @Override
@@ -165,7 +158,7 @@ public class AuthUserServiceImpl implements AuthUserService {
 
         // 自动续签
         if (isRenew) {
-            RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), ACTIVE_TIME);
+            RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), AuthUserDao.TOKEN_ACTIVE_TIME);
         }
 
         return true;
@@ -235,55 +228,6 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (phoneNumber != null) {
             authRegisterService.getVerificationCode(phoneNumber, clientIp);
         }
-    }
-
-    /**
-     * 登录成功之后的操作
-     *
-     * @param authUserEntity 用户实体
-     * @return 用户登录信息
-     */
-    private UserInfoVo loginSuccessAfter(AuthUserEntity authUserEntity) {
-        // TODO 后期改定时执行 先清除历史过期token set
-        Set<String> userTokens = RedisUtil.members(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), String.class);
-        if (userTokens != null) {
-            for (String token : userTokens) {
-                // 如果token已过期，则删除set集合中的value
-                if (!RedisUtil.hasKey(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token))) {
-                    RedisUtil.remove(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
-                }
-            }
-        }
-
-        // 生成Token并缓存
-        String token = UUID.randomUUID().toString();
-        RedisUtil.set(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), authUserEntity.getId(), ACTIVE_TIME);
-        RedisUtil.sSet(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
-        RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), ACTIVE_TIME);
-
-        // 将token写入到请求头中
-        this.setTokenValue(token);
-
-        // 构建响应对象
-        UserInfoVo userInfoVo = new UserInfoVo();
-        userInfoVo.setName(authUserEntity.getName());
-        userInfoVo.setAvatar(authUserEntity.getAvatar());
-        userInfoVo.setTokenName(TOKEN_HEADER);
-        userInfoVo.setTokenValue(token);
-
-        return userInfoVo;
-    }
-
-    /**
-     * 存放token至请求头中
-     *
-     * @param tokenValue token值
-     */
-    private void setTokenValue(String tokenValue) {
-        HttpServletResponse response = SpringWebHolder.getResponse();
-        response.setHeader(TOKEN_HEADER, tokenValue);
-        // 此处必须在响应头里指定 Access-Control-Expose-Headers: token-name，否则前端无法读取到这个响应头
-        response.addHeader("Access-Control-Expose-Headers", TOKEN_HEADER);
     }
 
     /**

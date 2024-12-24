@@ -1,8 +1,8 @@
 package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.model.dto.RegisterFormDto;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthRegisterService;
-import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.web.utils.IpUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,8 +29,8 @@ public class AuthRegisterController {
 
     @PostMapping("/form")
     @Operation(summary = "根据表单注册")
-    public void registerByForm(@RequestBody @Valid RegisterFormDto dto, HttpServletRequest request) {
-        authRegisterService.registerByForm(dto, IpUtils.getClientIp(request));
+    public UserInfoVo registerByForm(@RequestBody @Valid RegisterFormDto dto, HttpServletRequest request) {
+        return authRegisterService.registerByForm(dto, IpUtils.getClientIp(request));
     }
 
     @GetMapping("/getVerificationCode")
