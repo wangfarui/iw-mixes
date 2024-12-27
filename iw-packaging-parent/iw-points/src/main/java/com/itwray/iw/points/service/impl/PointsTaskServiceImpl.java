@@ -46,8 +46,11 @@ public class PointsTaskServiceImpl extends WebServiceImpl<PointsTaskMapper, Poin
     public void submit(Integer id) {
         // 查询积分任务
         PointsTaskEntity pointsTaskEntity = getBaseDao().queryById(id);
-        // TODO 后期改为MQ消息同步，避免业务冗余
+
+        // 先更新总积分
         pointsTotalDao.updatePointsBalance(pointsTaskEntity.getTaskPoints());
+
+        // 再插入一条新积分记录
         PointsRecordsEntity pointsRecordsEntity = new PointsRecordsEntity();
         pointsRecordsEntity.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(pointsTaskEntity.getTaskPoints()));
         pointsRecordsEntity.setPoints(pointsTaskEntity.getTaskPoints());

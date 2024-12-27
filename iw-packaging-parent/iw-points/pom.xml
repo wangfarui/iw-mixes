@@ -31,6 +31,10 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-points-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-auth-client</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
