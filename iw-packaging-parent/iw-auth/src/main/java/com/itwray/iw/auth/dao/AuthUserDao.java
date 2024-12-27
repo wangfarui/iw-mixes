@@ -12,10 +12,10 @@ import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
-import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.utils.IpUtils;
+import com.itwray.iw.web.utils.SpringWebHolder;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -23,7 +23,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
 import java.util.UUID;
 
 import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER;
@@ -90,17 +89,6 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
      * @return 用户登录信息
      */
     public UserInfoVo loginSuccessAfter(AuthUserEntity authUserEntity) {
-        // TODO 后期改定时执行 先清除历史过期token set
-        Set<String> userTokens = RedisUtil.members(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), String.class);
-        if (userTokens != null) {
-            for (String token : userTokens) {
-                // 如果token已过期，则删除set集合中的value
-                if (!RedisUtil.hasKey(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token))) {
-                    RedisUtil.remove(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
-                }
-            }
-        }
-
         // 生成Token并缓存
         String token = UUID.randomUUID().toString();
         RedisUtil.set(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), authUserEntity.getId(), TOKEN_ACTIVE_TIME);

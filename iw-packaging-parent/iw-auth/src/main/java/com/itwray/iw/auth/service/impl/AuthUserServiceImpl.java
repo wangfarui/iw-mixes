@@ -158,7 +158,11 @@ public class AuthUserServiceImpl implements AuthUserService {
 
         // 自动续签
         if (isRenew) {
-            RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), AuthUserDao.TOKEN_ACTIVE_TIME);
+            Object userId = RedisUtil.get(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token));
+            if (userId != null) {
+                RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(userId), AuthUserDao.TOKEN_ACTIVE_TIME);
+                RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), AuthUserDao.TOKEN_ACTIVE_TIME);
+            }
         }
 
         return true;

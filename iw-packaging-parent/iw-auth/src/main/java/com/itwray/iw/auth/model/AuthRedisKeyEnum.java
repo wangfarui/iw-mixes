@@ -15,12 +15,16 @@ public enum AuthRedisKeyEnum implements RedisKeyManager {
     /**
      * 用户token key:[token]
      * <p>用户:token = 1:n</p>
+     * <p>token有效期 {@link com.itwray.iw.auth.dao.AuthUserDao#TOKEN_ACTIVE_TIME}</p>
+     * <p>该缓存有效期会在每次网关调用时刷新</p>
      */
     USER_TOKEN_KEY("token:%s"),
 
     /**
      * 用户token集合key:[userId]
      * <p>用户已登录的所有token</p>
+     * <p>token有效期 {@link com.itwray.iw.auth.dao.AuthUserDao#TOKEN_ACTIVE_TIME}</p>
+     * <p>该缓存有效期会在每次登录和每次网关调用时刷新</p>
      */
     USER_TOKEN_SET_KEY("token:set:%s"),
 
