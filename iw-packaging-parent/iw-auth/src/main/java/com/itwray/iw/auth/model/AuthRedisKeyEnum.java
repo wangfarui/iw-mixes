@@ -47,7 +47,17 @@ public enum AuthRedisKeyEnum implements RedisKeyManager {
     /**
      * 电话号码获取验证码时，指定ip获取验证码的次数:[ipAddress]
      */
-    PHONE_VERIFY_IP_KEY("phone:verify:ip:%s");
+    PHONE_VERIFY_IP_KEY("phone:verify:ip:%s"),
+
+    /**
+     * 登录失败-用户+客户端ip:[account]:[ipAddress]
+     */
+    LOGIN_ACTION_USER_IP_KEY("login:fail:user:%s:%s"),
+
+    /**
+     * 登录失败-客户端ip:[ipAddress]
+     */
+    LOGIN_FAIL_IP_KEY("login:fail:ip:%s");
 
     private final String pattern;
 

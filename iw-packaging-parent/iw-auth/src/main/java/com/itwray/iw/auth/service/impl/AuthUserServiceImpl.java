@@ -16,6 +16,7 @@ import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.utils.IpUtils;
 import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,6 +62,8 @@ public class AuthUserServiceImpl implements AuthUserService {
      */
     @Override
     public UserInfoVo loginByPassword(LoginPasswordDto dto) {
+        authUserDao.loginBefore(dto.getAccount());
+
         // 查询用户是否存在
         AuthUserEntity authUserEntity;
         if (NumberUtils.isValidPhoneNumber(dto.getAccount())) {
@@ -71,26 +74,28 @@ public class AuthUserServiceImpl implements AuthUserService {
 
         // 用户不存在，抛出账号验证异常信息
         if (authUserEntity == null) {
-            throw this.accountVerifyException();
+            throw this.accountVerifyException(dto.getAccount(), "账号密码错误");
         }
 
         // 校验密码正确性, 通过后表示登录成功
-        this.verifyPassword(dto.getPassword(), authUserEntity.getPassword());
+        this.verifyPassword(dto.getAccount(), dto.getPassword(), authUserEntity.getPassword());
 
         return authUserDao.loginSuccessAfter(authUserEntity);
     }
 
     @Override
     public UserInfoVo loginByVerificationCode(LoginVerificationCodeDto dto) {
+        authUserDao.loginBefore(dto.getPhoneNumber());
+
         // 校验电话号码是否正确
         if (!NumberUtils.isValidPhoneNumber(dto.getPhoneNumber())) {
-            throw this.accountVerifyException("电话号码格式错误");
+            throw this.accountVerifyException(dto.getPhoneNumber(), "电话号码格式错误");
         }
 
         // 校验电话号码验证码的正确性, 通过后表示登录成功
         String verificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
         if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
-            throw this.accountVerifyException("验证码错误");
+            throw this.accountVerifyException(dto.getPhoneNumber(), "验证码错误");
         }
 
         // 根据电话号码查询用户
@@ -189,10 +194,10 @@ public class AuthUserServiceImpl implements AuthUserService {
             // 校验电话号码验证码的正确性, 通过后表示登录成功
             String verificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(authUserEntity.getPhoneNumber()), String.class);
             if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
-                throw this.accountVerifyException("验证码错误");
+                throw this.accountVerifyException(authUserEntity.getUsername(), "验证码错误");
             }
         } else if (StringUtils.isNotBlank(dto.getOldPassword())) {
-            this.verifyPassword(dto.getOldPassword(), authUserEntity.getPassword());
+            this.verifyPassword(authUserEntity.getUsername(), dto.getOldPassword(), authUserEntity.getPassword());
         } else {
             throw new BusinessException("无法识别的操作");
         }
@@ -278,33 +283,40 @@ public class AuthUserServiceImpl implements AuthUserService {
     /**
      * 校验密码是否一致
      *
+     * @param account          用户账号
      * @param originalPassword 原始密码
      * @param encryptPassword  加密密码
      */
-    private void verifyPassword(String originalPassword, String encryptPassword) {
+    private void verifyPassword(String account, String originalPassword, String encryptPassword) {
         if (!BCrypt.checkpw(originalPassword, encryptPassword)) {
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            throw this.accountVerifyException();
+            throw this.accountVerifyException(account, "账号密码错误");
         }
     }
 
     /**
      * 账号验证异常
      *
+     * @param account          用户账号
+     * @param exceptionMessage 异常信息
      * @return 账号或密码错误
      */
-    private BusinessException accountVerifyException(String... exceptionMessage) {
-        // TODO 针对任何登录方式，加上登录失败的重试次数
+    private BusinessException accountVerifyException(String account, String exceptionMessage) {
+        String clientIp = IpUtils.getCurrentClientIp();
+        // 同一ip, 5分钟内增加失败次数
+        RedisUtil.increment(AuthRedisKeyEnum.LOGIN_FAIL_IP_KEY.getKey(clientIp), 1L);
+        RedisUtil.expire(AuthRedisKeyEnum.LOGIN_FAIL_IP_KEY.getKey(clientIp), 60 * 5);
+        // 同一用户和ip, 5分钟内增加失败次数
+        RedisUtil.increment(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp), 1L);
+        RedisUtil.expire(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp), 60 * 5);
+
+        // 凡是账号验证失败的情况，通过延迟1s，避免用户根据异常信息恶意揣测合法用户的信息
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return new BusinessException(exceptionMessage != null && exceptionMessage.length > 0 ? exceptionMessage[0] : "账号密码错误");
+
+        return new BusinessException(exceptionMessage);
     }
 
 }

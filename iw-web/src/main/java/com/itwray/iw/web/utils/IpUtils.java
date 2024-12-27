@@ -1,6 +1,7 @@
 package com.itwray.iw.web.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * IP工具类
@@ -9,6 +10,15 @@ import jakarta.servlet.http.HttpServletRequest;
  * @since 2024/10/17
  */
 public abstract class IpUtils {
+
+    /**
+     * 获取当前请求的客户端ip
+     *
+     * @return IP地址
+     */
+    public static String getCurrentClientIp() {
+        return getClientIp(SpringWebHolder.getRequest());
+    }
 
     /**
      * 获取客户端IP地址
@@ -30,6 +40,9 @@ public abstract class IpUtils {
         }
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
+        }
+        if (StringUtils.isBlank(ip)) {
+            return "0.0.0.0";
         }
         return ip;
     }

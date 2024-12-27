@@ -83,6 +83,27 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
     }
 
     /**
+     * 登录操作前的动作
+     *
+     * @param account 登录账号
+     */
+    public void loginBefore(String account) {
+        String clientIp = IpUtils.getCurrentClientIp();
+
+        // 判断当前客户端ip短时间内的登录失败次数是否超过上限
+        Integer ipFailCount = RedisUtil.get(AuthRedisKeyEnum.LOGIN_FAIL_IP_KEY.getKey(clientIp), Integer.class);
+        if (ipFailCount != null && ipFailCount >= 10) {
+            throw new BusinessException("操作频繁，请稍后再试");
+        }
+
+        // 判断当前用户和客户端ip短时间内的登录失败次数是否超过上限
+        Integer userIpFailCount = RedisUtil.get(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp), Integer.class);
+        if (userIpFailCount != null && userIpFailCount >= 5) {
+            throw new BusinessException("操作频繁，请稍后再试");
+        }
+    }
+
+    /**
      * 登录成功之后的操作
      *
      * @param authUserEntity 用户实体
