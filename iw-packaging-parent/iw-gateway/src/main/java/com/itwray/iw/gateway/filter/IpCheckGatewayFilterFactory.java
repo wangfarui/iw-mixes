@@ -1,5 +1,7 @@
 package com.itwray.iw.gateway.filter;
 
+import com.itwray.iw.gateway.config.IwGatewayProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.Ordered;
@@ -7,9 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * IP检查过滤器
@@ -20,14 +19,15 @@ import java.util.Set;
 @Component
 public class IpCheckGatewayFilterFactory extends AbstractGatewayFilterFactory<IpCheckGatewayFilterFactory.IpCheckConfig> implements Ordered {
 
-    /**
-     * 允许的内部ip
-     * TODO 改为动态配置
-     */
-    private Set<String> allowedInternalIps = new HashSet<>(Arrays.asList("0:0:0:0:0:0:0:1", "127.0.0.1"));
+    private IwGatewayProperties gatewayProperties;
 
     public IpCheckGatewayFilterFactory() {
         super(IpCheckConfig.class);
+    }
+
+    @Autowired
+    public void setGatewayProperties(IwGatewayProperties gatewayProperties) {
+        this.gatewayProperties = gatewayProperties;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class IpCheckGatewayFilterFactory extends AbstractGatewayFilterFactory<Ip
             String clientIp = remoteAddress.getAddress().getHostAddress();
 
             // 校验 IP 是否在允许的内网 IP 列表中
-            if (!allowedInternalIps.contains(clientIp)) {
+            if (gatewayProperties == null || !gatewayProperties.getAllowedInternalIps().contains(clientIp)) {
                 // 如果不是内网 IP，拒绝请求
                 exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                 return exchange.getResponse().setComplete();

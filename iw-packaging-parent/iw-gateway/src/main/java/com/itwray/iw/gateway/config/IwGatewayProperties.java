@@ -51,6 +51,11 @@ public class IwGatewayProperties {
     private Long tokenValidTime = 3L;
 
     /**
+     * 调用内部接口服务时, 允许的内部ip地址集
+     */
+    private Set<String> allowedInternalIps;
+
+    /**
      * 忽略校验的请求地址缓存
      */
     @Transient
