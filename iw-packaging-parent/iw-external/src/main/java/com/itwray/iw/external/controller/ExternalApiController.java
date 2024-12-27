@@ -33,7 +33,7 @@ public class ExternalApiController {
     @GetMapping("/heartbeat")
     @Operation(summary = "心跳接口")
     public void heartbeat() {
-
+        externalApiService.heartbeat();
     }
 
     @GetMapping("/getWeather")

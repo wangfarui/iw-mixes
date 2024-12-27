@@ -4,17 +4,23 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itwray.iw.external.model.ExternalClientConstants;
 import com.itwray.iw.external.service.ExternalApiService;
 import com.itwray.iw.starter.redis.RedisUtil;
-import com.itwray.iw.web.utils.SpringWebHolder;
+import com.itwray.iw.web.exception.IwServerException;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.utils.IpUtils;
+import com.itwray.iw.web.utils.SpringWebHolder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,6 +31,8 @@ import java.util.Map;
  */
 @Service
 public class ExternalApiServiceImpl implements ExternalApiService {
+
+    private DiscoveryClient discoveryClient;
 
     /**
      * 高德地图API Key
@@ -48,6 +56,27 @@ public class ExternalApiServiceImpl implements ExternalApiService {
      * 每日热点Key
      */
     private static final String DAILY_HOT_KEY = "DailyHot:";
+
+    @Autowired
+    public void setDiscoveryClient(DiscoveryClient discoveryClient) {
+        this.discoveryClient = discoveryClient;
+    }
+
+    @Override
+    public void heartbeat() {
+        List<String> services = discoveryClient.getServices();
+        for (String serviceName : ExternalClientConstants.ALL_SERVICE_NAME) {
+            if (!services.contains(serviceName)) {
+                throw new IwServerException(serviceName + "服务已下线");
+            }
+            List<ServiceInstance> instances = discoveryClient.getInstances(serviceName);
+            for (ServiceInstance instance : instances) {
+                if (Boolean.FALSE.toString().equals(instance.getMetadata().get("nacos.healthy"))) {
+                    throw new IwServerException(serviceName + "服务异常");
+                }
+            }
+        }
+    }
 
     @Override
     @SuppressWarnings("unchecked")

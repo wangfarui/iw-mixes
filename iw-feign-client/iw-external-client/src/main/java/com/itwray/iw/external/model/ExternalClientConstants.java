@@ -1,5 +1,7 @@
 package com.itwray.iw.external.model;
 
+import org.springframework.beans.factory.annotation.Value;
+
 /**
  * 外部服务的客户端常量
  *
@@ -11,7 +13,14 @@ public abstract class ExternalClientConstants {
     /**
      * 外部服务名
      */
+    @Value("${spring.application.name}")
     public static final String SERVICE_NAME = "iw-external-service";
+
+    /**
+     * 所有服务实例名称
+     */
+    public static final String[] ALL_SERVICE_NAME = {SERVICE_NAME, "iw-gateway-service", "iw-auth-service",
+            "iw-bookkeeping-service", "iw-points-service"};
 
     /**
      * 外部服务固定前缀

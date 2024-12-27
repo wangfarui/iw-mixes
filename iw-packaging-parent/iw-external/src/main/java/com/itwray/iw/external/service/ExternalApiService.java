@@ -11,6 +11,11 @@ import java.util.Map;
 public interface ExternalApiService {
 
     /**
+     * 心跳方法, 检测所有微服务实例的健康状态
+     */
+    void heartbeat();
+
+    /**
      * 获取IP地址信息
      *
      * @return IP地址信息
