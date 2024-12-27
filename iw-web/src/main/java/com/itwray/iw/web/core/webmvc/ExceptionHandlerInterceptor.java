@@ -4,15 +4,14 @@ import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.IwException;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.common.utils.ExceptionUtils;
-import com.itwray.iw.web.exception.AuthorizedException;
-import com.itwray.iw.web.exception.BusinessException;
-import com.itwray.iw.web.exception.FeignClientException;
-import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.exception.*;
 import feign.codec.DecodeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -77,6 +76,12 @@ public class ExceptionHandlerInterceptor {
         }
         log.error("[Feign异常]" + e.getMessage(), e);
         return GeneralResponse.fail();
+    }
+
+    @ExceptionHandler(IwServerException.class)
+    public ResponseEntity<String> iwServerExceptionHandler(IwServerException iwServerException) {
+        log.error("[IW Server异常]" + iwServerException.getMessage(), iwServerException);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(iwServerException.getMessage());
     }
 
     /**
