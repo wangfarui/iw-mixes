@@ -26,5 +26,5 @@ public class UserInfoVo {
 
     @Schema(title = "头像（url地址）")
     @JsonSerialize(using = DefaultImageSerializer.class)
-    private String avatar;
+    private String avatar = "";
 }

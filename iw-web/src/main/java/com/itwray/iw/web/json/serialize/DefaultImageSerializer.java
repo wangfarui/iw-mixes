@@ -14,7 +14,7 @@ import java.io.IOException;
  * @author wray
  * @since 2024/5/10
  */
-public class DefaultImageSerializer  extends JsonSerializer<String> {
+public class DefaultImageSerializer extends JsonSerializer<String> {
 
     @Override
     public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {

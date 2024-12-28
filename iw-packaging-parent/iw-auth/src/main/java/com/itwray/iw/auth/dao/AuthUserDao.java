@@ -122,7 +122,9 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
         // 构建响应对象
         UserInfoVo userInfoVo = new UserInfoVo();
         userInfoVo.setName(authUserEntity.getName());
-        userInfoVo.setAvatar(authUserEntity.getAvatar());
+        if (authUserEntity.getAvatar() != null) {
+            userInfoVo.setAvatar(authUserEntity.getAvatar());
+        }
         userInfoVo.setTokenName(TOKEN_HEADER);
         userInfoVo.setTokenValue(token);
 
