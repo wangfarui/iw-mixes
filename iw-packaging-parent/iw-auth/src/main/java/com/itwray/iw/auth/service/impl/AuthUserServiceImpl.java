@@ -96,6 +96,9 @@ public class AuthUserServiceImpl implements AuthUserService {
         String verificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
         if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
             throw this.accountVerifyException(dto.getPhoneNumber(), "验证码错误");
+        } else {
+            // 验证码校验成功之后, 删除验证码缓存
+            RedisUtil.delete(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()));
         }
 
         // 根据电话号码查询用户
