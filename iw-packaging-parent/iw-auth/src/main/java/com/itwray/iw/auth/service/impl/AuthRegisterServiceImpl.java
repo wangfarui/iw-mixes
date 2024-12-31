@@ -51,6 +51,8 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         this.authUserDao = authUserDao;
     }
 
+    // SmsClient 统一由 web 模块扫描注册为Bean对象
+    @SuppressWarnings("all")
     @Autowired
     public void setSmsClient(SmsClient smsClient) {
         this.smsClient = smsClient;
