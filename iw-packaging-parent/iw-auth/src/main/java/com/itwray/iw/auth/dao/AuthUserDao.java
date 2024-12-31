@@ -23,6 +23,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER;
@@ -110,6 +111,12 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
      * @return 用户登录信息
      */
     public UserInfoVo loginSuccessAfter(AuthUserEntity authUserEntity) {
+        // 更新用户最后登录时间
+        this.lambdaUpdate()
+                .eq(AuthUserEntity::getId, authUserEntity.getId())
+                .set(AuthUserEntity::getLastLoginTime, LocalDateTime.now())
+                .update();
+
         // 生成Token并缓存
         String token = UUID.randomUUID().toString();
         RedisUtil.set(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), authUserEntity.getId(), TOKEN_ACTIVE_TIME);
