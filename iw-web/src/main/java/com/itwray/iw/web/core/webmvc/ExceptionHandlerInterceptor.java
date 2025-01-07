@@ -4,6 +4,7 @@ import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.IwException;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.common.utils.ExceptionUtils;
+import com.itwray.iw.web.core.dingtalk.DingTalkHelper;
 import com.itwray.iw.web.exception.*;
 import feign.codec.DecodeException;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,9 @@ public class ExceptionHandlerInterceptor {
     @ExceptionHandler(IwWebException.class)
     public GeneralResponse<?> iwWebExceptionHandler(IwWebException iwWebException) {
         log.error("[IW Web异常]" + iwWebException.getMessage(), iwWebException);
+        if (iwWebException.isSyncDingTalk()) {
+            DingTalkHelper.sendMessage(iwWebException.getMessage());
+        }
         return GeneralResponse.fail();
     }
 
@@ -91,6 +95,7 @@ public class ExceptionHandlerInterceptor {
     @ExceptionHandler(Throwable.class)
     public GeneralResponse<?> defaultExceptionHandler(Throwable e) {
         log.error("系统异常", e);
+        DingTalkHelper.sendMessage(ExceptionUtils.exceptionStackTraceText(e, 1000));
         return GeneralResponse.fail();
     }
 

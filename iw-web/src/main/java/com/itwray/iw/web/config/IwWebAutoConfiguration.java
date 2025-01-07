@@ -1,5 +1,6 @@
 package com.itwray.iw.web.config;
 
+import com.itwray.iw.web.core.dingtalk.DingTalkConfiguration;
 import com.itwray.iw.web.core.feign.FeignConfiguration;
 import com.itwray.iw.web.core.mybatis.MybatisPlusConfiguration;
 import com.itwray.iw.web.core.webmvc.IwWebMvcConfiguration;
@@ -20,7 +21,7 @@ import org.springframework.context.annotation.Import;
  */
 @AutoConfiguration
 @EnableConfigurationProperties({IwWebProperties.class, IwDaoProperties.class})
-@Import({IwWebMvcConfiguration.class, MybatisPlusConfiguration.class, FeignConfiguration.class})
+@Import({IwWebMvcConfiguration.class, MybatisPlusConfiguration.class, FeignConfiguration.class, DingTalkConfiguration.class})
 @ComponentScan(basePackages = "com.itwray.iw.web.service.impl")
 public class IwWebAutoConfiguration {
 

@@ -11,6 +11,11 @@ import com.itwray.iw.common.IwException;
  */
 public class IwWebException extends IwException {
 
+    /**
+     * 同步到钉钉告警
+     */
+    private boolean syncDingTalk = false;
+
     public IwWebException() {
         super();
     }
@@ -23,7 +28,24 @@ public class IwWebException extends IwException {
         super(message);
     }
 
+    public IwWebException(String message, boolean syncDingTalk) {
+        super(message);
+        this.syncDingTalk = syncDingTalk;
+    }
+
     public IwWebException(Integer code, String message) {
         super(code, message);
+    }
+
+    public static IwWebException withoutDingTalk(String message) {
+        return new IwWebException(message, false);
+    }
+
+    public boolean isSyncDingTalk() {
+        return syncDingTalk;
+    }
+
+    public void setSyncDingTalk(boolean syncDingTalk) {
+        this.syncDingTalk = syncDingTalk;
     }
 }
