@@ -1,6 +1,5 @@
 package com.itwray.iw.web.core.dingtalk;
 
-import com.alibaba.nacos.api.config.ConfigChangeEvent;
 import com.itwray.iw.common.utils.ExceptionUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +29,7 @@ import java.util.Set;
 @Slf4j
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "iw.ding-talk")
+@ConfigurationProperties(prefix = DingTalkConfiguration.DING_TALK_PREFIX)
 public class DingTalkProperties implements InitializingBean {
 
     /**
@@ -126,28 +125,22 @@ public class DingTalkProperties implements InitializingBean {
         return REQUEST_URL_CACHE;
     }
 
-    /**
-     * 变更钉钉属性
-     *
-     * @param changeEvent 配置变更事件
-     */
-    public static void changeProperties(ConfigChangeEvent changeEvent) {
-        for (String param : MONITOR_PROPERTIES_PARAMS) {
-            if (changeEvent.getChangeItem(param) != null) {
-                REQUEST_URL_CACHE = null;
-                break;
-            }
-        }
-    }
-
     @Override
     public void afterPropertiesSet() {
         try {
             valid();
+            DingTalkRobotClient.changeCanApply(this.enabled);
             log.info("钉钉告警初始化配置: {}", this);
         } catch (IllegalArgumentException e) {
             this.enabled = false;
         }
+    }
+
+    /**
+     * 清空缓存
+     */
+    public static void clearCache() {
+        REQUEST_URL_CACHE = null;
     }
 
     @Override
