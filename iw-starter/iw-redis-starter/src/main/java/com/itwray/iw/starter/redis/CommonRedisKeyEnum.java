@@ -9,7 +9,7 @@ import lombok.Getter;
  * @since 2024/12/20
  */
 @Getter
-public enum RedisKeyEnum implements RedisKeyManager {
+public enum CommonRedisKeyEnum implements RedisKeyManager {
 
     /**
      * 服务内部调用时Feign密钥的key
@@ -19,7 +19,7 @@ public enum RedisKeyEnum implements RedisKeyManager {
 
     private final String pattern;
 
-    RedisKeyEnum(String pattern) {
+    CommonRedisKeyEnum(String pattern) {
         this.pattern = pattern;
     }
 }

@@ -1,7 +1,7 @@
 package com.itwray.iw.external.core;
 
 import com.itwray.iw.common.constants.RequestHeaderConstants;
-import com.itwray.iw.starter.redis.RedisKeyEnum;
+import com.itwray.iw.starter.redis.CommonRedisKeyEnum;
 import com.itwray.iw.starter.redis.RedisUtil;
 import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,7 @@ public class InternalFeignConfig {
         return requestTemplate -> {
             String uuid = UUID.randomUUID().toString();
             // 60s有效期
-            RedisUtil.set(RedisKeyEnum.FEIGN_SECRET_KEY.getKey(uuid), uuid, 60);
+            RedisUtil.set(CommonRedisKeyEnum.FEIGN_SECRET_KEY.getKey(uuid), uuid, 60);
             requestTemplate.header(RequestHeaderConstants.SECRET_HEADER_KEY, uuid);
         };
     }
