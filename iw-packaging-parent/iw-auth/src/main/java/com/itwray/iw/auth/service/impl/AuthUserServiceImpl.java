@@ -312,6 +312,8 @@ public class AuthUserServiceImpl implements AuthUserService {
         RedisUtil.increment(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp), 1L);
         RedisUtil.expire(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp), 60 * 5);
 
+        log.info("用户登录失败，账号：{}, 失败原因：{}", account, exceptionMessage);
+
         // 凡是账号验证失败的情况，通过延迟1s，避免用户根据异常信息恶意揣测合法用户的信息
         try {
             Thread.sleep(1000L);
