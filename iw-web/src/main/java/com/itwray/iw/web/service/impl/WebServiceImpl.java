@@ -20,14 +20,15 @@ import java.io.Serializable;
  * @author wray
  * @since 2024/9/11
  */
-public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity, D extends BaseDao<M, T>, L extends DetailVo> implements WebService {
+public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity, D extends BaseDao<M, T>,
+        A extends AddDto, U extends UpdateDto, V extends DetailVo> implements WebService<A, U, V> {
 
     private final D baseDao;
 
     protected final Class<?>[] typeArguments = GenericTypeUtils.resolveTypeArguments(getClass(), WebServiceImpl.class);
 
     @Getter
-    protected final Class<L> detailClass = currentDetailClass();
+    protected final Class<V> detailClass = currentDetailClass();
 
     public WebServiceImpl(D baseDao) {
         this.baseDao = baseDao;
@@ -35,7 +36,7 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
 
     @Override
     @Transactional
-    public Serializable add(AddDto dto) {
+    public Serializable add(A dto) {
         T entity = BeanUtil.copyProperties(dto, getBaseDao().getEntityClass());
         getBaseDao().save(entity);
         return entity.getId();
@@ -43,7 +44,7 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
 
     @Override
     @Transactional
-    public void update(UpdateDto dto) {
+    public void update(U dto) {
         getBaseDao().queryById(dto.getId());
         T entity = BeanUtil.copyProperties(dto, getBaseDao().getEntityClass());
         getBaseDao().updateById(entity);
@@ -56,14 +57,14 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
     }
 
     @Override
-    public L detail(Serializable id) {
+    public V detail(Serializable id) {
         T entity = getBaseDao().queryById(id);
         return BeanUtil.copyProperties(entity, getDetailClass());
     }
 
     @SuppressWarnings("unchecked")
-    protected Class<L> currentDetailClass() {
-        return (Class<L>) this.typeArguments[3];
+    protected Class<V> currentDetailClass() {
+        return (Class<V>) this.typeArguments[5];
     }
 
     protected D getBaseDao() {

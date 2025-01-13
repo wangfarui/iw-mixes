@@ -1,8 +1,7 @@
 package com.itwray.iw.bookkeeping.service;
 
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordListDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordsStatisticsDto;
+import com.itwray.iw.bookkeeping.model.dto.*;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -16,7 +15,7 @@ import java.util.List;
  * @author wray
  * @since 2024/8/28
  */
-public interface BookkeepingRecordsService extends WebService {
+public interface BookkeepingRecordsService extends WebService<BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo> {
 
     PageVo<BookkeepingRecordPageVo> page(BookkeepingRecordPageDto dto);
 

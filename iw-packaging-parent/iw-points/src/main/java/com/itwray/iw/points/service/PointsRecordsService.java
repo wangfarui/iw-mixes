@@ -1,7 +1,10 @@
 package com.itwray.iw.points.service;
 
+import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.dto.PointsRecordsPageDto;
 import com.itwray.iw.points.model.dto.PointsRecordsStatisticsDto;
+import com.itwray.iw.points.model.dto.PointsRecordsUpdateDto;
+import com.itwray.iw.points.model.vo.PointsRecordsDetailVo;
 import com.itwray.iw.points.model.vo.PointsRecordsPageVo;
 import com.itwray.iw.points.model.vo.PointsRecordsStatisticsVo;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -13,7 +16,7 @@ import com.itwray.iw.web.service.WebService;
  * @author wray
  * @since 2024/9/26
  */
-public interface PointsRecordsService extends WebService {
+public interface PointsRecordsService extends WebService<PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo> {
 
     /**
      * 分页查询积分记录

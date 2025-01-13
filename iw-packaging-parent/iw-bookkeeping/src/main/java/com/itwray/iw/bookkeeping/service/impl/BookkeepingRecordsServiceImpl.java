@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
 import com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordAddDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordListDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordPageDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordsStatisticsDto;
+import com.itwray.iw.bookkeeping.model.dto.*;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
@@ -23,7 +20,6 @@ import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
-import com.itwray.iw.web.model.dto.AddDto;
 import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
@@ -48,8 +44,8 @@ import java.util.stream.Collectors;
  * @since 2024/8/28
  */
 @Service
-public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRecordsMapper, BookkeepingRecordsEntity,
-        BookkeepingRecordsDao, BookkeepingRecordDetailVo> implements BookkeepingRecordsService {
+public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRecordsMapper, BookkeepingRecordsEntity, BookkeepingRecordsDao,
+        BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo> implements BookkeepingRecordsService {
 
     private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;
 
@@ -62,7 +58,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     @Transactional
-    public Serializable add(AddDto dto) {
+    public Serializable add(BookkeepingRecordAddDto dto) {
         BookkeepingRecordsEntity bookkeepingRecords = BeanUtil.copyProperties(dto, BookkeepingRecordsEntity.class);
         // 记录日期为空是默认取当前时间
         if (bookkeepingRecords.getRecordDate() == null) {
@@ -75,19 +71,17 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         getBaseDao().save(bookkeepingRecords);
 
         // 保存标签
-        if (dto instanceof BookkeepingRecordAddDto recordAddDto) {
-            baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, bookkeepingRecords.getId(), recordAddDto.getRecordTags());
-            // 记录为激励收入时，积分+1
-            if (RecordCategoryEnum.INCOME.getCode().equals(recordAddDto.getRecordCategory())
-                    && BoolEnum.TRUE.getCode().equals(recordAddDto.getIsExcitationRecord())) {
-                PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
-                pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
-                pointsRecordsAddDto.setPoints(1);
-                pointsRecordsAddDto.setSource("记账收入");
-                pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
-                pointsRecordsAddDto.setUserId(UserUtils.getUserId());
-                MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
-            }
+        baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, bookkeepingRecords.getId(), dto.getRecordTags());
+        // 记录为激励收入时，积分+1
+        if (RecordCategoryEnum.INCOME.getCode().equals(dto.getRecordCategory())
+                && BoolEnum.TRUE.getCode().equals(dto.getIsExcitationRecord())) {
+            PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
+            pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
+            pointsRecordsAddDto.setPoints(1);
+            pointsRecordsAddDto.setSource("记账收入");
+            pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
+            pointsRecordsAddDto.setUserId(UserUtils.getUserId());
+            MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
         }
 
         return bookkeepingRecords.getId();

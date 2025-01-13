@@ -1,10 +1,9 @@
 package com.itwray.iw.auth.service;
 
+import com.itwray.iw.auth.model.dto.DictAddDto;
 import com.itwray.iw.auth.model.dto.DictPageDto;
-import com.itwray.iw.auth.model.vo.DictAllListVo;
-import com.itwray.iw.auth.model.vo.DictListVo;
-import com.itwray.iw.auth.model.vo.DictPageVo;
-import com.itwray.iw.auth.model.vo.DictTypeVo;
+import com.itwray.iw.auth.model.dto.DictUpdateDto;
+import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.WebService;
 
@@ -17,7 +16,7 @@ import java.util.Map;
  * @author wray
  * @since 2024/5/26
  */
-public interface BaseDictService extends WebService {
+public interface BaseDictService extends WebService<DictAddDto, DictUpdateDto, DictDetailVo> {
 
     /**
      * 获取字典类型集合

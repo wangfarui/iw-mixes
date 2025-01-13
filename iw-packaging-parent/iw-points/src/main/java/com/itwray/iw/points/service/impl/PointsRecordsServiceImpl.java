@@ -19,8 +19,6 @@ import com.itwray.iw.points.model.vo.PointsRecordsStatisticsVo;
 import com.itwray.iw.points.service.PointsRecordsService;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
 import com.itwray.iw.web.constants.MQTopicConstants;
-import com.itwray.iw.web.model.dto.AddDto;
-import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
@@ -40,8 +38,9 @@ import java.util.stream.Collectors;
  */
 @Service
 @RocketMQMessageListener(consumerGroup = "points-records-service", topic = MQTopicConstants.POINTS_RECORDS, tag = "*")
-public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper, PointsRecordsEntity,
-        PointsRecordsDao, PointsRecordsDetailVo> implements PointsRecordsService, RocketMQClientListener<PointsRecordsAddDto> {
+public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper, PointsRecordsEntity, PointsRecordsDao,
+        PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo>
+        implements PointsRecordsService, RocketMQClientListener<PointsRecordsAddDto> {
 
     private final PointsTotalDao pointsTotalDao;
 
@@ -53,26 +52,22 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
 
     @Override
     @Transactional
-    public Serializable add(AddDto dto) {
-        if (dto instanceof PointsRecordsAddDto recordsAddDto) {
-            recordsAddDto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(recordsAddDto.getPoints()));
-            pointsTotalDao.updatePointsBalance(recordsAddDto.getPoints());
-        }
+    public Serializable add(PointsRecordsAddDto dto) {
+        dto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(dto.getPoints()));
+        pointsTotalDao.updatePointsBalance(dto.getPoints());
         return super.add(dto);
     }
 
     @Override
     @Transactional
-    public void update(UpdateDto dto) {
+    public void update(PointsRecordsUpdateDto dto) {
         // 查询记录实体
         PointsRecordsEntity pointsRecordsEntity = getBaseDao().queryById(dto.getId());
 
         // 同步积分余额
-        if (dto instanceof PointsRecordsUpdateDto recordsUpdateDto) {
-            recordsUpdateDto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(recordsUpdateDto.getPoints()));
-            // 把之前的记录扣减，再增加
-            pointsTotalDao.updatePointsBalance(recordsUpdateDto.getPoints() - pointsRecordsEntity.getPoints());
-        }
+        dto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(dto.getPoints()));
+        // 把之前的记录扣减，再增加
+        pointsTotalDao.updatePointsBalance(dto.getPoints() - pointsRecordsEntity.getPoints());
 
         // 更新记录
         PointsRecordsEntity entity = BeanUtil.copyProperties(dto, PointsRecordsEntity.class);

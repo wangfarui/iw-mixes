@@ -7,6 +7,7 @@ import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.DictAddDto;
 import com.itwray.iw.auth.model.dto.DictPageDto;
+import com.itwray.iw.auth.model.dto.DictUpdateDto;
 import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
 import com.itwray.iw.common.constants.EnableEnum;
@@ -18,8 +19,6 @@ import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDictDao;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.mapper.BaseDictMapper;
-import com.itwray.iw.web.model.dto.AddDto;
-import com.itwray.iw.web.model.dto.UpdateDto;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
 import com.itwray.iw.web.model.enums.DictTypeEnum;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -47,8 +46,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RocketMQMessageListener(consumerGroup = "auth-dict-service", topic = MQTopicConstants.REGISTER_NEW_USER, tag = "*")
-public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDictEntity, BaseDictDao, DictDetailVo>
-        implements BaseDictService, RocketMQClientListener<UserAddBo> {
+public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDictEntity, BaseDictDao,
+        DictAddDto, DictUpdateDto, DictDetailVo> implements BaseDictService, RocketMQClientListener<UserAddBo> {
 
     @Autowired
     public BaseDictServiceImpl(BaseDictDao baseDao) {
@@ -113,29 +112,25 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
 
     @Override
     @Transactional
-    public Serializable add(AddDto dto) {
-        if (dto instanceof DictAddDto dictAddDto) {
-            // 如果新增时没有指定sort值
-            if (NumberUtils.isNullOrZero(dictAddDto.getSort())) {
-                // 根据字典类型查询当前最大sort值
-                dictAddDto.setSort(getBaseDao().queryNextSortValue(dictAddDto.getDictType()));
-            }
+    public Serializable add(DictAddDto dto) {
+        // 如果新增时没有指定sort值
+        if (NumberUtils.isNullOrZero(dto.getSort())) {
+            // 根据字典类型查询当前最大sort值
+            dto.setSort(getBaseDao().queryNextSortValue(dto.getDictType()));
         }
 
         Serializable id = super.add(dto);
 
-        if (dto instanceof DictAddDto dictAddDto) {
-            // 更新Redis缓存
-            List<DictAllListVo> dictAllListVos = queryAllDictByType(dictAddDto.getDictType());
-            RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dictAddDto.getDictType(), dictAllListVos);
-        }
+        // 更新Redis缓存
+        List<DictAllListVo> dictAllListVos = queryAllDictByType(dto.getDictType());
+        RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dto.getDictType(), dictAllListVos);
 
         return id;
     }
 
     @Override
     @Transactional
-    public void update(UpdateDto dto) {
+    public void update(DictUpdateDto dto) {
         // 根据id查询字典类型
         BaseDictEntity baseDictEntity = this.checkDataSecurity(dto.getId());
 

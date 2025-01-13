@@ -5,6 +5,8 @@ import com.itwray.iw.points.dao.PointsRecordsDao;
 import com.itwray.iw.points.dao.PointsTaskDao;
 import com.itwray.iw.points.dao.PointsTotalDao;
 import com.itwray.iw.points.mapper.PointsTaskMapper;
+import com.itwray.iw.points.model.dto.PointsTaskAddDto;
+import com.itwray.iw.points.model.dto.PointsTaskUpdateDto;
 import com.itwray.iw.points.model.entity.PointsRecordsEntity;
 import com.itwray.iw.points.model.entity.PointsTaskEntity;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,8 +30,8 @@ import java.util.stream.Collectors;
  * @since 2024/9/26
  */
 @Service
-public class PointsTaskServiceImpl extends WebServiceImpl<PointsTaskMapper, PointsTaskEntity,
-        PointsTaskDao, PointsTaskDetailVo> implements PointsTaskService {
+public class PointsTaskServiceImpl extends WebServiceImpl<PointsTaskMapper, PointsTaskEntity, PointsTaskDao,
+        PointsTaskAddDto, PointsTaskUpdateDto, PointsTaskDetailVo> implements PointsTaskService {
 
     private final PointsTotalDao pointsTotalDao;
 
@@ -39,6 +42,30 @@ public class PointsTaskServiceImpl extends WebServiceImpl<PointsTaskMapper, Poin
         super(baseDao);
         this.pointsTotalDao = pointsTotalDao;
         this.pointsRecordsDao = pointsRecordsDao;
+    }
+
+    @Override
+    @Transactional
+    public Integer add(PointsTaskAddDto dto) {
+
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void update(PointsTaskUpdateDto dto) {
+        super.update(dto);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Serializable id) {
+        super.delete(id);
+    }
+
+    @Override
+    public PointsTaskDetailVo detail(Serializable id) {
+        return super.detail(id);
     }
 
     @Override
