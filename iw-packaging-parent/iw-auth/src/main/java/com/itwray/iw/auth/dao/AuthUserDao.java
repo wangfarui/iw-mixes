@@ -118,7 +118,7 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
                 .update();
 
         // 生成Token并缓存
-        String token = UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString().replace("-", "");
         RedisUtil.set(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), authUserEntity.getId(), TOKEN_ACTIVE_TIME);
         RedisUtil.sSet(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
         RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), TOKEN_ACTIVE_TIME);
