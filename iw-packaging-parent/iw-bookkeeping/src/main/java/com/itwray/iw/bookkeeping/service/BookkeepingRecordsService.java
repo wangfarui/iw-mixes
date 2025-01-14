@@ -15,7 +15,7 @@ import java.util.List;
  * @author wray
  * @since 2024/8/28
  */
-public interface BookkeepingRecordsService extends WebService<BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo> {
+public interface BookkeepingRecordsService extends WebService<BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo, Integer> {
 
     PageVo<BookkeepingRecordPageVo> page(BookkeepingRecordPageDto dto);
 

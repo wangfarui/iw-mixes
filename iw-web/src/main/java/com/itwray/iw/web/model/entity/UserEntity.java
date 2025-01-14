@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 /**
  * 带用户数据权限的实体
  *
@@ -13,7 +15,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public abstract class UserEntity extends BaseEntity {
+public abstract class UserEntity<ID extends Serializable> extends BaseEntity<ID> {
 
     /**
      * 用户id

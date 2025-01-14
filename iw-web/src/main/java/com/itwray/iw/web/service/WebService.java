@@ -12,13 +12,13 @@ import java.io.Serializable;
  * @author wray
  * @since 2024/9/11
  */
-public interface WebService<A extends AddDto, U extends UpdateDto, V extends DetailVo> {
+public interface WebService<A extends AddDto, U extends UpdateDto, V extends DetailVo, ID extends Serializable> {
 
-    Serializable add(A dto);
+    ID add(A dto);
 
     void update(U dto);
 
-    void delete(Serializable id);
+    void delete(ID id);
 
-    V detail(Serializable id);
+    V detail(ID id);
 }

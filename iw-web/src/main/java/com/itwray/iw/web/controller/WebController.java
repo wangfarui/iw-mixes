@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @author wray
  * @since 2024/9/11
  */
-public abstract class WebController<S extends WebService<A, U, V>, A extends AddDto, U extends UpdateDto, V extends DetailVo> {
+public abstract class WebController<S extends WebService<A, U, V, ID>, A extends AddDto, U extends UpdateDto, V extends DetailVo, ID extends Serializable> {
 
     private final S webService;
 
@@ -24,7 +24,7 @@ public abstract class WebController<S extends WebService<A, U, V>, A extends Add
     }
 
     @PostMapping("/add")
-    public Serializable add(@RequestBody @Valid A dto) {
+    public ID add(@RequestBody @Valid A dto) {
         return getWebService().add(dto);
     }
 
@@ -34,14 +34,13 @@ public abstract class WebController<S extends WebService<A, U, V>, A extends Add
     }
 
     @DeleteMapping("/delete")
-    public void delete(@RequestParam("id") Serializable id) {
+    public void delete(@RequestParam("id") ID id) {
         getWebService().delete(id);
     }
 
     @GetMapping("/detail")
-    @SuppressWarnings("unchecked")
-    public V detail(@RequestParam("id") Serializable id) {
-        return (V) getWebService().detail(id);
+    public V detail(@RequestParam("id") ID id) {
+        return getWebService().detail(id);
     }
 
     protected S getWebService() {

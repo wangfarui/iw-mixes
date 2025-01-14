@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRecordsMapper, BookkeepingRecordsEntity, BookkeepingRecordsDao,
-        BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo> implements BookkeepingRecordsService {
+        BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo, Integer> implements BookkeepingRecordsService {
 
     private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;
 
@@ -58,7 +57,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     @Transactional
-    public Serializable add(BookkeepingRecordAddDto dto) {
+    public Integer add(BookkeepingRecordAddDto dto) {
         BookkeepingRecordsEntity bookkeepingRecords = BeanUtil.copyProperties(dto, BookkeepingRecordsEntity.class);
         // 记录日期为空是默认取当前时间
         if (bookkeepingRecords.getRecordDate() == null) {
@@ -89,7 +88,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     @Transactional
-    public void delete(Serializable id) {
+    public void delete(Integer id) {
         BookkeepingRecordsEntity bookkeepingRecordsEntity = getBaseDao().queryById(id);
         super.delete(id);
         // 删除标签
@@ -108,7 +107,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     }
 
     @Override
-    public BookkeepingRecordDetailVo detail(Serializable id) {
+    public BookkeepingRecordDetailVo detail(Integer id) {
         BookkeepingRecordDetailVo vo = super.detail(id);
 
         // 查询标签

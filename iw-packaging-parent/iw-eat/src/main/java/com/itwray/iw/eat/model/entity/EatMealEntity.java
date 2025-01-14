@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("eat_meal")
-public class EatMealEntity extends UserEntity {
+public class EatMealEntity extends UserEntity<Integer> {
 
     /**
      * id

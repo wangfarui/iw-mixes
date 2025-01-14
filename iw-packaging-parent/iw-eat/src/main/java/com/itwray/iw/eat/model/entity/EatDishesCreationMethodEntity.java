@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("eat_dishes_creation_method")
-public class EatDishesCreationMethodEntity extends IdEntity {
+public class EatDishesCreationMethodEntity extends IdEntity<Integer> {
 
     /**
      * id

@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @author wray
  * @since 2024/9/11
  */
-public abstract class IdEntity {
+public abstract class IdEntity<ID extends Serializable> {
 
     /**
      * 主键id的getter方法
@@ -17,5 +17,5 @@ public abstract class IdEntity {
      *
      * @return 主键id
      */
-    public abstract Serializable getId();
+    public abstract ID getId();
 }

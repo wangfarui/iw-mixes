@@ -18,7 +18,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("base_file_record")
-public class BaseFileRecordEntity extends IdEntity {
+public class BaseFileRecordEntity extends IdEntity<Integer> {
 
     /**
      * id

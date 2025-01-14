@@ -18,7 +18,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("external_sms_records")
-public class SmsRecordsEntity extends BaseEntity {
+public class SmsRecordsEntity extends BaseEntity<Integer> {
 
     /**
      * id

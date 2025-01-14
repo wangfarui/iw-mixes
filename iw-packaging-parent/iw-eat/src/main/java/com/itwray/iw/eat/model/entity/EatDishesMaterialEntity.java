@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("eat_dishes_material")
-public class EatDishesMaterialEntity extends IdEntity {
+public class EatDishesMaterialEntity extends IdEntity<Integer> {
 
     /**
      * id

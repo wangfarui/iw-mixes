@@ -28,7 +28,7 @@ import java.util.List;
 @Validated
 @Tag(name = "记账记录接口")
 public class BookkeepingRecordsController extends WebController<BookkeepingRecordsService, BookkeepingRecordAddDto,
-        BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo> {
+        BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo, Integer> {
 
     @Autowired
     public BookkeepingRecordsController(BookkeepingRecordsService webService) {

@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("points_records")
-public class PointsRecordsEntity extends UserEntity {
+public class PointsRecordsEntity extends UserEntity<Integer> {
 
     /**
      * id

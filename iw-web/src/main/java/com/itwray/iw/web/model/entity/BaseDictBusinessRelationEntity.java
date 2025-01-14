@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("base_dict_business_relation")
-public class BaseDictBusinessRelationEntity extends IdEntity {
+public class BaseDictBusinessRelationEntity extends IdEntity<Integer> {
 
     /**
      * 主键id

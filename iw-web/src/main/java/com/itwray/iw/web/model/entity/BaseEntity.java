@@ -7,6 +7,7 @@ import com.itwray.iw.common.constants.BoolEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public abstract class BaseEntity extends IdEntity {
+public abstract class BaseEntity<ID extends Serializable> extends IdEntity<ID> {
 
     /**
      * 是否删除，默认false

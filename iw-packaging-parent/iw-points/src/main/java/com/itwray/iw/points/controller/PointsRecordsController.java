@@ -30,7 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/records")
 @Validated
 @Tag(name = "积分记录接口")
-public class PointsRecordsController extends WebController<PointsRecordsService, PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo> {
+public class PointsRecordsController extends WebController<PointsRecordsService, PointsRecordsAddDto,
+        PointsRecordsUpdateDto, PointsRecordsDetailVo, Integer> {
 
     @Autowired
     public PointsRecordsController(PointsRecordsService webService) {

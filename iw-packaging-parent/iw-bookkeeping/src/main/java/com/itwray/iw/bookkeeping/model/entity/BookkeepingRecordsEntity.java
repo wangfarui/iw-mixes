@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("bookkeeping_records")
-public class BookkeepingRecordsEntity extends UserEntity {
+public class BookkeepingRecordsEntity extends UserEntity<Integer> {
 
     /**
      * id

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @TableName("auth_user")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class AuthUserEntity extends IdEntity {
+public class AuthUserEntity extends IdEntity<Integer> {
 
     /**
      * 用户id

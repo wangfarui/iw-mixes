@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("points_task")
-public class PointsTaskEntity extends UserEntity {
+public class PointsTaskEntity extends UserEntity<Integer> {
 
     /**
      * id

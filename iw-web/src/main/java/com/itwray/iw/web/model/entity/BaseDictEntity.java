@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("base_dict")
-public class BaseDictEntity extends UserEntity {
+public class BaseDictEntity extends UserEntity<Integer> {
 
     /**
      * id

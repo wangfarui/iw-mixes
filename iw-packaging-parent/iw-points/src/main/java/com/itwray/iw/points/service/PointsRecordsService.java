@@ -16,7 +16,7 @@ import com.itwray.iw.web.service.WebService;
  * @author wray
  * @since 2024/9/26
  */
-public interface PointsRecordsService extends WebService<PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo> {
+public interface PointsRecordsService extends WebService<PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo, Integer> {
 
     /**
      * 分页查询积分记录

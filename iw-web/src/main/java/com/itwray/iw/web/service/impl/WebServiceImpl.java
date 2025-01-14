@@ -20,8 +20,8 @@ import java.io.Serializable;
  * @author wray
  * @since 2024/9/11
  */
-public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity, D extends BaseDao<M, T>,
-        A extends AddDto, U extends UpdateDto, V extends DetailVo> implements WebService<A, U, V> {
+public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity<ID>, D extends BaseDao<M, T>,
+        A extends AddDto, U extends UpdateDto, V extends DetailVo, ID extends Serializable> implements WebService<A, U, V, ID> {
 
     private final D baseDao;
 
@@ -36,7 +36,7 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
 
     @Override
     @Transactional
-    public Serializable add(A dto) {
+    public ID add(A dto) {
         T entity = BeanUtil.copyProperties(dto, getBaseDao().getEntityClass());
         getBaseDao().save(entity);
         return entity.getId();
@@ -52,12 +52,12 @@ public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity
 
     @Override
     @Transactional
-    public void delete(Serializable id) {
+    public void delete(ID id) {
         getBaseDao().removeById(id);
     }
 
     @Override
-    public V detail(Serializable id) {
+    public V detail(ID id) {
         T entity = getBaseDao().queryById(id);
         return BeanUtil.copyProperties(entity, getDetailClass());
     }

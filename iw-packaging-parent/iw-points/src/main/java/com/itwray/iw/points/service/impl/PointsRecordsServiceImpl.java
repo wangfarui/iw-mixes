@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
 @Service
 @RocketMQMessageListener(consumerGroup = "points-records-service", topic = MQTopicConstants.POINTS_RECORDS, tag = "*")
 public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper, PointsRecordsEntity, PointsRecordsDao,
-        PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo>
+        PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo, Integer>
         implements PointsRecordsService, RocketMQClientListener<PointsRecordsAddDto> {
 
     private final PointsTotalDao pointsTotalDao;
@@ -52,7 +51,7 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
 
     @Override
     @Transactional
-    public Serializable add(PointsRecordsAddDto dto) {
+    public Integer add(PointsRecordsAddDto dto) {
         dto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(dto.getPoints()));
         pointsTotalDao.updatePointsBalance(dto.getPoints());
         return super.add(dto);
@@ -76,7 +75,7 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper
 
     @Override
     @Transactional
-    public void delete(Serializable id) {
+    public void delete(Integer id) {
         // 查询记录实体
         PointsRecordsEntity pointsRecordsEntity = getBaseDao().queryById(id);
 

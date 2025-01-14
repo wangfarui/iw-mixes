@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RocketMQMessageListener(consumerGroup = "auth-dict-service", topic = MQTopicConstants.REGISTER_NEW_USER, tag = "*")
 public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDictEntity, BaseDictDao,
-        DictAddDto, DictUpdateDto, DictDetailVo> implements BaseDictService, RocketMQClientListener<UserAddBo> {
+        DictAddDto, DictUpdateDto, DictDetailVo, Integer> implements BaseDictService, RocketMQClientListener<UserAddBo> {
 
     @Autowired
     public BaseDictServiceImpl(BaseDictDao baseDao) {
@@ -112,14 +112,14 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
 
     @Override
     @Transactional
-    public Serializable add(DictAddDto dto) {
+    public Integer add(DictAddDto dto) {
         // 如果新增时没有指定sort值
         if (NumberUtils.isNullOrZero(dto.getSort())) {
             // 根据字典类型查询当前最大sort值
             dto.setSort(getBaseDao().queryNextSortValue(dto.getDictType()));
         }
 
-        Serializable id = super.add(dto);
+        Integer id = super.add(dto);
 
         // 更新Redis缓存
         List<DictAllListVo> dictAllListVos = queryAllDictByType(dto.getDictType());
@@ -143,7 +143,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
 
     @Override
     @Transactional
-    public void delete(Serializable id) {
+    public void delete(Integer id) {
         // 根据id查询字典类型
         BaseDictEntity dictEntity = this.checkDataSecurity(id);
 

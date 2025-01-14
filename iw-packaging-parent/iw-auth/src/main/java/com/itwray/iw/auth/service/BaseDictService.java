@@ -16,7 +16,7 @@ import java.util.Map;
  * @author wray
  * @since 2024/5/26
  */
-public interface BaseDictService extends WebService<DictAddDto, DictUpdateDto, DictDetailVo> {
+public interface BaseDictService extends WebService<DictAddDto, DictUpdateDto, DictDetailVo, Integer> {
 
     /**
      * 获取字典类型集合

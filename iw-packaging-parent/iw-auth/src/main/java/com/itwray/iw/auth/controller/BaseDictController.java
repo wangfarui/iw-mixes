@@ -27,7 +27,7 @@ import java.util.Map;
 @RequestMapping("/dict")
 @Validated
 @Tag(name = "字典接口")
-public class BaseDictController extends WebController<BaseDictService, DictAddDto, DictUpdateDto, DictDetailVo> {
+public class BaseDictController extends WebController<BaseDictService, DictAddDto, DictUpdateDto, DictDetailVo, Integer> {
 
     @Autowired
     public BaseDictController(BaseDictService baseDictService) {
