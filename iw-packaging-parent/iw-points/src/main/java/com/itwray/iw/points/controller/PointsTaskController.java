@@ -1,6 +1,7 @@
 package com.itwray.iw.points.controller;
 
 import com.itwray.iw.points.model.dto.PointsTaskAddDto;
+import com.itwray.iw.points.model.dto.PointsTaskSubmitDto;
 import com.itwray.iw.points.model.dto.PointsTaskUpdateDto;
 import com.itwray.iw.points.model.vo.PointsTaskDetailVo;
 import com.itwray.iw.points.model.vo.PointsTaskListVo;
@@ -10,10 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,17 +25,18 @@ import java.util.List;
 @RequestMapping("/task")
 @Validated
 @Tag(name = "积分任务接口")
-public class PointsTaskController extends WebController<PointsTaskService, PointsTaskAddDto, PointsTaskUpdateDto, PointsTaskDetailVo> {
+public class PointsTaskController extends WebController<PointsTaskService, PointsTaskAddDto,
+        PointsTaskUpdateDto, PointsTaskDetailVo, Integer> {
 
     @Autowired
     public PointsTaskController(PointsTaskService webService) {
         super(webService);
     }
 
-    @GetMapping("/submit")
+    @PostMapping("/submit")
     @Operation(summary = "提交积分任务")
-    public void submit(@RequestParam("id") Integer id) {
-        getWebService().submit(id);
+    public void submit(@RequestBody PointsTaskSubmitDto dto) {
+        getWebService().submit(dto);
     }
 
     @GetMapping("/list")

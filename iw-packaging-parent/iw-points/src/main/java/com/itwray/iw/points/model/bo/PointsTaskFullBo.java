@@ -1,23 +1,25 @@
-package com.itwray.iw.points.model.dto;
+package com.itwray.iw.points.model.bo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.points.model.enums.PointsTaskPeriodicIntervalEnum;
 import com.itwray.iw.points.model.enums.PointsTaskPeriodicTypeEnum;
 import com.itwray.iw.points.model.enums.PointsTaskTypeEnum;
-import com.itwray.iw.web.model.dto.AddDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 /**
- * 积分任务 新增DTO
+ * 任务实体完整对象
  *
  * @author wray
- * @since 2024/10/9
+ * @since 2025/1/13
  */
 @Data
-public class PointsTaskAddDto implements AddDto {
+public class PointsTaskFullBo {
+
+    /**
+     * 任务id
+     */
+    private Integer id;
 
     /**
      * 任务名称
@@ -47,7 +49,6 @@ public class PointsTaskAddDto implements AddDto {
     /**
      * 截止时间
      */
-    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime deadline;
 
     /**
@@ -69,4 +70,9 @@ public class PointsTaskAddDto implements AddDto {
      * 周期内最大执行次数
      */
     private Integer maxExecutionCount;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
 }
