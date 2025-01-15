@@ -9,6 +9,8 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 
+import java.util.Set;
+
 /**
  * 用户数据权限处理器
  *
@@ -20,8 +22,12 @@ public class UserDataPermissionHandler implements MultiDataPermissionHandler {
 
     private final IwDaoProperties.DataPermission dataPermission;
 
-    public UserDataPermissionHandler(IwDaoProperties.DataPermission dataPermission) {
+    private final Set<String> ignoreUserDataPermissionMethods;
+
+    public UserDataPermissionHandler(IwDaoProperties.DataPermission dataPermission,
+                                     Set<String> ignoreUserDataPermissionMethods) {
         this.dataPermission = dataPermission;
+        this.ignoreUserDataPermissionMethods = ignoreUserDataPermissionMethods;
     }
 
     @Override
@@ -30,6 +36,10 @@ public class UserDataPermissionHandler implements MultiDataPermissionHandler {
             // 表示不追加任何条件
             return null;
         }
+        if (ignoreUserDataPermissionMethods.contains(mappedStatementId)) {
+            return null;
+        }
+
         String whereSql = where.toString();
         // 如果where中已包含user_id查询条件，则不追加 where 条件
         if (whereSql != null && whereSql.contains("user_id")) {
