@@ -22,7 +22,7 @@ public class DefaultMetaObjectHandler implements MetaObjectHandler {
         if (originalObject instanceof BaseEntity) {
             LocalDateTime now = LocalDateTime.now();
             this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
-            this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
+            this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, now);
         }
         if (originalObject instanceof UserEntity) {
             this.strictInsertFill(metaObject, "userId", Integer.class, UserUtils.getUserId());
