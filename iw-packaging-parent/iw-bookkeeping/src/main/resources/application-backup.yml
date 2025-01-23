@@ -5,14 +5,11 @@ iw:
       enabled: true
       enable-table-names:
         - bookkeeping_records
-        - points_total
-        - points_records
-        - points_task_base
-        - points_task_records
-        - eat_meal
 
 # 服务器配置
 server:
+  servlet:
+    context-path: /bookkeeping-service
   port: 18004
 
 # spring 配置

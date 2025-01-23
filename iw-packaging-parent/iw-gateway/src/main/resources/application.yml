@@ -10,8 +10,10 @@ spring:
       - optional:nacos:${spring.application.name}.yml
   cloud:
     gateway:
+      # 路由转发
       forwarded:
         enabled: true
+      # 全局网关配置
       globalcors:
         cors-configurations:
           '[/**]': # 匹配所有路由
@@ -24,6 +26,45 @@ spring:
             allowedHeaders:
               - "*"  # 允许的请求头
             allowCredentials: true  # 是否允许携带认证信息（如 cookies）
+      # 路由配置
+      routes:
+        - id: iw-auth-service
+          uri: lb://iw-auth-service
+          predicates:
+            - Path=/auth-service/**
+          filters:
+            # 默认StripPrefix为false，即0，不会去除前缀
+            - StripPrefix=0
+        - id: iw-eat-service
+          uri: lb://iw-bookkeeping-service
+          predicates:
+            - Path=/eat-service/**
+          filters:
+            - StripPrefix=1
+        - id: iw-bookkeeping-service
+          uri: lb://iw-bookkeeping-service
+          predicates:
+            - Path=/bookkeeping-service/**
+          filters:
+            - StripPrefix=1
+        - id: iw-points-service
+          uri: lb://iw-bookkeeping-service
+          predicates:
+            - Path=/points-service/**
+          filters:
+            - StripPrefix=1
+        - id: iw-external-service_external
+          uri: lb://iw-external-service
+          predicates:
+            - Path=/external-service/api/**
+        - id: iw-external-service_internal
+          uri: lb://iw-external-service
+          predicates:
+            - Path=/external-service/internal/**
+          filters:
+            - name: IpCheck        # 自定义过滤器用于 IP 校验
+            - name: SecretCheck    # 自定义过滤器用于 密钥 校验
+    # nacos配置
     nacos:
       discovery:
         enabled: true
@@ -32,3 +73,4 @@ spring:
       password: ${SPRING_CLOUD_NACOS_PASSWORD}
       username: ${SPRING_CLOUD_NACOS_USERNAME}
       server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR}
+
