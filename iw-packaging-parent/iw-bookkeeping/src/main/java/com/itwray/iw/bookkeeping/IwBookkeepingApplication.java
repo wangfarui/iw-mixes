@@ -5,6 +5,7 @@ import com.itwray.iw.points.IwPointsApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.Import;
 
 /**
  * IW记账服务启动类
@@ -12,7 +13,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @author wray
  * @since 2024/7/5
  */
-@SpringBootApplication(scanBasePackages = {"com.itwray.iw.bookkeeping", "com.itwray.iw.points", "com.itwray.iw.eat"})
+@SpringBootApplication
+@Import({IwPointsApplication.class, IwEatApplication.class})
 @EnableDiscoveryClient
 public class IwBookkeepingApplication {
 
