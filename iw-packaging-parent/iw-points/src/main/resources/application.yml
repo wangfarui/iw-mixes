@@ -4,8 +4,10 @@ iw:
     dataPermission:
       enabled: true
       enable-table-names:
+        - points_total
         - points_records
-        - points_task
+        - points_task_base
+        - points_task_records
 
 # 服务器配置
 server:

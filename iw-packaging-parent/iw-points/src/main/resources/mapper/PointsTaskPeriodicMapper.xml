@@ -2,4 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itwray.iw.points.mapper.PointsTaskPeriodicMapper">
 
+    <select id="queryClockInTask" resultType="com.itwray.iw.points.model.bo.PointsTaskFullBo">
+        SELECT ptb.*,
+               ptp.periodic_type,
+               ptp.periodic_interval,
+               ptp.penalty_points,
+               ptp.max_execution_count
+        FROM points_task_periodic ptp
+        INNER JOIN points_task_base ptb ON ptb.id = ptp.id
+        where ptp.periodic_type = #{dto.periodicType.code}
+          and ptp.periodic_interval = #{dto.periodicInterval.code}
+    </select>
 </mapper>

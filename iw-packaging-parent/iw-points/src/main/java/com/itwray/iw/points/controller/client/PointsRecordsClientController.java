@@ -32,7 +32,7 @@ public class PointsRecordsClientController {
     @PostMapping("/add")
     @Operation(summary = "新增积分记录")
     public Integer add(@RequestBody @Valid PointsRecordsAddDto dto) {
-        return (Integer) pointsRecordsService.add(dto);
+        return pointsRecordsService.add(dto);
     }
 
 }
