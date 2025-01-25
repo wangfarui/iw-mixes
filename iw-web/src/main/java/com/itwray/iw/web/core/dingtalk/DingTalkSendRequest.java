@@ -50,6 +50,10 @@ public class DingTalkSendRequest {
     @Getter
     private Text text;
 
+    @Setter
+    @Getter
+    private String requestUrl;
+
     /**
      * 完善请求对象参数（在发送请求之前）
      */

@@ -1,9 +1,9 @@
 package com.itwray.iw.web.core.dingtalk;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.http.Method;
 import cn.hutool.json.JSONUtil;
-import com.itwray.iw.web.utils.HttpUtils;
+import com.itwray.iw.web.client.DingTalkClient;
+import com.itwray.iw.web.utils.ApplicationContextHolder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
@@ -24,6 +24,10 @@ public class DingTalkRobotClient {
     private static boolean CAN_APPLY;
 
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(2);
+
+    private static volatile DingTalkClient dingTalkClient;
+
+    private static final Object DING_TALK_CLIENT_LOCK = new Object();
 
     @SuppressWarnings("all")
     public DingTalkRobotClient(DingTalkProperties properties) {
@@ -57,21 +61,26 @@ public class DingTalkRobotClient {
             if (!completed) {
                 log.warn("[DingTalkClient][send]钉钉消息请求对象数据异常, request:{}", JSONUtil.toJsonStr(request));
             }
-            final String requestUrl = properties.getRequestUrl();
+            request.setRequestUrl(properties.getRequestUrl());
             EXECUTOR_SERVICE.execute(() -> {
-                DingTalkSendResponse response = HttpUtils.createRequest(Method.POST, requestUrl)
-                        .setBody(request)
-                        .executePost(DingTalkSendResponse.class);
-                if (response == null) {
-                    log.warn("[DingTalkClient][send]发送钉钉消息异常, request:{}", JSONUtil.toJsonStr(request));
-                } else if (response.getErrcode() != 0) {
-                    log.warn("[DingTalkClient][send]发送钉钉消息失败, request:{}, response:{}", JSONUtil.toJsonStr(request), JSONUtil.toJsonStr(response));
-                }
+                getDingTalkClient().sendDingTalkRobotMsg(request);
             });
         }
     }
 
     public static void changeCanApply(boolean canApply) {
         CAN_APPLY = canApply;
+    }
+
+    private static DingTalkClient getDingTalkClient() {
+        if (dingTalkClient == null) {
+            synchronized (DING_TALK_CLIENT_LOCK) {
+                if (dingTalkClient == null) {
+                    dingTalkClient = ApplicationContextHolder.getBean(DingTalkClient.class);
+                }
+            }
+        }
+
+        return dingTalkClient;
     }
 }
