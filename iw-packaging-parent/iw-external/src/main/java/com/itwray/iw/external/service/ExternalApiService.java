@@ -3,7 +3,7 @@ package com.itwray.iw.external.service;
 import java.util.Map;
 
 /**
- * 外部API接口服务
+ * 外部API服务接口
  *
  * @author wray
  * @since 2024/10/17

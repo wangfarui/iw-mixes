@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * SMS短信接口服务
+ * SMS短信接口控制层
  *
  * @author wray
  * @since 2024/12/20

@@ -10,7 +10,7 @@ import com.itwray.iw.web.service.WebService;
 import java.util.List;
 
 /**
- * 收入表 接口服务
+ * 收入表 服务接口
  *
  * @author wray
  * @since 2024/8/28

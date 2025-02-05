@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 字典接口服务
+ * 字典服务接口
  *
  * @author wray
  * @since 2024/5/26

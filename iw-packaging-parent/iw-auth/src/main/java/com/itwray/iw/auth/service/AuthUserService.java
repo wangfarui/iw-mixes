@@ -6,7 +6,7 @@ import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 
 /**
- * 用户接口服务
+ * 用户服务接口
  *
  * @author wray
  * @since 2024/3/2

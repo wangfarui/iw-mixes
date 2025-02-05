@@ -9,7 +9,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo;
 import java.util.List;
 
 /**
- * 记账支出 接口服务
+ * 记账支出 服务接口
  *
  * @author wray
  * @since 2024/10/15

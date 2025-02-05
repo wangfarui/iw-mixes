@@ -11,7 +11,7 @@ import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.WebService;
 
 /**
- * 积分记录 接口服务
+ * 积分记录 服务接口
  *
  * @author wray
  * @since 2024/9/26

@@ -3,7 +3,7 @@ package com.itwray.iw.external.service;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 
 /**
- * 短信接口服务
+ * 短信服务接口
  *
  * @author wray
  * @since 2024/12/19

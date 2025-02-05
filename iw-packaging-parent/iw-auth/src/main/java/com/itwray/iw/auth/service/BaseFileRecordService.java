@@ -4,7 +4,7 @@ import com.itwray.iw.web.model.vo.FileRecordVo;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 文件记录 接口服务层
+ * 文件记录 服务接口层
  *
  * @author wray
  * @since 2024/5/17

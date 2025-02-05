@@ -1,7 +1,7 @@
 package com.itwray.iw.points.service;
 
 /**
- * 积分合计表 接口服务层
+ * 积分合计表 服务接口层
  *
  * @author wray
  * @since 2024/9/26

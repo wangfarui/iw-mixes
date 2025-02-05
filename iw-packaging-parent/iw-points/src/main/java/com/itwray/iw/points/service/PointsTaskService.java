@@ -10,7 +10,7 @@ import com.itwray.iw.web.service.WebService;
 import java.util.List;
 
 /**
- * 积分任务表 接口服务层
+ * 积分任务表 服务接口层
  *
  * @author wray
  * @since 2024/9/26

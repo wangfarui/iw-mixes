@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 钉钉接口服务
+ * 钉钉接口控制层
  *
  * @author wray
  * @since 2025/1/25
