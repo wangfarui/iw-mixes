@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @author wray
  * @since 2024/12/19
  */
-@FeignClient(value = "iw-external-service", path = "/external-service/internal/dingTalk")
+@FeignClient(value = "iw-external-service", contextId = "web-client", path = "/external-service/internal/dingTalk")
 public interface DingTalkClient {
 
     @PostMapping("/sendDingTalkRobotMsg")
