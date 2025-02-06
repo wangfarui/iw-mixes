@@ -41,9 +41,8 @@ public class BookkeepingRecordsEntity extends UserEntity<Integer> {
 
     /**
      * 记录类型
-     * @see RecordCategoryEnum
      */
-    private Integer recordCategory;
+    private RecordCategoryEnum recordCategory;
 
     /**
      * 记录来源

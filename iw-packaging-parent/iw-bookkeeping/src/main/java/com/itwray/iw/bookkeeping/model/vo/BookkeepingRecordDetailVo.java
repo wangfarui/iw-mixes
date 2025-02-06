@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.DetailVo;
 import lombok.Data;
@@ -39,7 +40,7 @@ public class BookkeepingRecordDetailVo implements DetailVo {
     /**
      * 记录类型
      */
-    private Integer recordCategory;
+    private RecordCategoryEnum recordCategory;
 
     /**
      * 记录来源

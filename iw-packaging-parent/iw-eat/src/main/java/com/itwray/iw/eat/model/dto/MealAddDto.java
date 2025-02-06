@@ -1,6 +1,7 @@
 package com.itwray.iw.eat.model.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.itwray.iw.eat.model.enums.MealTimeEnum;
 import com.itwray.iw.web.json.deserialize.IntegerToZeroDeserializer;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -26,8 +27,7 @@ public class MealAddDto {
     /**
      * 用餐时间(指规定的吃饭时间，通常包括1早餐、2午餐和3晚餐，0表示未规定用餐时间)
      */
-    @JsonDeserialize(using = IntegerToZeroDeserializer.class)
-    private Integer mealTime;
+    private MealTimeEnum mealTime;
 
     /**
      * 用餐人数(0表示不确定用餐人数)

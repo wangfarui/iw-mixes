@@ -1,6 +1,6 @@
 package com.itwray.iw.bookkeeping.model.enums;
 
-import com.itwray.iw.common.ConstantEnum;
+import com.itwray.iw.web.model.enums.BusinessConstantEnum;
 import lombok.Getter;
 
 /**
@@ -10,7 +10,7 @@ import lombok.Getter;
  * @since 2024/9/23
  */
 @Getter
-public enum RecordCategoryEnum implements ConstantEnum {
+public enum RecordCategoryEnum implements BusinessConstantEnum {
 
     CONSUME(1, "支出（消费）"),
     INCOME(2, "收入");

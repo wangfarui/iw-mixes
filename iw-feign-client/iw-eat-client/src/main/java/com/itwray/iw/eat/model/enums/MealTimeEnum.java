@@ -1,6 +1,6 @@
 package com.itwray.iw.eat.model.enums;
 
-import com.itwray.iw.common.ConstantEnum;
+import com.itwray.iw.web.model.enums.BusinessConstantEnum;
 import lombok.Getter;
 
 /**
@@ -10,7 +10,7 @@ import lombok.Getter;
  * @since 2024/5/10
  */
 @Getter
-public enum MealTimeEnum implements ConstantEnum {
+public enum MealTimeEnum implements BusinessConstantEnum {
     ANY(0, "任意时间"),
     BREAKFAST(1, "早餐"),
     NOONING(2, "午餐"),
@@ -23,14 +23,5 @@ public enum MealTimeEnum implements ConstantEnum {
     MealTimeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
-    }
-
-    public static String getName(Integer code) {
-        for (MealTimeEnum item : values()) {
-            if (item.getCode().equals(code)) {
-                return item.getName();
-            }
-        }
-        return "";
     }
 }

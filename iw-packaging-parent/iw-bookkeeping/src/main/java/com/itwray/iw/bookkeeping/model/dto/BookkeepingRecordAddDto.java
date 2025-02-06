@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.AddDto;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +31,7 @@ public class BookkeepingRecordAddDto implements AddDto {
      * 记录类型
      */
     @NotNull(message = "记录类型不能为空")
-    private Integer recordCategory;
+    private RecordCategoryEnum recordCategory;
 
     /**
      * 记录来源

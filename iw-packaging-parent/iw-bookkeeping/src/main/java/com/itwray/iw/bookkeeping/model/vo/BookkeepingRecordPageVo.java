@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -29,7 +30,7 @@ public class BookkeepingRecordPageVo {
     /**
      * 记录类型
      */
-    private Integer recordCategory;
+    private RecordCategoryEnum recordCategory;
 
     /**
      * 记录来源

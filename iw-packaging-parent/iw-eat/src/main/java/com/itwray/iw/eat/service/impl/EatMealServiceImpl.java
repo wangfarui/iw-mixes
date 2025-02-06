@@ -78,9 +78,7 @@ public class EatMealServiceImpl implements EatMealService {
         queryWrapper.eq(dto.getMealDate() != null, EatMealEntity::getMealDate, dto.getMealDate());
         queryWrapper.orderByDesc(EatMealEntity::getId);
         PageVo<MealPageVo> page = eatMealDao.page(dto, queryWrapper, MealPageVo.class);
-        page.getRecords().forEach(t -> {
-            t.setMealTimeDesc(MealTimeEnum.getName(t.getMealTime()));
-        });
+        page.getRecords().forEach(t -> t.setMealTimeDesc(t.getMealTime().getName()));
         return page;
     }
 
@@ -89,7 +87,7 @@ public class EatMealServiceImpl implements EatMealService {
         EatMealEntity eatMealEntity = eatMealDao.queryById(id);
         List<MealMenuDetailVo> detailList = eatMealMenuDao.getListByMealId(id);
         MealDetailVo vo = BeanUtil.copyProperties(eatMealEntity, MealDetailVo.class);
-        vo.setMealTimeDesc(MealTimeEnum.getName(eatMealEntity.getMealTime()));
+        vo.setMealTimeDesc(eatMealEntity.getMealTime().getName());
         vo.setMealMenuList(detailList);
         return vo;
     }

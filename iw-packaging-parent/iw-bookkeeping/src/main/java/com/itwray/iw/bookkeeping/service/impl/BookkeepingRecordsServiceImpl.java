@@ -72,7 +72,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 保存标签
         baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, bookkeepingRecords.getId(), dto.getRecordTags());
         // 记录为激励收入时，积分+1
-        if (RecordCategoryEnum.INCOME.getCode().equals(dto.getRecordCategory())
+        if (RecordCategoryEnum.INCOME.equals(dto.getRecordCategory())
                 && BoolEnum.TRUE.getCode().equals(dto.getIsExcitationRecord())) {
             PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
             pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
@@ -94,7 +94,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 删除标签
         baseDictBusinessRelationDao.removeRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, id);
         // 同步积分数据
-        if (RecordCategoryEnum.INCOME.getCode().equals(bookkeepingRecordsEntity.getRecordCategory())
+        if (RecordCategoryEnum.INCOME.equals(bookkeepingRecordsEntity.getRecordCategory())
                 && BoolEnum.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
             PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
             pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.DEDUCT.getCode());

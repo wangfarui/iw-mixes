@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -23,7 +24,10 @@ public class BookkeepingConsumeMonthStatisticsDto {
     @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate currentMonth;
 
-    private Integer recordCategory;
+    /**
+     * 记账记录类型
+     */
+    private RecordCategoryEnum recordCategory;
 
     private LocalDate currentStartMonth;
 

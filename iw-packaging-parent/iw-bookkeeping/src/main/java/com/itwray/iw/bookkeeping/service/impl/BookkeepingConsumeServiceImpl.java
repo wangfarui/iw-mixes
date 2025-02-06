@@ -125,6 +125,6 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
     private void fillMonthStatisticsDto(BookkeepingConsumeMonthStatisticsDto dto) {
         dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
         dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
-        dto.setRecordCategory(RecordCategoryEnum.CONSUME.getCode());
+        dto.setRecordCategory(RecordCategoryEnum.CONSUME);
     }
 }
