@@ -8,6 +8,7 @@ import com.itwray.iw.auth.model.dto.RegisterFormDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthRegisterService;
+import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.external.client.SmsClient;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.starter.redis.RedisUtil;
@@ -97,11 +98,13 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
      *
      * @param phoneNumber 电话号码
      * @param clientIp    客户端请求ip
-     * @return 生成验证码结果
      */
     @Override
     @DistributedLock(lockName = "'getVerificationCode:' + #phoneNumber")
     public void getVerificationCode(String phoneNumber, String clientIp) {
+        if (!NumberUtils.isValidPhoneNumber(phoneNumber)) {
+            throw new BusinessException("电话号码格式错误");
+        }
         // 查询当前电话号码是否已生成过验证码
         String oldVerificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(phoneNumber), String.class);
         if (oldVerificationCode != null) {
