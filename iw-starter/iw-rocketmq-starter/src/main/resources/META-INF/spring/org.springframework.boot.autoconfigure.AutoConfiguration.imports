@@ -1,1 +1,1 @@
-com.itwray.iw.starter.rocketmq.config.RocketMQConfiguration
+com.itwray.iw.starter.rocketmq.config.RocketMQAutoConfiguration
