@@ -32,7 +32,7 @@ public class RedisUtil {
      * 给一个指定的 key 值附加过期时间
      *
      * @param key
-     * @param time
+     * @param time 秒
      * @return
      */
     public static boolean expire(String key, long time) {
@@ -165,6 +165,17 @@ public class RedisUtil {
      */
     public static void batchSetIfAbsent(Map<String, String> keyAndValue) {
         redisTemplate.opsForValue().multiSetIfAbsent(keyAndValue);
+    }
+
+    /**
+     * 对一个 key-value 的值进行加1操作,
+     * 如果该 key 不存在 将创建一个key 并赋值该 number
+     * 如果 key 存在,但 value 不是长整型 ,将报错
+     *
+     * @param key
+     */
+    public static Long incrementOne(String key) {
+        return redisTemplate.opsForValue().increment(key, 1L);
     }
 
     /**

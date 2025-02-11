@@ -132,10 +132,10 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         smsClient.sendVerificationCode(dto);
 
         // 同一号码, 验证码5分钟内有效，5分钟内重复发送则覆盖
-        RedisUtil.set(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(phoneNumber), verificationCode, 60 * 5);
+        AuthRedisKeyEnum.PHONE_VERIFY_KEY.setStringValue(verificationCode, phoneNumber);
         // 同一ip, 1小时内只发5次
-        RedisUtil.increment(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 1L);
-        RedisUtil.expire(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp), 60 * 60);
+        RedisUtil.incrementOne(AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.getKey(clientIp));
+        AuthRedisKeyEnum.PHONE_VERIFY_IP_KEY.setExpire(clientIp);
     }
 
 

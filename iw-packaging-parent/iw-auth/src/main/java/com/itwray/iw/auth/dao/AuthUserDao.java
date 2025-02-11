@@ -38,11 +38,6 @@ import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER
 public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
 
     /**
-     * token固定的存活时间 3天
-     */
-    public static final Long TOKEN_ACTIVE_TIME = 3 * 24 * 60 * 60L;
-
-    /**
      * 新增用户
      *
      * @param bo 用户新增对象
@@ -119,9 +114,9 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
 
         // 生成Token并缓存
         String token = UUID.randomUUID().toString().replace("-", "");
-        RedisUtil.set(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), authUserEntity.getId(), TOKEN_ACTIVE_TIME);
+        AuthRedisKeyEnum.USER_TOKEN_KEY.setStringValue(authUserEntity.getId(), token);
         RedisUtil.sSet(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
-        RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), TOKEN_ACTIVE_TIME);
+        AuthRedisKeyEnum.USER_TOKEN_SET_KEY.setExpire(authUserEntity.getId());
 
         // 将token写入到请求头中
         this.setTokenValue(token);
@@ -194,8 +189,8 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
         if (WebCommonConstants.INNER_CLIENT_IP.equals(clientIp)) {
             return;
         }
-        RedisUtil.increment(AuthRedisKeyEnum.REGISTER_IP_KEY.getKey(clientIp), 1L);
-        RedisUtil.expire(AuthRedisKeyEnum.REGISTER_IP_KEY.getKey(clientIp), 60 * 60);
+        RedisUtil.incrementOne(AuthRedisKeyEnum.REGISTER_IP_KEY.getKey(clientIp));
+        AuthRedisKeyEnum.REGISTER_IP_KEY.setExpire(clientIp);
     }
 
     /**

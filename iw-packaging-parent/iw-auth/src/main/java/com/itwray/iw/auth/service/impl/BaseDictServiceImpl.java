@@ -106,6 +106,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
                         )));
 
         RedisUtil.add(this.obtainDictRedisKeyByUser(), dictMap);
+        RedisUtil.expire(this.obtainDictRedisKeyByUser(), AuthRedisKeyEnum.DICT_KEY.getExpireTime());
 
         return dictMap;
     }
@@ -124,6 +125,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
         // 更新Redis缓存
         List<DictAllListVo> dictAllListVos = queryAllDictByType(dto.getDictType());
         RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dto.getDictType(), dictAllListVos);
+        RedisUtil.expire(this.obtainDictRedisKeyByUser(), AuthRedisKeyEnum.DICT_KEY.getExpireTime());
 
         return id;
     }
@@ -268,6 +270,9 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictMapper, BaseDict
             });
             getBaseDao().saveBatch(sonTemplateDictList);
         }
+
+        // 移除用户业务字典的缓存
+        RedisUtil.delete(this.obtainDictRedisKeyByUser());
 
         log.info("用户[{}]基础字典数据初始化完成", bo.getUserId());
     }

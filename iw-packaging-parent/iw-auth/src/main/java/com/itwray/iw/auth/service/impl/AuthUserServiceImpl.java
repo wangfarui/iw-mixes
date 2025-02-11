@@ -168,8 +168,8 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (isRenew) {
             Object userId = RedisUtil.get(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token));
             if (userId != null) {
-                RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(userId), AuthUserDao.TOKEN_ACTIVE_TIME);
-                RedisUtil.expire(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token), AuthUserDao.TOKEN_ACTIVE_TIME);
+                AuthRedisKeyEnum.USER_TOKEN_SET_KEY.setExpire(userId);
+                AuthRedisKeyEnum.USER_TOKEN_KEY.setExpire(token);
             }
         }
 
@@ -306,11 +306,11 @@ public class AuthUserServiceImpl implements AuthUserService {
     private BusinessException accountVerifyException(String account, String exceptionMessage) {
         String clientIp = IpUtils.getCurrentClientIp();
         // 同一ip, 5分钟内增加失败次数
-        RedisUtil.increment(AuthRedisKeyEnum.LOGIN_FAIL_IP_KEY.getKey(clientIp), 1L);
-        RedisUtil.expire(AuthRedisKeyEnum.LOGIN_FAIL_IP_KEY.getKey(clientIp), 60 * 5);
+        RedisUtil.incrementOne(AuthRedisKeyEnum.LOGIN_FAIL_IP_KEY.getKey(clientIp));
+        AuthRedisKeyEnum.LOGIN_FAIL_IP_KEY.setExpire(clientIp);
         // 同一用户和ip, 5分钟内增加失败次数
-        RedisUtil.increment(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp), 1L);
-        RedisUtil.expire(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp), 60 * 5);
+        RedisUtil.incrementOne(AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.getKey(account, clientIp));
+        AuthRedisKeyEnum.LOGIN_ACTION_USER_IP_KEY.setExpire(account, clientIp);
 
         log.info("用户登录失败，账号：{}, 失败原因：{}", account, exceptionMessage);
 

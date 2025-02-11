@@ -23,7 +23,7 @@ public class InternalFeignConfig {
         return requestTemplate -> {
             String uuid = UUID.randomUUID().toString();
             // 60s有效期
-            RedisUtil.set(CommonRedisKeyEnum.FEIGN_SECRET_KEY.getKey(uuid), uuid, 60);
+            CommonRedisKeyEnum.FEIGN_SECRET_KEY.setStringValue(uuid, uuid);
             requestTemplate.header(RequestHeaderConstants.SECRET_HEADER_KEY, uuid);
         };
     }
