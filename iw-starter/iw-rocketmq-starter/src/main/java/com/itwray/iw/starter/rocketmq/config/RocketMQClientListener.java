@@ -2,7 +2,7 @@ package com.itwray.iw.starter.rocketmq.config;
 
 import cn.hutool.json.JSONUtil;
 import com.itwray.iw.starter.rocketmq.enums.MQConsumeStatusEnum;
-import com.itwray.iw.starter.rocketmq.web.RocketMQConsumeDaoHolder;
+import com.itwray.iw.starter.rocketmq.web.RocketMQDataDaoHolder;
 import com.itwray.iw.starter.rocketmq.web.dao.BaseMqConsumeRecordsDao;
 import com.itwray.iw.starter.rocketmq.web.entity.BaseMqConsumeRecordsEntity;
 import com.itwray.iw.web.model.dto.UserDto;
@@ -12,6 +12,8 @@ import org.apache.rocketmq.client.apis.consumer.ConsumeResult;
 import org.apache.rocketmq.client.apis.message.MessageId;
 import org.apache.rocketmq.client.apis.message.MessageView;
 import org.apache.rocketmq.client.core.RocketMQListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -25,6 +27,8 @@ import java.time.LocalDateTime;
  * @since 2024/10/14
  */
 public interface RocketMQClientListener<T> extends RocketMQListener {
+
+    Logger log = LoggerFactory.getLogger(RocketMQClientListener.class);
 
     /**
      * 消费实例接收的参数类型
@@ -61,9 +65,11 @@ public interface RocketMQClientListener<T> extends RocketMQListener {
         try {
             doConsume(t);
             consumeResult = ConsumeResult.SUCCESS;
+            log.info("MQ消息消费成功, messageId: {}", messageView.getMessageId().toString());
         } catch (Exception e) {
             e.printStackTrace();
             consumeResult = ConsumeResult.FAILURE;
+            log.info("MQ消息消费失败, messageId: {}", messageView.getMessageId().toString());
         } finally {
             updateConsumeStatus(consumeRecordId, consumeResult);
             UserUtils.removeUserId();
@@ -72,12 +78,12 @@ public interface RocketMQClientListener<T> extends RocketMQListener {
     }
 
     default Long addConsumeRecord(MessageView messageView, T body) {
-        BaseMqConsumeRecordsDao baseMqConsumeRecordsDao = RocketMQConsumeDaoHolder.getBaseMqConsumeRecordsDao();
+        BaseMqConsumeRecordsDao baseMqConsumeRecordsDao = RocketMQDataDaoHolder.getBaseMqConsumeRecordsDao();
         if (baseMqConsumeRecordsDao == null) {
             return null;
         }
         BaseMqConsumeRecordsEntity entity = new BaseMqConsumeRecordsEntity();
-        entity.setServiceName(RocketMQConsumeDaoHolder.getApplicationName());
+        entity.setServiceName(RocketMQDataDaoHolder.getApplicationName());
         MessageId messageId = messageView.getMessageId();
         entity.setMessageId(messageId.toString());
         entity.setVersion(messageId.getVersion());
@@ -97,7 +103,7 @@ public interface RocketMQClientListener<T> extends RocketMQListener {
 
     default void updateConsumeStatus(Long id, ConsumeResult consumeResult) {
         if (id == null) return;
-        BaseMqConsumeRecordsDao baseMqConsumeRecordsDao = RocketMQConsumeDaoHolder.getBaseMqConsumeRecordsDao();
+        BaseMqConsumeRecordsDao baseMqConsumeRecordsDao = RocketMQDataDaoHolder.getBaseMqConsumeRecordsDao();
         if (baseMqConsumeRecordsDao == null) {
             return;
         }

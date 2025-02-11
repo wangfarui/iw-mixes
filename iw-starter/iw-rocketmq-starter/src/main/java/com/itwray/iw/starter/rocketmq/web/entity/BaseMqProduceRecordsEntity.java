@@ -3,7 +3,6 @@ package com.itwray.iw.starter.rocketmq.web.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.itwray.iw.starter.rocketmq.enums.MQConsumeStatusEnum;
 import com.itwray.iw.web.model.entity.IdEntity;
 import jakarta.annotation.Nullable;
 import lombok.Data;
@@ -12,18 +11,18 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
- * MQ消息消费记录表
+ * MQ消息生产记录表
  *
  * @author wray
- * @since 2025-02-10
+ * @since 2025-02-11
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("base_mq_consume_records")
-public class BaseMqConsumeRecordsEntity extends IdEntity<Long> {
+@TableName("base_mq_produce_records")
+public class BaseMqProduceRecordsEntity extends IdEntity<Long> {
 
     /**
-     * 消费记录id
+     * 消息生产记录id
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
@@ -57,11 +56,6 @@ public class BaseMqConsumeRecordsEntity extends IdEntity<Long> {
      * 消息体
      */
     private String body;
-
-    /**
-     * 消费状态(0待消费, 1消费成功, 2消费失败)
-     */
-    private MQConsumeStatusEnum status;
 
     /**
      * 创建时间

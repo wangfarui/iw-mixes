@@ -1,6 +1,12 @@
 package com.itwray.iw.starter.rocketmq;
 
 import cn.hutool.json.JSONUtil;
+import com.itwray.iw.starter.rocketmq.web.RocketMQDataDaoHolder;
+import com.itwray.iw.starter.rocketmq.web.dao.BaseMqProduceRecordsDao;
+import com.itwray.iw.starter.rocketmq.web.entity.BaseMqProduceRecordsEntity;
+import com.itwray.iw.web.model.dto.UserDto;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.apis.message.MessageId;
 import org.apache.rocketmq.client.apis.producer.SendReceipt;
 import org.apache.rocketmq.client.core.RocketMQClientTemplate;
 import org.springframework.messaging.Message;
@@ -8,7 +14,8 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.util.Assert;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
+import java.time.LocalDateTime;
+import java.util.concurrent.*;
 
 /**
  * MQ生产者助手
@@ -16,9 +23,20 @@ import java.util.concurrent.CompletableFuture;
  * @author wray
  * @since 2024/10/14
  */
+@Slf4j
 public abstract class MQProducerHelper {
 
     private static RocketMQClientTemplate rocketMQClientTemplate;
+
+    private static final ExecutorService executorService = new ThreadPoolExecutor(
+            2, // 核心线程数，适当设置避免频繁创建线程
+            10, // 最大线程数，控制并发量
+            60L, // 非核心线程的存活时间
+            TimeUnit.SECONDS, // 存活时间单位
+            new LinkedBlockingQueue<>(100), // 队列大小，避免积压过多任务
+            Executors.defaultThreadFactory(), // 默认线程工厂
+            new ThreadPoolExecutor.CallerRunsPolicy() // 拒绝策略，避免丢失任务
+    );
 
     /**
      * 初始化RocketMQClientTemplate
@@ -37,8 +55,9 @@ public abstract class MQProducerHelper {
      */
     public static void send(String topic, Object obj) {
         Message<byte[]> message = buildMessage(obj);
-        rocketMQClientTemplate.send(topic, message);
-        System.out.println("消息同步发送成功. topic: " + topic);
+        SendReceipt sendReceipt = rocketMQClientTemplate.syncSendNormalMessage(topic, message);
+        MQProducerHelper.recordProductionMessages(topic, obj, sendReceipt.getMessageId());
+        log.info("MQ消息同步发送成功, messageId: {}", sendReceipt.getMessageId().toString());
     }
 
     /**
@@ -50,10 +69,12 @@ public abstract class MQProducerHelper {
     public static void asyncSend(String topic, Object obj) {
         Message<byte[]> message = buildMessage(obj);
         CompletableFuture<SendReceipt> completableFuture = rocketMQClientTemplate.asyncSendNormalMessage(topic, message, null);
-        completableFuture.thenAccept(sendReceipt -> System.out.println("消息发送成功: " + sendReceipt.getMessageId()))
+        completableFuture.thenAccept(sendReceipt -> {
+                    MQProducerHelper.recordProductionMessages(topic, obj, sendReceipt.getMessageId());
+                    log.info("MQ消息异步发送成功, messageId: {}", sendReceipt.getMessageId().toString());
+                })
                 .exceptionally(e -> {
-                    System.out.println("消息发送异常, obj: " + obj);
-                    e.printStackTrace();
+                    log.error("MQ消息异步发送失败, obj: " + JSONUtil.toJsonStr(obj), e);
                     return null;
                 });
     }
@@ -68,5 +89,33 @@ public abstract class MQProducerHelper {
         Assert.notNull(rocketMQClientTemplate, "RocketMQClientTemplate is null");
         byte[] bytes = JSONUtil.toJsonStr(obj).getBytes(StandardCharsets.UTF_8);
         return MessageBuilder.withPayload(bytes).build();
+    }
+
+    /**
+     * 记录生产者消息
+     *
+     * @param topic     MQ的Topic
+     * @param obj       MQ的消息对象
+     * @param messageId 发送成功后的消息id
+     */
+    private static void recordProductionMessages(String topic, Object obj, MessageId messageId) {
+        executorService.submit(() -> {
+            try {
+                BaseMqProduceRecordsDao baseMqProduceRecordsDao = RocketMQDataDaoHolder.getBaseMqProduceRecordsDao();
+                BaseMqProduceRecordsEntity entity = new BaseMqProduceRecordsEntity();
+                entity.setServiceName(RocketMQDataDaoHolder.getApplicationName());
+                entity.setMessageId(messageId.toString());
+                entity.setVersion(messageId.getVersion());
+                entity.setTopic(topic);
+                entity.setBody(JSONUtil.toJsonStr(obj));
+                entity.setCreateTime(LocalDateTime.now());
+                if (obj instanceof UserDto userDto) {
+                    entity.setUserId(userDto.getUserId());
+                }
+                baseMqProduceRecordsDao.save(entity);
+            } catch (Exception e) {
+                log.error("异步记录生产者消息异常", e);
+            }
+        });
     }
 }

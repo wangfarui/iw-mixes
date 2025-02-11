@@ -2,8 +2,9 @@ package com.itwray.iw.starter.rocketmq.config;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
-import com.itwray.iw.starter.rocketmq.web.RocketMQConsumeDaoHolder;
+import com.itwray.iw.starter.rocketmq.web.RocketMQDataDaoHolder;
 import com.itwray.iw.starter.rocketmq.web.dao.BaseMqConsumeRecordsDao;
+import com.itwray.iw.starter.rocketmq.web.dao.BaseMqProduceRecordsDao;
 import com.itwray.iw.starter.rocketmq.web.mapper.BaseMqConsumeRecordsMapper;
 import jakarta.annotation.PostConstruct;
 import org.apache.rocketmq.client.core.RocketMQClientTemplate;
@@ -43,24 +44,26 @@ public class RocketMQAutoConfiguration implements ApplicationContextAware {
     @Configuration
     @ConditionalOnBean(MybatisPlusAutoConfiguration.class)
     @MapperScan(basePackageClasses = BaseMqConsumeRecordsMapper.class)
-    @Import(BaseMqConsumeRecordsDao.class)
-    public static class RocketMQConsumeDaoConfiguration {
+    @Import({BaseMqConsumeRecordsDao.class, BaseMqProduceRecordsDao.class})
+    public static class RocketMQDataDaoConfiguration {
 
         private final ApplicationContext applicationContext;
 
         @Autowired
-        public RocketMQConsumeDaoConfiguration(ApplicationContext applicationContext) {
+        public RocketMQDataDaoConfiguration(ApplicationContext applicationContext) {
             this.applicationContext = applicationContext;
         }
-
 
         @PostConstruct
         public void init() {
             BaseMqConsumeRecordsDao baseMqConsumeRecordsDao = applicationContext.getBean(BaseMqConsumeRecordsDao.class);
-            RocketMQConsumeDaoHolder.setBaseMqConsumeRecordsDao(baseMqConsumeRecordsDao);
+            RocketMQDataDaoHolder.setBaseMqConsumeRecordsDao(baseMqConsumeRecordsDao);
+
+            BaseMqProduceRecordsDao baseMqProduceRecordsDao = applicationContext.getBean(BaseMqProduceRecordsDao.class);
+            RocketMQDataDaoHolder.setBaseMqProduceRecordsDao(baseMqProduceRecordsDao);
 
             String applicationName = applicationContext.getEnvironment().getProperty("spring.application.name");
-            RocketMQConsumeDaoHolder.setApplicationName(applicationName);
+            RocketMQDataDaoHolder.setApplicationName(applicationName);
         }
     }
 }
