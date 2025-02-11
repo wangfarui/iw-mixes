@@ -6,6 +6,7 @@ import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.gateway.config.IwGatewayProperties;
 import com.itwray.iw.starter.redis.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -24,6 +25,7 @@ import java.util.Map;
  * @author wray
  * @since 2024/8/22
  */
+@Slf4j
 public class DefaultGatewayFilter implements GlobalFilter {
 
     private final WebClient.Builder webClientBuilder;
@@ -80,7 +82,10 @@ public class DefaultGatewayFilter implements GlobalFilter {
                         return createUnauthorizedResponse(exchange.getResponse(), "登录状态已失效，请重新登录");
                     }
                 })
-                .onErrorResume(e -> createUnauthorizedResponse(exchange.getResponse(), "未授权"));
+                .onErrorResume(e -> {
+                    log.error("gateway请求异常", e);
+                    return createUnauthorizedResponse(exchange.getResponse(), "未授权");
+                });
     }
 
     private Mono<Void> createUnauthorizedResponse(ServerHttpResponse response, String message) {
