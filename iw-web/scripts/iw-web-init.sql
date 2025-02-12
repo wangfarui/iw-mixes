@@ -60,19 +60,36 @@ values (4001, '买菜', 1, 0),
        (4001, '旅游', 6, 0)
 ;
 
-# MQ消息消费记录表
+##  MQ消息消费记录表
 drop table if exists base_mq_consume_records;
 create table base_mq_consume_records
 (
-    id          bigint unsigned auto_increment comment '消费记录id',
-    message_id  varchar(32)                           not null comment '消息id',
-    version     varchar(16)                           not null comment '消息版本',
-    topic       varchar(64)                           not null comment '消息topic',
-    tag         varchar(64) default ''                not null comment '消息tag',
-    body        text                                  not null comment '消息体',
-    status      tinyint                               not null comment '消费状态(0待消费, 1消费成功, 2消费失败)',
-    create_time datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
-    user_id     int unsigned                          not null comment '用户id',
+    id           bigint unsigned auto_increment comment '消息消费记录id',
+    service_name varchar(32)                           not null comment '服务名称',
+    message_id   varchar(64)                           not null comment '消息id',
+    version      varchar(16)                           not null comment '消息版本',
+    topic        varchar(64)                           not null comment '消息topic',
+    tag          varchar(64) default ''                not null comment '消息tag',
+    body         text                                  not null comment '消息体',
+    status       tinyint                               not null comment '消费状态(0待消费, 1消费成功, 2消费失败)',
+    create_time  datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    user_id      int unsigned                          null comment '用户id',
     primary key (id),
     key idx_message_id (message_id)
 ) comment 'MQ消息消费记录表';
+
+##  MQ消息生产记录表
+drop table if exists base_mq_produce_records;
+create table base_mq_produce_records
+(
+    id           bigint unsigned auto_increment comment '消息生产记录id',
+    service_name varchar(32)                           not null comment '服务名称',
+    message_id   varchar(64)                           not null comment '消息id',
+    version      varchar(16)                           not null comment '消息版本',
+    topic        varchar(64)                           not null comment '消息topic',
+    tag          varchar(64) default ''                not null comment '消息tag',
+    body         text                                  not null comment '消息体',
+    create_time  datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
+    user_id      int unsigned                          null comment '用户id',
+    primary key (id)
+) comment 'MQ消息生产记录表';
