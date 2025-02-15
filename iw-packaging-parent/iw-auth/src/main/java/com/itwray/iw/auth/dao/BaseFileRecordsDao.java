@@ -1,8 +1,8 @@
 package com.itwray.iw.auth.dao;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itwray.iw.auth.mapper.BaseFileRecordMapper;
-import com.itwray.iw.auth.model.entity.BaseFileRecordEntity;
+import com.itwray.iw.auth.mapper.BaseFileRecordsMapper;
+import com.itwray.iw.auth.model.entity.BaseFileRecordsEntity;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,6 +12,6 @@ import org.springframework.stereotype.Component;
  * @since 2024/5/17
  */
 @Component
-public class BaseFileRecordDao extends ServiceImpl<BaseFileRecordMapper, BaseFileRecordEntity> {
+public class BaseFileRecordsDao extends ServiceImpl<BaseFileRecordsMapper, BaseFileRecordsEntity> {
 
 }

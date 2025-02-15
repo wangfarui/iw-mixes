@@ -1,9 +1,9 @@
 package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.itwray.iw.auth.dao.BaseFileRecordDao;
-import com.itwray.iw.auth.model.entity.BaseFileRecordEntity;
-import com.itwray.iw.auth.service.BaseFileRecordService;
+import com.itwray.iw.auth.dao.BaseFileRecordsDao;
+import com.itwray.iw.auth.model.entity.BaseFileRecordsEntity;
+import com.itwray.iw.auth.service.BaseFileRecordsService;
 import com.itwray.iw.common.IwException;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.exception.IwWebException;
@@ -26,15 +26,15 @@ import java.security.NoSuchAlgorithmException;
  * @since 2024/5/17
  */
 @Service
-public class BaseFileRecordServiceImpl implements BaseFileRecordService {
+public class BaseFileRecordsServiceImpl implements BaseFileRecordsService {
 
-    private final BaseFileRecordDao baseFileRecordDao;
+    private final BaseFileRecordsDao baseFileRecordsDao;
 
     private final FileService fileService;
 
     @Autowired
-    public BaseFileRecordServiceImpl(BaseFileRecordDao baseFileRecordDao, FileService fileService) {
-        this.baseFileRecordDao = baseFileRecordDao;
+    public BaseFileRecordsServiceImpl(BaseFileRecordsDao baseFileRecordsDao, FileService fileService) {
+        this.baseFileRecordsDao = baseFileRecordsDao;
         this.fileService = fileService;
     }
 
@@ -60,8 +60,8 @@ public class BaseFileRecordServiceImpl implements BaseFileRecordService {
 
         // 查询文件是否存在
         byte[] fileHashByte = hexStringToByteArray(fileHash);
-        BaseFileRecordEntity existEntity = baseFileRecordDao.lambdaQuery()
-                .eq(BaseFileRecordEntity::getFileHash, fileHashByte)
+        BaseFileRecordsEntity existEntity = baseFileRecordsDao.lambdaQuery()
+                .eq(BaseFileRecordsEntity::getFileHash, fileHashByte)
                 .last(WebCommonConstants.LIMIT_ONE)
                 .one();
         if (existEntity != null) {
@@ -74,9 +74,9 @@ public class BaseFileRecordServiceImpl implements BaseFileRecordService {
         FileRecordVo fileRecordVo = fileService.upload(file);
 
         // 保存文件上传记录
-        BaseFileRecordEntity fileRecordEntity = BeanUtil.copyProperties(fileRecordVo, BaseFileRecordEntity.class);
+        BaseFileRecordsEntity fileRecordEntity = BeanUtil.copyProperties(fileRecordVo, BaseFileRecordsEntity.class);
         fileRecordEntity.setFileHash(fileHashByte);
-        baseFileRecordDao.save(fileRecordEntity);
+        baseFileRecordsDao.save(fileRecordEntity);
 
         // 返回文件记录
         fileRecordVo.setId(fileRecordEntity.getId());

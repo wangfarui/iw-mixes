@@ -1,7 +1,7 @@
 package com.itwray.iw.auth.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.itwray.iw.auth.model.entity.BaseFileRecordEntity;
+import com.itwray.iw.auth.model.entity.BaseFileRecordsEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2024/5/17
  */
 @Mapper
-public interface BaseFileRecordMapper extends BaseMapper<BaseFileRecordEntity> {
+public interface BaseFileRecordsMapper extends BaseMapper<BaseFileRecordsEntity> {
 }

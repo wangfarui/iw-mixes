@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author wray
  * @since 2024/5/17
  */
-public interface BaseFileRecordService {
+public interface BaseFileRecordsService {
 
     /**
      * 上传文件并保存至文件记录

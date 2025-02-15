@@ -1,6 +1,6 @@
 package com.itwray.iw.auth.controller;
 
-import com.itwray.iw.auth.service.BaseFileRecordService;
+import com.itwray.iw.auth.service.BaseFileRecordsService;
 import com.itwray.iw.web.model.vo.FileVo;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
@@ -21,11 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaseFileController {
 
     @Resource
-    private BaseFileRecordService baseFileRecordService;
+    private BaseFileRecordsService baseFileRecordsService;
 
     @Operation(summary = "文件上传")
     @PostMapping("/upload")
     public FileVo upload(@RequestParam("file") MultipartFile file) {
-        return baseFileRecordService.uploadFile(file);
+        return baseFileRecordsService.uploadFile(file);
     }
 }

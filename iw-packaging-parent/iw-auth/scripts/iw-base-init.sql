@@ -1,5 +1,5 @@
-drop table if exists base_file_record;
-create table base_file_record
+drop table if exists base_file_records;
+create table base_file_records
 (
     id          int unsigned not null auto_increment comment 'id',
     file_name   varchar(128) not null comment '文件名称(带后缀)',
