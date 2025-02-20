@@ -19,8 +19,7 @@ public abstract class ExternalClientConstants {
     /**
      * 所有服务实例名称
      */
-    public static final String[] ALL_SERVICE_NAME = {SERVICE_NAME, "iw-gateway-service", "iw-auth-service",
-            "iw-bookkeeping-service", "iw-points-service"};
+    public static final String[] ALL_SERVICE_NAME = {SERVICE_NAME, "iw-gateway-service", "iw-auth-service", "iw-bookkeeping-service"};
 
     /**
      * 外部服务固定前缀
