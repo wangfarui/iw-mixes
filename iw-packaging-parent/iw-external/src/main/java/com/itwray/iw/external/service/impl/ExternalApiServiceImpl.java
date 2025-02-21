@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itwray.iw.external.model.ExternalClientConstants;
+import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
 import com.itwray.iw.external.service.ExternalApiService;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.exception.IwServerException;
@@ -52,11 +53,6 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     @Value("${iw.external.dailyhot.api:}")
     private String dailyHotApi;
 
-    /**
-     * 每日热点Key
-     */
-    private static final String DAILY_HOT_KEY = "DailyHot:";
-
     @Autowired
     public void setDiscoveryClient(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
@@ -86,7 +82,7 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         if (StringUtils.isBlank(clientIp)) {
             throw new IwWebException("无效的请求");
         }
-        Map<Object, Object> ipCache = (Map<Object, Object>) RedisUtil.get(clientIp);
+        Map<Object, Object> ipCache = (Map<Object, Object>) RedisUtil.get(ExternalRedisKeyEnum.IP_ADDRESS_KEY.getKey(clientIp));
         if (ipCache != null) {
             return ipCache;
         }
@@ -95,8 +91,8 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         paramMap.put("ip", clientIp);
         String res = HttpUtil.get("https://restapi.amap.com/v3/ip", paramMap);
         Map<Object, Object> resMap = (Map<Object, Object>) JSONUtil.toBean(res, Map.class);
-        // 请求ip缓存七天
-        RedisUtil.set(clientIp, resMap, 60 * 60 * 24 * 7);
+        // 缓存请求ip的地址信息
+        ExternalRedisKeyEnum.IP_ADDRESS_KEY.setStringValue(resMap, clientIp);
         return resMap;
     }
 
@@ -111,7 +107,7 @@ public class ExternalApiServiceImpl implements ExternalApiService {
             throw new IwWebException("获取城市信息失败");
         }
 
-        Map<Object, Object> adcodeCache = (Map<Object, Object>) RedisUtil.get(adcode);
+        Map<Object, Object> adcodeCache = (Map<Object, Object>) RedisUtil.get(ExternalRedisKeyEnum.CITY_WEATHER_KEY.getKey(adcode));
         if (adcodeCache != null) {
             return adcodeCache;
         }
@@ -121,13 +117,13 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         String res = HttpUtil.get("https://restapi.amap.com/v3/weather/weatherInfo", paramMap);
         Map<Object, Object> resMap = (Map<Object, Object>) JSONUtil.toBean(res, Map.class);
         // 城市天气缓存3小时
-        RedisUtil.set(adcode, resMap, 60 * 60 * 3);
+        ExternalRedisKeyEnum.CITY_WEATHER_KEY.setStringValue(resMap, adcode);
         return resMap;
     }
 
     @Override
     public Map<Object, Object> getMonitorsByUptimeRobot(Map<String, Object> bodyParam) {
-        Map<Object, Object> monitorsCache = (Map<Object, Object>) RedisUtil.get("wray-site-monitors");
+        Map<Object, Object> monitorsCache = (Map<Object, Object>) RedisUtil.get(ExternalRedisKeyEnum.SITE_MONITORS_KEY.getKey());
         if (monitorsCache != null) {
             return monitorsCache;
         }
@@ -135,14 +131,14 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         bodyParam.put("api_key", this.uptimeRobotKey);
         String res = HttpUtil.post("https://api.uptimerobot.com/v2/getMonitors", bodyParam);
         Map<Object, Object> resMap = (Map<Object, Object>) JSONUtil.toBean(res, Map.class);
-        // 监控信息缓存10分钟
-        RedisUtil.set("wray-site-monitors", resMap, 60 * 10);
+        // 缓存个人站点的监控信息
+        ExternalRedisKeyEnum.SITE_MONITORS_KEY.setStringValue(resMap);
         return resMap;
     }
 
     @Override
     public Map<Object, Object> getDailyHot(String source) {
-        Map<Object, Object> cache = (Map<Object, Object>) RedisUtil.get(DAILY_HOT_KEY + source);
+        Map<Object, Object> cache = (Map<Object, Object>) RedisUtil.get(ExternalRedisKeyEnum.DAILY_HOT_KEY.getKey(source));
         if (cache != null) {
             return cache;
         }
@@ -152,7 +148,7 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         try {
             Map<Object, Object> resMap = objectMapper.readValue(res, Map.class);
             // 热点信息缓存30分钟
-            RedisUtil.set(DAILY_HOT_KEY + source, resMap, 60 * 30);
+            ExternalRedisKeyEnum.DAILY_HOT_KEY.setStringValue(resMap, source);
             return resMap;
         } catch (JsonProcessingException e) {
             throw new IwWebException(e);
