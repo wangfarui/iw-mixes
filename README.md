@@ -45,7 +45,7 @@
     <td>iw-eat</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18003</td>
-    <td>餐饮服务</td>
+    <td>餐饮服务（受资源影响，暂时共用至iw-bookkeeping服务）</td>
 </tr>
 <tr>
     <td>iw-bookkeeping</td>
@@ -57,7 +57,7 @@
     <td>iw-points</td>
     <td>0.0.1-SNAPSHOT</td>
     <td>18005</td>
-    <td>积分服务</td>
+    <td>积分服务（受资源影响，暂时共用至iw-bookkeeping服务）</td>
 </tr>
 <tr>
     <td>iw-external</td>
