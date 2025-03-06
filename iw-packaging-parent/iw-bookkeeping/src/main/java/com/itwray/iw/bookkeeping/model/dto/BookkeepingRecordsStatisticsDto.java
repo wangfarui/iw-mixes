@@ -31,4 +31,11 @@ public class BookkeepingRecordsStatisticsDto {
      * 记录分类
      */
     private Integer recordType;
+
+    /**
+     * 是否查询全部账单
+     * <p>默认为null, 表示查询所有</p>
+     * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#FALSE} , 表示只查询 is_statistics = 1 的数据</p>
+     */
+    private Integer isSearchAll;
 }

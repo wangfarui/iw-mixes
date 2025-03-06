@@ -16,3 +16,6 @@ create table bookkeeping_records
     user_id              int unsigned                           not null comment '用户id',
     primary key (id)
 ) comment '记账记录表';
+
+alter table bookkeeping_records
+    add column is_statistics tinyint(1) default 1 not null comment '是否计入统计(0否, 1是)' after is_excitation_record;
