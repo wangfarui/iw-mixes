@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.model.dto;
 
 import com.itwray.iw.web.model.dto.AddDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -12,28 +13,18 @@ import lombok.Data;
 @Data
 public class ApplicationAccountAddDto implements AddDto {
 
-    /**
-     * 应用名称
-     */
+    @Schema(title = "应用名称")
     private String name;
 
-    /**
-     * 应用地址
-     */
+    @Schema(title = "应用地址")
     private String address;
 
-    /**
-     * 账号
-     */
+    @Schema(title = "账号")
     private String account;
 
-    /**
-     * 密码
-     */
+    @Schema(title = "密码")
     private String password;
 
-    /**
-     * 备注
-     */
+    @Schema(title = "备注")
     private String remark;
 }

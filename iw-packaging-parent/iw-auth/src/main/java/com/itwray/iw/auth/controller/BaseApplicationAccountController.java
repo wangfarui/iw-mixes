@@ -1,13 +1,20 @@
 package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.model.dto.ApplicationAccountAddDto;
+import com.itwray.iw.auth.model.dto.ApplicationAccountPageDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountUpdateDto;
 import com.itwray.iw.auth.model.vo.ApplicationAccountDetailVo;
+import com.itwray.iw.auth.model.vo.ApplicationAccountPageVo;
 import com.itwray.iw.auth.service.BaseApplicationAccountService;
 import com.itwray.iw.web.controller.WebController;
+import com.itwray.iw.web.model.vo.PageVo;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +34,12 @@ public class BaseApplicationAccountController extends WebController<BaseApplicat
     @Autowired
     public BaseApplicationAccountController(BaseApplicationAccountService webService) {
         super(webService);
+    }
+
+    @PostMapping("/page")
+    @Operation(summary = "分页查询应用账号信息")
+    public PageVo<ApplicationAccountPageVo> page(@RequestBody @Valid ApplicationAccountPageDto dto) {
+        return getWebService().page(dto);
     }
 
 }

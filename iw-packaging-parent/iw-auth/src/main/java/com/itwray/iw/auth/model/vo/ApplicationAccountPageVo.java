@@ -2,21 +2,21 @@ package com.itwray.iw.auth.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.common.utils.DateUtils;
-import com.itwray.iw.web.model.vo.DetailVo;
+import com.itwray.iw.web.model.vo.PageRecordVo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 /**
- * 应用账号信息 新增DTO
+ * 应用账号信息分页 VO
  *
  * @author wray
- * @since 2025/3/6
+ * @since 2024/9/10
  */
 @Data
-@Schema(name = "应用账号信息详情VO")
-public class ApplicationAccountDetailVo implements DetailVo {
+@Schema(name = "应用账号信息分页VO")
+public class ApplicationAccountPageVo implements PageRecordVo {
 
     @Schema(title = "id")
     private Integer id;
