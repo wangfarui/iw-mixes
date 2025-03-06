@@ -63,4 +63,9 @@ public class BookkeepingRecordAddDto implements AddDto {
      * 是否为激励记录
      */
     private Integer isExcitationRecord;
+    
+    /**
+     * 是否计入统计
+     */
+    private Integer isStatistics;
 }

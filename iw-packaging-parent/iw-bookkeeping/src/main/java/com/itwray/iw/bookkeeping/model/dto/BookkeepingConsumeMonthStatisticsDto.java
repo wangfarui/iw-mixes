@@ -37,4 +37,11 @@ public class BookkeepingConsumeMonthStatisticsDto {
      * 排行统计数量
      */
     private Integer limit = 10;
+
+    /**
+     * 是否查询全部账单
+     * <p>默认为null, 表示查询所有</p>
+     * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#FALSE} , 表示只查询 is_statistics = 1 的数据</p>
+     */
+    private Integer isSearchAll;
 }
