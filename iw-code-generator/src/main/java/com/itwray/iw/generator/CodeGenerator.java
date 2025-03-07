@@ -113,6 +113,9 @@ public class CodeGenerator {
                                     String actualEntityName = formatEntityName(tableInfo.getEntityName());
                                     stringObjectMap.put("actualEntityName", actualEntityName);
                                     stringObjectMap.put("daoName", actualEntityName + "Dao");
+                                    stringObjectMap.put("addDtoName", actualEntityName + "AddDto");
+                                    stringObjectMap.put("updateDtoName", actualEntityName + "UpdateDto");
+                                    stringObjectMap.put("detailVoName", actualEntityName + "DetailVo");
                                 })
                                 .customFile(new CustomFile.Builder()
                                         .fileName("Dao.java")
@@ -120,6 +123,30 @@ public class CodeGenerator {
                                         .templatePath("/templates/dao.java.ftl")
                                         .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
                                         .packageName("dao")
+                                        .build()
+                                )
+                                .customFile(new CustomFile.Builder()
+                                        .fileName("AddDto.java")
+                                        .enableFileOverride()
+                                        .templatePath("/templates/addDto.java.ftl")
+                                        .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
+                                        .packageName("model.dto")
+                                        .build()
+                                )
+                                .customFile(new CustomFile.Builder()
+                                        .fileName("UpdateDto.java")
+                                        .enableFileOverride()
+                                        .templatePath("/templates/updateDto.java.ftl")
+                                        .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
+                                        .packageName("model.dto")
+                                        .build()
+                                )
+                                .customFile(new CustomFile.Builder()
+                                        .fileName("DetailVo.java")
+                                        .enableFileOverride()
+                                        .templatePath("/templates/detailVo.java.ftl")
+                                        .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
+                                        .packageName("model.vo")
                                         .build()
                                 )
                 )
