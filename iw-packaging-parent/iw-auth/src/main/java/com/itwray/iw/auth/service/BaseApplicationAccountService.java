@@ -17,4 +17,6 @@ import com.itwray.iw.web.service.WebService;
 public interface BaseApplicationAccountService extends WebService<ApplicationAccountAddDto, ApplicationAccountUpdateDto, ApplicationAccountDetailVo, Integer> {
 
     PageVo<ApplicationAccountPageVo> page(ApplicationAccountPageDto dto);
+
+    String viewPassword(Integer id);
 }

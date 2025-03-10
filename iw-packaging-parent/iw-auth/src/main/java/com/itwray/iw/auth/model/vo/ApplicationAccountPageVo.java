@@ -30,9 +30,6 @@ public class ApplicationAccountPageVo implements PageRecordVo {
     @Schema(title = "账号")
     private String account;
 
-    @Schema(title = "密码")
-    private String password;
-
     @Schema(title = "备注")
     private String remark;
 
