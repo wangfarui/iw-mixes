@@ -13,7 +13,9 @@ import lombok.Getter;
 public enum VerificationCodeActionEnum implements ConstantEnum {
 
     EDIT_PASSWORD(1, "修改密码"),
-    OTHER(0, "其他");
+    OTHER(0, "其他"),
+    APPLICATION_ACCOUNT_REFRESH_PASSWORD(2, "应用账号刷新密码操作"),
+    ;
 
     private final Integer code;
 

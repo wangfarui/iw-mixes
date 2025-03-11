@@ -55,7 +55,12 @@ public enum AuthRedisKeyEnum implements RedisKeyManager {
     /**
      * 登录失败-客户端ip:[ipAddress]
      */
-    LOGIN_FAIL_IP_KEY("auth:login:fail:ip:%s", 5 * 60L);
+    LOGIN_FAIL_IP_KEY("auth:login:fail:ip:%s", 5 * 60L),
+    /**
+     * 刷新应用账号信息密码的授权验证码:[userId]
+     */
+    APPLICATION_ACCOUNT_VERIFY_KEY("auth:applicationAccount:verify:%s", 5 * 60L),
+    ;
 
     private final String pattern;
 

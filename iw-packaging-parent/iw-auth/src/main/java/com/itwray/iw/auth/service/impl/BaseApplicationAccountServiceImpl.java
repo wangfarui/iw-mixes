@@ -1,29 +1,36 @@
 package com.itwray.iw.auth.service.impl;
 
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import cn.hutool.crypto.symmetric.SymmetricCrypto;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.auth.dao.BaseApplicationAccountDao;
 import com.itwray.iw.auth.mapper.BaseApplicationAccountMapper;
 import com.itwray.iw.auth.model.dto.ApplicationAccountAddDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountPageDto;
+import com.itwray.iw.auth.model.dto.ApplicationAccountRefreshPasswordDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountUpdateDto;
 import com.itwray.iw.auth.model.entity.BaseApplicationAccountEntity;
 import com.itwray.iw.auth.model.vo.ApplicationAccountDetailVo;
 import com.itwray.iw.auth.model.vo.ApplicationAccountPageVo;
 import com.itwray.iw.auth.service.BaseApplicationAccountService;
+import com.itwray.iw.common.utils.AESUtils;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import com.itwray.iw.web.utils.EnvironmentHolder;
+import com.itwray.iw.web.utils.UserUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 应用账号信息表 服务实现类
@@ -34,13 +41,13 @@ import java.nio.charset.StandardCharsets;
 @Service
 @Slf4j
 public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplicationAccountMapper, BaseApplicationAccountEntity, BaseApplicationAccountDao,
-        ApplicationAccountAddDto, ApplicationAccountUpdateDto, ApplicationAccountDetailVo, Integer> implements BaseApplicationAccountService {
+        ApplicationAccountAddDto, ApplicationAccountUpdateDto, ApplicationAccountDetailVo, Integer> implements BaseApplicationAccountService, ApplicationListener<EnvironmentChangeEvent> {
 
     @Value("${iw.auth.application-account.aes-key}")
     private String aesKey;
 
     @Nonnull
-    private SymmetricCrypto aes;
+    private SecretKey secretKey;
 
     @Autowired
     public BaseApplicationAccountServiceImpl(BaseApplicationAccountDao baseDao) {
@@ -49,21 +56,21 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
 
     @PostConstruct
     public void init() {
-        String fullAesKey = StringUtils.rightPad(aesKey, 32, "*");
-        byte[] key = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(), fullAesKey.getBytes(StandardCharsets.UTF_8)).getEncoded();
-        aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
+        secretKey = AESUtils.generateSecretKey(this.aesKey);
     }
 
     @Override
+    @Transactional
     public Integer add(ApplicationAccountAddDto dto) {
-        String encryptHex = aes.encryptHex(dto.getPassword());
+        String encryptHex = this.encrypt(dto.getPassword());
         dto.setPassword(encryptHex);
         return super.add(dto);
     }
 
     @Override
+    @Transactional
     public void update(ApplicationAccountUpdateDto dto) {
-        String encryptHex = aes.encryptHex(dto.getPassword());
+        String encryptHex = this.encrypt(dto.getPassword());
         dto.setPassword(encryptHex);
         super.update(dto);
     }
@@ -81,10 +88,82 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     public String viewPassword(Integer id) {
         BaseApplicationAccountEntity accountEntity = getBaseDao().queryById(id);
         try {
-            return aes.decryptStr(accountEntity.getPassword());
+            return this.decrypt(accountEntity.getPassword());
         } catch (Exception e) {
             log.error("viewPassword解密异常, encryptPd: " + accountEntity.getPassword(), e);
             return "";
+        }
+    }
+
+    @Override
+    @Transactional
+    public void refreshPassword(ApplicationAccountRefreshPasswordDto dto) {
+        // 校验验证码的正确性
+//        String verificationCode = RedisUtil.get(AuthRedisKeyEnum.APPLICATION_ACCOUNT_VERIFY_KEY.getKey(UserUtils.getUserId()), String.class);
+//        if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
+//            throw new BusinessException("验证码错误");
+//        }
+
+        List<BaseApplicationAccountEntity> updateEntityList;
+        if (dto.isRefreshAll()) {
+            updateEntityList = getBaseDao().lambdaQuery()
+                    .eq(BaseApplicationAccountEntity::getUserId, UserUtils.getUserId())
+                    .select(BaseApplicationAccountEntity::getId, BaseApplicationAccountEntity::getPassword)
+                    .list();
+        } else if (CollUtil.isNotEmpty(dto.getIdList())){
+            updateEntityList = getBaseDao().lambdaQuery()
+                    .in(BaseApplicationAccountEntity::getId, dto.getIdList())
+                    .select(BaseApplicationAccountEntity::getId, BaseApplicationAccountEntity::getPassword)
+                    .list();
+        } else {
+            log.warn("refreshPassword入参异常, dto: {}", dto);
+            return;
+        }
+
+        if (CollUtil.isEmpty(updateEntityList)) {
+            return;
+        }
+
+        // 如果存在历史AES,则先解密
+        if (StringUtils.isNotBlank(dto.getOldAes())) {
+            SecretKey key = AESUtils.generateSecretKey(dto.getOldAes());
+            for (BaseApplicationAccountEntity entity : updateEntityList) {
+                entity.setPassword(AESUtils.decryptAESGCM(key, entity.getPassword()));
+            }
+        }
+
+        // 使用动态配置的aes 再进行加密
+        for (BaseApplicationAccountEntity entity : updateEntityList) {
+            if (this.isEncryptPassword(entity.getPassword())) {
+                log.warn("refreshPassword 不建议二次加密密码, id: {}", entity.getId());
+                continue;
+            }
+            entity.setPassword(this.encrypt(entity.getPassword()));
+        }
+
+        // 更新所有实体对象
+        getBaseDao().updateBatchById(updateEntityList);
+    }
+
+    private String encrypt(String originalPassword) {
+        return AESUtils.encryptAESGCM(this.secretKey, originalPassword);
+    }
+
+    private String decrypt(String encryptPassword) {
+        return AESUtils.decryptAESGCM(this.secretKey, encryptPassword);
+    }
+
+    private boolean isEncryptPassword(String encryptPassword) {
+        return AESUtils.isAesGcmEncrypted(this.secretKey, encryptPassword);
+    }
+
+    @Override
+    public void onApplicationEvent(EnvironmentChangeEvent event) {
+        Set<String> keys = event.getKeys();
+        if (keys.contains("iw.auth.application-account.aes-key")) {
+            log.info("Nacos 配置已变更: iw.auth.application-account.aes-key");
+            this.aesKey = EnvironmentHolder.getProperty("iw.auth.application-account.aes-key");
+            this.init();
         }
     }
 }

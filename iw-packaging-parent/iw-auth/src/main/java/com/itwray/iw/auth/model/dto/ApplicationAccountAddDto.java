@@ -11,6 +11,7 @@ import lombok.Data;
  * @since 2025/3/6
  */
 @Data
+@Schema(name = "应用账号信息 新增DTO")
 public class ApplicationAccountAddDto implements AddDto {
 
     @Schema(title = "应用名称")

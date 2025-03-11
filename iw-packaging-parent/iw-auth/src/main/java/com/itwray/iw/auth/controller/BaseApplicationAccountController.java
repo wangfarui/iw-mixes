@@ -2,6 +2,7 @@ package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.model.dto.ApplicationAccountAddDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountPageDto;
+import com.itwray.iw.auth.model.dto.ApplicationAccountRefreshPasswordDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountUpdateDto;
 import com.itwray.iw.auth.model.vo.ApplicationAccountDetailVo;
 import com.itwray.iw.auth.model.vo.ApplicationAccountPageVo;
@@ -45,6 +46,12 @@ public class BaseApplicationAccountController extends WebController<BaseApplicat
     public GeneralResponse<String> viewPassword(@RequestParam("id") Integer id) {
         String password = getWebService().viewPassword(id);
         return GeneralResponse.success(password);
+    }
+
+    @PostMapping("/refreshPassword")
+    @Operation(summary = "刷新密码的加密存储数据")
+    public void refreshPassword(@RequestBody @Valid ApplicationAccountRefreshPasswordDto dto) {
+        getWebService().refreshPassword(dto);
     }
 
 }
