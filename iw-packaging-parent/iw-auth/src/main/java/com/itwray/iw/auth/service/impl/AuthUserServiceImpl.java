@@ -10,8 +10,8 @@ import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.enums.VerificationCodeActionEnum;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
-import com.itwray.iw.auth.service.AuthRegisterService;
 import com.itwray.iw.auth.service.AuthUserService;
+import com.itwray.iw.auth.service.AuthVerificationService;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.exception.AuthorizedException;
@@ -42,7 +42,7 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     private final AuthUserDao authUserDao;
 
-    private AuthRegisterService authRegisterService;
+    private AuthVerificationService authVerificationService;
 
     @Autowired
     public AuthUserServiceImpl(AuthUserDao authUserDao) {
@@ -50,8 +50,8 @@ public class AuthUserServiceImpl implements AuthUserService {
     }
 
     @Autowired
-    public void setAuthRegisterService(AuthRegisterService authRegisterService) {
-        this.authRegisterService = authRegisterService;
+    public void setAuthVerificationService(AuthVerificationService authVerificationService) {
+        this.authVerificationService = authVerificationService;
     }
 
     /**
@@ -93,12 +93,12 @@ public class AuthUserServiceImpl implements AuthUserService {
         }
 
         // 校验电话号码验证码的正确性, 通过后表示登录成功
-        String verificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
+        String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
         if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
             throw this.accountVerifyException(dto.getPhoneNumber(), "验证码错误");
         } else {
             // 验证码校验成功之后, 删除验证码缓存
-            RedisUtil.delete(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()));
+            RedisUtil.delete(AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY.getKey(dto.getPhoneNumber()));
         }
 
         // 根据电话号码查询用户
@@ -195,7 +195,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 验证码不为空的情况下, 优先使用验证码校验
         if (StringUtils.isNotBlank(dto.getVerificationCode())) {
             // 校验电话号码验证码的正确性, 通过后表示登录成功
-            String verificationCode = RedisUtil.get(AuthRedisKeyEnum.PHONE_VERIFY_KEY.getKey(authUserEntity.getPhoneNumber()), String.class);
+            String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY.getKey(authUserEntity.getPhoneNumber()), String.class);
             if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
                 throw this.accountVerifyException(authUserEntity.getUsername(), "验证码错误");
             }
@@ -222,11 +222,11 @@ public class AuthUserServiceImpl implements AuthUserService {
     }
 
     @Override
-    public void getVerificationCodeByAction(Integer action, String clientIp) {
+    public void getVerificationCodeByAction(Integer action) {
         VerificationCodeActionEnum actionEnum = VerificationCodeActionEnum.of(action);
         String phoneNumber = null;
         switch (actionEnum) {
-            case EDIT_PASSWORD -> {
+            case EDIT_PASSWORD, APPLICATION_ACCOUNT_REFRESH_PASSWORD -> {
                 Integer userId = UserUtils.getUserId();
                 AuthUserEntity authUserEntity = authUserDao.getById(userId);
                 if (authUserEntity == null) {
@@ -234,12 +234,12 @@ public class AuthUserServiceImpl implements AuthUserService {
                 }
                 phoneNumber = authUserEntity.getPhoneNumber();
             }
-            case OTHER -> log.info("忽略其他操作");
+            default -> log.info("忽略其他操作");
         }
-        // TODO 暂时直接使用注册服务获取短信验证码的机制
-        if (phoneNumber != null) {
-            authRegisterService.getVerificationCode(phoneNumber, clientIp);
+        if (StringUtils.isBlank(phoneNumber)) {
+            log.warn("getVerificationCodeByAction 获取电话号码为空, action: {}", action);
         }
+        authVerificationService.getVerificationCode(phoneNumber, actionEnum.getKeyManager());
     }
 
     /**

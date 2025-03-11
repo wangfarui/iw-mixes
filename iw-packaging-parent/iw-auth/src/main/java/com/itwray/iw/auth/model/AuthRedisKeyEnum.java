@@ -38,9 +38,9 @@ public enum AuthRedisKeyEnum implements RedisKeyManager {
     REGISTER_IP_KEY("auth:register:ip:%s", 60 * 60L),
 
     /**
-     * 电话号码的授权验证码:[phoneNumber]
+     * 电话号码登录/注册时的授权验证码:[phoneNumber]
      */
-    PHONE_VERIFY_KEY("auth:phone:verify:%s", 5 * 60L),
+    USER_LOGIN_VERIFY_KEY("auth:user:login:verify:%s", 5 * 60L),
 
     /**
      * 电话号码获取验证码时，指定ip获取验证码的次数:[ipAddress]
@@ -55,7 +55,18 @@ public enum AuthRedisKeyEnum implements RedisKeyManager {
     /**
      * 登录失败-客户端ip:[ipAddress]
      */
-    LOGIN_FAIL_IP_KEY("auth:login:fail:ip:%s", 5 * 60L);
+    LOGIN_FAIL_IP_KEY("auth:login:fail:ip:%s", 5 * 60L),
+
+    /**
+     * 修改密码操作的授权验证码:[phoneNumber]
+     */
+    EDIT_PASSWORD_KEY("auth:editPassword:%s", 5 * 60L),
+
+    /**
+     * 刷新应用账号信息密码的授权验证码:[phoneNumber]
+     */
+    APPLICATION_ACCOUNT_REFRESH_KEY("auth:applicationAccount:refresh:%s", 5 * 60L),
+    ;
 
     private final String pattern;
 

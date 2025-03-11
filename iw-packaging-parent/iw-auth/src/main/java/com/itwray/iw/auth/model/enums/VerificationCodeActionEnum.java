@@ -1,6 +1,8 @@
 package com.itwray.iw.auth.model.enums;
 
+import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.common.ConstantEnum;
+import com.itwray.iw.starter.redis.RedisKeyManager;
 import lombok.Getter;
 
 /**
@@ -12,27 +14,32 @@ import lombok.Getter;
 @Getter
 public enum VerificationCodeActionEnum implements ConstantEnum {
 
-    EDIT_PASSWORD(1, "修改密码"),
-    OTHER(0, "其他");
+    EDIT_PASSWORD(1, "修改密码", AuthRedisKeyEnum.EDIT_PASSWORD_KEY),
+    APPLICATION_ACCOUNT_REFRESH_PASSWORD(2, "应用账号刷新密码操作", AuthRedisKeyEnum.APPLICATION_ACCOUNT_REFRESH_KEY),
+    USER_LOGIN_REGISTER(3, "用户登录/注册", AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY),
+    ;
 
     private final Integer code;
 
     private final String name;
 
-    VerificationCodeActionEnum(Integer code, String name) {
+    private final RedisKeyManager keyManager;
+
+    VerificationCodeActionEnum(Integer code, String name, RedisKeyManager keyManager) {
         this.code = code;
         this.name = name;
+        this.keyManager = keyManager;
     }
 
     public static VerificationCodeActionEnum of(Integer action) {
         if (action == null) {
-            return VerificationCodeActionEnum.OTHER;
+            return null;
         }
         for (VerificationCodeActionEnum actionEnum : VerificationCodeActionEnum.values()) {
             if (actionEnum.getCode().equals(action)) {
                 return actionEnum;
             }
         }
-        return VerificationCodeActionEnum.OTHER;
+        return null;
     }
 }

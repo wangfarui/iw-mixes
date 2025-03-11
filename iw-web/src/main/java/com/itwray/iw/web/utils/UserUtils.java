@@ -3,6 +3,7 @@ package com.itwray.iw.web.utils;
 import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.web.client.AuthenticationClient;
 import com.itwray.iw.web.exception.AuthorizedException;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
 
@@ -23,9 +24,18 @@ public abstract class UserUtils {
      */
     private static final Object AUTHENTICATION_CLIENT_LOCK = new Object();
 
-    public static @Nullable String getToken() {
-        HttpServletRequest request = SpringWebHolder.getRequest();
-        return request.getHeader(RequestHeaderConstants.TOKEN_HEADER);
+    public static @Nonnull String getToken() {
+        return getToken(true);
+    }
+
+    public static @Nullable String getToken(boolean required) {
+        try {
+            HttpServletRequest request = SpringWebHolder.getRequest();
+            return request.getHeader(RequestHeaderConstants.TOKEN_HEADER);
+        } catch (IllegalStateException e) {
+            // ignore
+        }
+        return null;
     }
 
     /**

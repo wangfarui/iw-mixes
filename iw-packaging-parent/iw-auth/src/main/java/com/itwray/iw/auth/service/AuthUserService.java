@@ -67,8 +67,8 @@ public interface AuthUserService {
     /**
      * 根据操作行为获取验证码
      *
-     * @param action   操作行为{@link com.itwray.iw.auth.model.enums.VerificationCodeActionEnum}
-     * @param clientIp 客户端ip
+     * @param action 操作行为
+     * @see com.itwray.iw.auth.model.enums.VerificationCodeActionEnum
      */
-    void getVerificationCodeByAction(Integer action, String clientIp);
+    void getVerificationCodeByAction(Integer action);
 }

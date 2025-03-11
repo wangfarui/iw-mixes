@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@Schema(name = "应用账号信息 更新DTO")
 public class ApplicationAccountUpdateDto extends ApplicationAccountAddDto implements UpdateDto {
 
     @Schema(title = "id")
