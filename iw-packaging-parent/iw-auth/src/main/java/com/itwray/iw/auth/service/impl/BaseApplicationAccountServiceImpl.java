@@ -17,6 +17,7 @@ import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
  * @since 2025-03-06
  */
 @Service
+@Slf4j
 public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplicationAccountMapper, BaseApplicationAccountEntity, BaseApplicationAccountDao,
         ApplicationAccountAddDto, ApplicationAccountUpdateDto, ApplicationAccountDetailVo, Integer> implements BaseApplicationAccountService {
 
@@ -78,6 +80,11 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     @Override
     public String viewPassword(Integer id) {
         BaseApplicationAccountEntity accountEntity = getBaseDao().queryById(id);
-        return aes.decryptStr(accountEntity.getPassword());
+        try {
+            return aes.decryptStr(accountEntity.getPassword());
+        } catch (Exception e) {
+            log.error("viewPassword解密异常, encryptPd: " + accountEntity.getPassword(), e);
+            return "";
+        }
     }
 }

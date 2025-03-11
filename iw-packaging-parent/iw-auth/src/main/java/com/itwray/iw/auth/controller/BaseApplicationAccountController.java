@@ -6,6 +6,7 @@ import com.itwray.iw.auth.model.dto.ApplicationAccountUpdateDto;
 import com.itwray.iw.auth.model.vo.ApplicationAccountDetailVo;
 import com.itwray.iw.auth.model.vo.ApplicationAccountPageVo;
 import com.itwray.iw.auth.service.BaseApplicationAccountService;
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,8 +42,9 @@ public class BaseApplicationAccountController extends WebController<BaseApplicat
 
     @GetMapping("/viewPassword")
     @Operation(summary = "查询原文Password")
-    public String viewPassword(@RequestParam("id") Integer id) {
-        return getWebService().viewPassword(id);
+    public GeneralResponse<String> viewPassword(@RequestParam("id") Integer id) {
+        String password = getWebService().viewPassword(id);
+        return GeneralResponse.success(password);
     }
 
 }
