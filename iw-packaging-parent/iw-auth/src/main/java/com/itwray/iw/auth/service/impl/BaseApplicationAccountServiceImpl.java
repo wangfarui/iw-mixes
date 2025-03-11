@@ -2,17 +2,22 @@ package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.itwray.iw.auth.dao.AuthUserDao;
 import com.itwray.iw.auth.dao.BaseApplicationAccountDao;
 import com.itwray.iw.auth.mapper.BaseApplicationAccountMapper;
+import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.dto.ApplicationAccountAddDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountPageDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountRefreshPasswordDto;
 import com.itwray.iw.auth.model.dto.ApplicationAccountUpdateDto;
+import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.entity.BaseApplicationAccountEntity;
 import com.itwray.iw.auth.model.vo.ApplicationAccountDetailVo;
 import com.itwray.iw.auth.model.vo.ApplicationAccountPageVo;
+import com.itwray.iw.auth.service.AuthVerificationService;
 import com.itwray.iw.auth.service.BaseApplicationAccountService;
 import com.itwray.iw.common.utils.AESUtils;
+import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.EnvironmentHolder;
@@ -49,9 +54,19 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     @Nonnull
     private SecretKey secretKey;
 
+    private final AuthUserDao authUserDao;
+
+    private AuthVerificationService authVerificationService;
+
     @Autowired
-    public BaseApplicationAccountServiceImpl(BaseApplicationAccountDao baseDao) {
+    public BaseApplicationAccountServiceImpl(BaseApplicationAccountDao baseDao, AuthUserDao authUserDao) {
         super(baseDao);
+        this.authUserDao = authUserDao;
+    }
+
+    @Autowired
+    public void setAuthVerificationService(AuthVerificationService authVerificationService) {
+        this.authVerificationService = authVerificationService;
     }
 
     @PostConstruct
@@ -99,10 +114,17 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     @Transactional
     public void refreshPassword(ApplicationAccountRefreshPasswordDto dto) {
         // 校验验证码的正确性
-//        String verificationCode = RedisUtil.get(AuthRedisKeyEnum.APPLICATION_ACCOUNT_VERIFY_KEY.getKey(UserUtils.getUserId()), String.class);
-//        if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
-//            throw new BusinessException("验证码错误");
-//        }
+        Integer userId = UserUtils.getUserId();
+        AuthUserEntity authUserEntity = authUserDao.getById(userId);
+        if (authUserEntity == null) {
+            throw new BusinessException("用户不存在，请刷新重试");
+        }
+        if (!authVerificationService.compareVerificationCode(
+                dto.getVerificationCode(),
+                authUserEntity.getPhoneNumber(),
+                AuthRedisKeyEnum.APPLICATION_ACCOUNT_REFRESH_KEY)) {
+            throw new BusinessException("验证码错误");
+        }
 
         List<BaseApplicationAccountEntity> updateEntityList;
         if (dto.isRefreshAll()) {
@@ -110,7 +132,7 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
                     .eq(BaseApplicationAccountEntity::getUserId, UserUtils.getUserId())
                     .select(BaseApplicationAccountEntity::getId, BaseApplicationAccountEntity::getPassword)
                     .list();
-        } else if (CollUtil.isNotEmpty(dto.getIdList())){
+        } else if (CollUtil.isNotEmpty(dto.getIdList())) {
             updateEntityList = getBaseDao().lambdaQuery()
                     .in(BaseApplicationAccountEntity::getId, dto.getIdList())
                     .select(BaseApplicationAccountEntity::getId, BaseApplicationAccountEntity::getPassword)

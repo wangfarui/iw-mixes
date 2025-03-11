@@ -45,9 +45,9 @@ public class AuthUserController {
         authUserService.editPassword(dto);
     }
 
-    @GetMapping("/verificationCode")
+    @GetMapping("/getVerificationCode")
     @Operation(summary = "根据操作行为获取验证码")
-    public void getVerificationCodeByAction(@RequestParam("action") Integer action, HttpServletRequest request) {
-        authUserService.getVerificationCodeByAction(action, IpUtils.getClientIp(request));
+    public void getVerificationCodeByAction(@RequestParam("action") Integer action) {
+        authUserService.getVerificationCodeByAction(action);
     }
 }

@@ -21,10 +21,9 @@ public interface AuthRegisterService {
     UserInfoVo registerByForm(RegisterFormDto dto, String clientIp);
 
     /**
-     * 获取短信验证码
+     * 用户注册时获取短信验证码
      *
      * @param phoneNumber 电话号码
-     * @param clientIp    客户端请求ip
      */
-    void getVerificationCode(String phoneNumber, String clientIp);
+    void getVerificationCode(String phoneNumber);
 }
