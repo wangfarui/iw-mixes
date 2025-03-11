@@ -58,7 +58,7 @@ public class FeignConfiguration {
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
             // 从当前请求上下文获取token
-            String token = UserUtils.getToken();
+            String token = UserUtils.getToken(false);
             if (token != null) {
                 // 将 token 添加到请求头中
                 requestTemplate.header(RequestHeaderConstants.TOKEN_HEADER, token);
