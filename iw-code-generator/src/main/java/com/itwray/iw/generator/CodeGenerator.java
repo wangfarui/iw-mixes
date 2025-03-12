@@ -59,6 +59,8 @@ public class CodeGenerator {
                 )
                 .packageConfig(builder ->
                         builder.parent(config.getParentPackage()) // 设置父包名
+                                // 设置entity生成路径
+                                .entity("model.entity")
                                 // 设置mapperXml生成路径
                                 .pathInfo(Collections.singletonMap(OutputFile.xml, config.getMapperDir()))
                 )

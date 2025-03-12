@@ -1,0 +1,15 @@
+# 存放多用户多端开发后需要同步的脚本
+
+# 应用账号新增应用分类字段
+alter table base_application_account
+    add column type tinyint default 0 not null comment '应用分类 0-未分类' after id;
+
+# 维护默认字典值
+insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
+values (2010, 0, '未分类', 1, 0);
+
+# 维护所有用户的字典值
+insert into base_dict  (dict_type, dict_code, dict_name, sort, user_id)
+select 2010, 0, '未分类', 1, id
+from auth_user
+where 1=1;

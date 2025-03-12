@@ -25,6 +25,11 @@ public class BaseApplicationAccountEntity extends UserEntity<Integer> {
     private Integer id;
 
     /**
+     * 应用分类
+     */
+    private Integer type;
+
+    /**
      * 应用名称
      */
     private String name;
