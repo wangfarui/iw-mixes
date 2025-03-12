@@ -60,6 +60,9 @@ values (4001, '买菜', 1, 0),
        (4001, '旅游', 6, 0)
 ;
 
+insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
+values (2010, 0, '未分类', 1, 0);
+
 ##  MQ消息消费记录表
 drop table if exists base_mq_consume_records;
 create table base_mq_consume_records

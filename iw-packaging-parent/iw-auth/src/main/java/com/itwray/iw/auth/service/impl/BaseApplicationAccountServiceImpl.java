@@ -85,15 +85,18 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     @Override
     @Transactional
     public void update(ApplicationAccountUpdateDto dto) {
-        String encryptHex = this.encrypt(dto.getPassword());
-        dto.setPassword(encryptHex);
+        if (StringUtils.isNotBlank(dto.getPassword())) {
+            String encryptHex = this.encrypt(dto.getPassword());
+            dto.setPassword(encryptHex);
+        }
         super.update(dto);
     }
 
     @Override
     public PageVo<ApplicationAccountPageVo> page(ApplicationAccountPageDto dto) {
         LambdaQueryWrapper<BaseApplicationAccountEntity> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(dto.getName() != null, BaseApplicationAccountEntity::getName, dto.getName())
+        queryWrapper.eq(dto.getType() != null, BaseApplicationAccountEntity::getType, dto.getType())
+                .like(dto.getName() != null, BaseApplicationAccountEntity::getName, dto.getName())
                 .like(dto.getAddress() != null, BaseApplicationAccountEntity::getAddress, dto.getAddress());
         queryWrapper.orderByDesc(BaseApplicationAccountEntity::getId);
         return getBaseDao().page(dto, queryWrapper, ApplicationAccountPageVo.class);

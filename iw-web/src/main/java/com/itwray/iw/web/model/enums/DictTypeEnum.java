@@ -17,6 +17,7 @@ public enum DictTypeEnum implements ConstantEnum {
 
     /** iw-auth 授权模块 **/
     AUTH_TAG(2001, "授权模块", DataType.ID),
+    AUTH_APPLICATION_ACCOUNT_TYPE(2010, "应用账号-应用分类", DataType.CODE),
 
     /** iw-eat 餐饮模块 **/
     EAT_TAG(3001, "餐饮模块", DataType.ID),
