@@ -10,6 +10,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingConsumeService;
+import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,8 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
         this.fillMonthStatisticsDto(dto);
         return bookkeepingRecordsDao.lambdaQuery()
                 .eq(BookkeepingRecordsEntity::getRecordCategory, dto.getRecordCategory())
+                // 如果不查询所有,则只查询计入统计的数据
+                .eq(BoolEnum.FALSE.getCode().equals(dto.getIsSearchAll()), BookkeepingRecordsEntity::getIsStatistics, BoolEnum.TRUE.getCode())
                 .between(BookkeepingRecordsEntity::getRecordDate, dto.getCurrentStartMonth(), dto.getCurrentEndMonth())
                 .select(BookkeepingRecordsEntity::getId, BookkeepingRecordsEntity::getRecordSource,
                         BookkeepingRecordsEntity::getRecordTime, BookkeepingRecordsEntity::getAmount)
