@@ -2,25 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper">
 
+    <select id="page" resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo">
+        SELECT br.*
+        <include refid="fromForPageList" />
+        <include refid="whereForPageList" />
+        GROUP BY br.id
+        ORDER BY br.id DESC
+    </select>
     <select id="statistics" resultType="com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo">
-        SELECT record_category AS recordCategory, SUM(amount) AS totalAmount
-        FROM bookkeeping_records
-        WHERE deleted = 0
-        AND record_date BETWEEN #{dto.recordStartDate} AND #{dto.recordEndDate}
+        SELECT t.record_category AS recordCategory, SUM(t.amount) AS totalAmount
+        FROM (
+            SELECT br.*
+            <include refid="fromForPageList" />
+            <include refid="whereForPageList" />
+            GROUP BY br.id
+        ) t
+        GROUP BY t.record_category
+    </select>
+    <sql id="fromForPageList">
+        FROM bookkeeping_records br
+        <if test="dto.tagBusinessType != null and dto.tagIdList != null and dto.tagIdList.size > 0">
+            INNER JOIN base_dict_business_relation bdbr on bdbr.business_type = #{dto.tagBusinessType} and br.id = bdbr.business_id
+        </if>
+    </sql>
+    <sql id="whereForPageList">
+        WHERE br.deleted = 0
+        <if test="dto.recordStartDate != null and dto.recordEndDate != null">
+            AND br.record_date BETWEEN #{dto.recordStartDate} AND #{dto.recordEndDate}
+        </if>
         <if test="dto.recordType != null">
-            AND record_type = #{dto.recordType}
+            AND br.record_type = #{dto.recordType}
         </if>
         <if test="dto.isSearchAll != null and dto.isSearchAll == 0">
-            AND is_statistics = 1
+            AND br.is_statistics = 1
         </if>
         <if test="dto.mixAmount != null">
-            AND amount <![CDATA[>=]]>  #{dto.mixAmount}
+            AND br.amount <![CDATA[>=]]>  #{dto.mixAmount}
         </if>
         <if test="dto.maxAmount != null">
-            AND amount <![CDATA[<=]]>  #{dto.maxAmount}
+            AND br.amount <![CDATA[<=]]>  #{dto.maxAmount}
         </if>
-        GROUP BY record_category
-    </select>
+        <if test="dto.tagBusinessType != null and dto.tagIdList != null and dto.tagIdList.size > 0">
+            AND bdbr.dict_id in <foreach collection="dto.tagIdList" item="tagId" open="(" close=")" separator=",">#{tagId}</foreach>
+        </if>
+    </sql>
     <select id="totalStatistics"
             resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo">
         SELECT SUM(amount) AS totalAmount, count(*) AS totalRecordNum

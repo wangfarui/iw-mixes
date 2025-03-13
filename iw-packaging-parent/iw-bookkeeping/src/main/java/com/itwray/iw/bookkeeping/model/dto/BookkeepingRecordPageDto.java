@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 记账记录 分页DTO
@@ -52,4 +53,14 @@ public class BookkeepingRecordPageDto extends PageDto {
      * 最大金额
      */
     private BigDecimal maxAmount;
+
+    /**
+     * 记账标签id集合
+     */
+    private List<Integer> tagIdList;
+
+    /**
+     * 标签业务类型
+     */
+    private Integer tagBusinessType;
 }
