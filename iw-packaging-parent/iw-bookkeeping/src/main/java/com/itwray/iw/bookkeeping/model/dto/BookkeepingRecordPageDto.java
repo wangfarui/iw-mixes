@@ -6,7 +6,9 @@ import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 记账记录 分页DTO
@@ -41,4 +43,24 @@ public class BookkeepingRecordPageDto extends PageDto {
      * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#FALSE} , 表示只查询 is_statistics = 1 的数据</p>
      */
     private Integer isSearchAll;
+
+    /**
+     * 最小金额
+     */
+    private BigDecimal mixAmount;
+
+    /**
+     * 最大金额
+     */
+    private BigDecimal maxAmount;
+
+    /**
+     * 记账标签id集合
+     */
+    private List<Integer> tagIdList;
+
+    /**
+     * 标签业务类型
+     */
+    private Integer tagBusinessType;
 }

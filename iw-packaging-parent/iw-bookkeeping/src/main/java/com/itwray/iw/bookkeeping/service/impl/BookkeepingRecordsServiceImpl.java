@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
@@ -119,14 +120,12 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     public PageVo<BookkeepingRecordPageVo> page(BookkeepingRecordPageDto dto) {
-        LambdaQueryWrapper<BookkeepingRecordsEntity> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.between(dto.getRecordStartDate() != null && dto.getRecordEndDate() != null,
-                        BookkeepingRecordsEntity::getRecordDate, dto.getRecordStartDate(), dto.getRecordEndDate()
-                )
-                .eq(dto.getRecordType() != null, BookkeepingRecordsEntity::getRecordType, dto.getRecordType())
-                .eq(BoolEnum.FALSE.getCode().equals(dto.getIsSearchAll()), BookkeepingRecordsEntity::getIsStatistics, BoolEnum.TRUE.getCode())
-                .orderByDesc(BookkeepingRecordsEntity::getId);
-        return getBaseDao().page(dto, queryWrapper, BookkeepingRecordPageVo.class);
+        if (CollUtil.isNotEmpty(dto.getTagIdList())) {
+            dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
+        }
+        PageVo<BookkeepingRecordPageVo> pageVo = new PageVo<>();
+        getBaseDao().getBaseMapper().page(pageVo, dto);
+        return pageVo;
     }
 
     @Override
@@ -151,6 +150,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         }
         if (dto.getRecordEndDate() == null) {
             dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
+        }
+        if (CollUtil.isNotEmpty(dto.getTagIdList())) {
+            dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
         }
 
         // 查询记录类型对应的总金额
