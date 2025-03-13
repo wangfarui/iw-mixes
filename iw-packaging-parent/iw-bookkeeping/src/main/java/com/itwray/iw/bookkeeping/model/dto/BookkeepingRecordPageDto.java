@@ -6,6 +6,7 @@ import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
@@ -41,4 +42,14 @@ public class BookkeepingRecordPageDto extends PageDto {
      * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#FALSE} , 表示只查询 is_statistics = 1 的数据</p>
      */
     private Integer isSearchAll;
+
+    /**
+     * 最小金额
+     */
+    private BigDecimal mixAmount;
+
+    /**
+     * 最大金额
+     */
+    private BigDecimal maxAmount;
 }

@@ -125,6 +125,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 )
                 .eq(dto.getRecordType() != null, BookkeepingRecordsEntity::getRecordType, dto.getRecordType())
                 .eq(BoolEnum.FALSE.getCode().equals(dto.getIsSearchAll()), BookkeepingRecordsEntity::getIsStatistics, BoolEnum.TRUE.getCode())
+                .ge(dto.getMixAmount() != null, BookkeepingRecordsEntity::getAmount, dto.getMixAmount())
+                .le(dto.getMaxAmount() != null, BookkeepingRecordsEntity::getAmount, dto.getMaxAmount())
                 .orderByDesc(BookkeepingRecordsEntity::getId);
         return getBaseDao().page(dto, queryWrapper, BookkeepingRecordPageVo.class);
     }

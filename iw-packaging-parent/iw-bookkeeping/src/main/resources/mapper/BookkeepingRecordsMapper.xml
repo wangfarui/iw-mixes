@@ -13,6 +13,12 @@
         <if test="dto.isSearchAll != null and dto.isSearchAll == 0">
             AND is_statistics = 1
         </if>
+        <if test="dto.mixAmount != null">
+            AND amount <![CDATA[>=]]>  #{dto.mixAmount}
+        </if>
+        <if test="dto.maxAmount != null">
+            AND amount <![CDATA[<=]]>  #{dto.maxAmount}
+        </if>
         GROUP BY record_category
     </select>
     <select id="totalStatistics"
