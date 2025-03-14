@@ -30,6 +30,11 @@ public class BookkeepingRecordsEntity extends UserEntity<Integer> {
     private Integer id;
 
     /**
+     * 订单号
+     */
+    private String orderNo;
+
+    /**
      * 记录日期
      */
     private LocalDate recordDate;

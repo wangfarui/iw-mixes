@@ -13,3 +13,6 @@ insert into base_dict  (dict_type, dict_code, dict_name, sort, user_id)
 select 2010, 0, '未分类', 1, id
 from auth_user
 where 1=1;
+
+alter table bookkeeping_records
+    add column order_no varchar(32) default '' not null comment '订单号' after id;

@@ -19,3 +19,5 @@ create table bookkeeping_records
 
 alter table bookkeeping_records
     add column is_statistics tinyint(1) default 1 not null comment '是否计入统计(0否, 1是)' after is_excitation_record;
+alter table bookkeeping_records
+    add column order_no varchar(32) default '' not null comment '订单号' after id;

@@ -2,7 +2,6 @@ package com.itwray.iw.bookkeeping.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
 import com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo;
@@ -21,6 +20,7 @@ import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
+import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -68,23 +69,47 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             // 日期取指定日期，时间取当前时间
             bookkeepingRecords.setRecordTime(bookkeepingRecords.getRecordDate().atTime(LocalTime.now()));
         }
+        // 生成订单号
+        bookkeepingRecords.setOrderNo(UUID.randomUUID().toString().substring(0, 30));
+
+        // 保存记账记录
         getBaseDao().save(bookkeepingRecords);
 
         // 保存标签
         baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, bookkeepingRecords.getId(), dto.getRecordTags());
+
         // 记录为激励收入时，积分+1
         if (RecordCategoryEnum.INCOME.equals(dto.getRecordCategory())
                 && BoolEnum.TRUE.getCode().equals(dto.getIsExcitationRecord())) {
-            PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
-            pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
-            pointsRecordsAddDto.setPoints(1);
-            pointsRecordsAddDto.setSource("记账收入");
-            pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
-            pointsRecordsAddDto.setUserId(UserUtils.getUserId());
-            MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
+            this.addPointsRecordsByExcitation(bookkeepingRecords.getOrderNo());
         }
 
         return bookkeepingRecords.getId();
+    }
+
+    @Override
+    @Transactional
+    public void update(BookkeepingRecordUpdateDto dto) {
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = getBaseDao().queryById(dto.getId());
+        if (!bookkeepingRecordsEntity.getRecordCategory().equals(dto.getRecordCategory())) {
+            throw new BusinessException("不支持修改记账记录类型操作");
+        }
+
+        // 修改标签
+        baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, dto.getId(), dto.getRecordTags());
+
+        // 记账记录类型为收入类型时
+        if (RecordCategoryEnum.INCOME.equals(dto.getRecordCategory())) {
+            // 如果修改了激励记录状态, 则同步积分数据
+            if (!bookkeepingRecordsEntity.getIsExcitationRecord().equals(dto.getIsExcitationRecord())) {
+                if (BoolEnum.TRUE.getCode().equals(dto.getIsExcitationRecord())) {
+                    this.addPointsRecordsByExcitation(bookkeepingRecordsEntity.getOrderNo());
+                } else {
+                    this.deductPointsRecordsByExcitation(bookkeepingRecordsEntity.getOrderNo());
+                }
+            }
+        }
+        super.update(dto);
     }
 
     @Override
@@ -97,13 +122,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 同步积分数据
         if (RecordCategoryEnum.INCOME.equals(bookkeepingRecordsEntity.getRecordCategory())
                 && BoolEnum.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
-            PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
-            pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.DEDUCT.getCode());
-            pointsRecordsAddDto.setPoints(-1);
-            pointsRecordsAddDto.setSource("记账收入被删除");
-            pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
-            pointsRecordsAddDto.setUserId(bookkeepingRecordsEntity.getUserId());
-            MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
+            this.deductPointsRecordsByExcitation(bookkeepingRecordsEntity.getOrderNo());
         }
     }
 
@@ -166,5 +185,25 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 收入金额
         statisticsVo.setIncome(statisticsMap.getOrDefault(RecordCategoryEnum.INCOME.getCode(), BigDecimal.ZERO));
         return statisticsVo;
+    }
+
+    private void addPointsRecordsByExcitation(String orderNo) {
+        PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
+        pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
+        pointsRecordsAddDto.setPoints(1);
+        pointsRecordsAddDto.setSource("记账收入: " + orderNo);
+        pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
+        pointsRecordsAddDto.setUserId(UserUtils.getUserId());
+        MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
+    }
+
+    private void deductPointsRecordsByExcitation(String orderNo) {
+        PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
+        pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.DEDUCT.getCode());
+        pointsRecordsAddDto.setPoints(-1);
+        pointsRecordsAddDto.setSource("记账收入被删除: " + orderNo);
+        pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
+        pointsRecordsAddDto.setUserId(UserUtils.getUserId());
+        MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
     }
 }
