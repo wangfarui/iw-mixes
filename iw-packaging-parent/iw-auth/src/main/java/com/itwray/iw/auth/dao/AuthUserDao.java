@@ -2,7 +2,6 @@ package com.itwray.iw.auth.dao;
 
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.BCrypt;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.auth.mapper.AuthUserMapper;
 import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
@@ -12,6 +11,7 @@ import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
+import com.itwray.iw.web.dao.BaseDao;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.utils.IpUtils;
@@ -35,7 +35,7 @@ import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER
  * @since 2024/3/2
  */
 @Component
-public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
+public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
 
     /**
      * 新增用户
@@ -199,7 +199,7 @@ public class AuthUserDao extends ServiceImpl<AuthUserMapper, AuthUserEntity> {
      * @param phoneNumber 唯一电话号码
      * @param username    唯一用户名
      */
-    private void checkUserUnique(@Nullable String phoneNumber, @Nullable String username) {
+    public void checkUserUnique(@Nullable String phoneNumber, @Nullable String username) {
         // 获取客户端ip
         String clientIp;
         if (SpringWebHolder.isWeb()) {

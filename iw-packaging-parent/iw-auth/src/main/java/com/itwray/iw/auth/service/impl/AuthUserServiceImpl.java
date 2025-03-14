@@ -7,6 +7,7 @@ import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
+import com.itwray.iw.auth.model.dto.UserUsernameEditDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.enums.VerificationCodeActionEnum;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
@@ -240,6 +241,28 @@ public class AuthUserServiceImpl implements AuthUserService {
             log.warn("getVerificationCodeByAction 获取电话号码为空, action: {}", action);
         }
         authVerificationService.getVerificationCode(phoneNumber, actionEnum.getKeyManager());
+    }
+
+    @Override
+    @Transactional
+    public void editUsername(UserUsernameEditDto dto) {
+        Integer userId = UserUtils.getUserId();
+        AuthUserEntity authUserEntity = authUserDao.queryById(userId);
+        // 用户名没变的情况下,直接忽略请求
+        if (dto.getUsername().equals(authUserEntity.getUsername())) {
+            return;
+        }
+
+        // 校验用户名是否重复
+        authUserDao.checkUserUnique(null, dto.getUsername());
+
+        // 更新用户名
+        authUserDao.lambdaUpdate()
+                .eq(AuthUserEntity::getId, userId)
+                // 校验用户名, 避免并发
+                .eq(AuthUserEntity::getUsername, authUserEntity.getUsername())
+                .set(AuthUserEntity::getUsername, dto.getUsername())
+                .update();
     }
 
     /**

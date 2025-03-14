@@ -3,6 +3,7 @@ package com.itwray.iw.auth.service;
 import com.itwray.iw.auth.model.dto.LoginPasswordDto;
 import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
+import com.itwray.iw.auth.model.dto.UserUsernameEditDto;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 
 /**
@@ -71,4 +72,11 @@ public interface AuthUserService {
      * @see com.itwray.iw.auth.model.enums.VerificationCodeActionEnum
      */
     void getVerificationCodeByAction(Integer action);
+
+    /**
+     * 修改用户的用户名
+     *
+     * @param dto 用户名信息
+     */
+    void editUsername(UserUsernameEditDto dto);
 }
