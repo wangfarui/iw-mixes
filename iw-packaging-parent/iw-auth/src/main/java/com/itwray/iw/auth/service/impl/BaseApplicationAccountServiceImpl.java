@@ -16,6 +16,7 @@ import com.itwray.iw.auth.model.vo.ApplicationAccountDetailVo;
 import com.itwray.iw.auth.model.vo.ApplicationAccountPageVo;
 import com.itwray.iw.auth.service.AuthVerificationService;
 import com.itwray.iw.auth.service.BaseApplicationAccountService;
+import com.itwray.iw.common.constants.CommonConstants;
 import com.itwray.iw.common.utils.AESUtils;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -85,10 +86,8 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     @Override
     @Transactional
     public void update(ApplicationAccountUpdateDto dto) {
-        if (StringUtils.isNotBlank(dto.getPassword())) {
-            String encryptHex = this.encrypt(dto.getPassword());
-            dto.setPassword(encryptHex);
-        }
+        String encryptHex = this.encrypt(dto.getPassword());
+        dto.setPassword(encryptHex);
         super.update(dto);
     }
 
@@ -105,11 +104,14 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     @Override
     public String viewPassword(Integer id) {
         BaseApplicationAccountEntity accountEntity = getBaseDao().queryById(id);
+        if (StringUtils.isBlank(accountEntity.getPassword())) {
+            return CommonConstants.EMPTY;
+        }
         try {
             return this.decrypt(accountEntity.getPassword());
         } catch (Exception e) {
             log.error("viewPassword解密异常, encryptPd: " + accountEntity.getPassword(), e);
-            return "";
+            return CommonConstants.EMPTY;
         }
     }
 
@@ -159,6 +161,10 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
 
         // 使用动态配置的aes 再进行加密
         for (BaseApplicationAccountEntity entity : updateEntityList) {
+            if (StringUtils.isBlank(entity.getPassword())) {
+                log.info("refreshPassword 密码为空, 无需加密, id: {}", entity.getId());
+                continue;
+            }
             if (this.isEncryptPassword(entity.getPassword())) {
                 log.warn("refreshPassword 不建议二次加密密码, id: {}", entity.getId());
                 continue;
@@ -171,6 +177,9 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     }
 
     private String encrypt(String originalPassword) {
+        if (StringUtils.isBlank(originalPassword)) {
+            return CommonConstants.EMPTY;
+        }
         return AESUtils.encryptAESGCM(this.secretKey, originalPassword);
     }
 

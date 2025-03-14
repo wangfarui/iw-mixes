@@ -3,7 +3,6 @@ package com.itwray.iw.web.dao;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.dto.PageDto;
@@ -66,10 +65,10 @@ public class BaseDao<M extends BaseMapper<T>, T extends IdEntity> extends Servic
     }
 
     public <P extends PageDto, R> PageVo<R> page(P pageDto, Wrapper<T> queryWrapper, Function<? super T, ? extends R> mapper) {
-        Page<T> pageParam = new Page<>(pageDto.getCurrentPage(), pageDto.getPageSize());
-        Page<T> page = this.page(pageParam, queryWrapper);
-        List<R> resultList = page.getRecords().stream().map(mapper).collect(Collectors.toList());
-        return PageVo.of(page.getTotal(), resultList);
+        PageVo<T> pageVo = new PageVo<>(pageDto);
+        this.page(pageVo, queryWrapper);
+        List<R> resultList = pageVo.getRecords().stream().map(mapper).collect(Collectors.toList());
+        return PageVo.of(pageVo, resultList);
     }
 
 }

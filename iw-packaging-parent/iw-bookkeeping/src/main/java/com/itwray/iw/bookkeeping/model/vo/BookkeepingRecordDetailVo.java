@@ -26,6 +26,11 @@ public class BookkeepingRecordDetailVo implements DetailVo {
     private Integer id;
 
     /**
+     * 订单号
+     */
+    private String orderNo;
+
+    /**
      * 记录日期
      */
     @JsonFormat(pattern = DateUtils.DATE_FORMAT)
@@ -66,4 +71,14 @@ public class BookkeepingRecordDetailVo implements DetailVo {
      * 记录标签
      */
     private List<Integer> recordTags;
+
+    /**
+     * 是否为激励记录
+     */
+    private Integer isExcitationRecord;
+
+    /**
+     * 是否计入统计
+     */
+    private Integer isStatistics;
 }

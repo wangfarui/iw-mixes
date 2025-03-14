@@ -54,11 +54,12 @@ public class BookkeepingRecordsController extends WebController<BookkeepingRecor
     }
 
     /**
-     * 记账记录不支持修改
+     * 记账记录修改功能
+     * <p>不支持跨记录类型修改</p>
      */
     @Override
     @PutMapping("/update")
     public void update(@RequestBody @Valid BookkeepingRecordUpdateDto dto) {
-        throw new IwWebException("不支持的操作!");
+        getWebService().update(dto);
     }
 }
