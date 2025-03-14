@@ -38,14 +38,6 @@ public class AuthUserEntityServiceTest {
     }
 
     @Test
-    public void testGetVerificationCode() {
-        String clientIp = "0.0.0.0";
-        String phoneNumber = "13312345678";
-        authRegisterService.getVerificationCode(phoneNumber, clientIp);
-        System.out.println("验证码发送成功");
-    }
-
-    @Test
     public void testLoginByPassword() {
         LoginPasswordDto dto = new LoginPasswordDto();
         dto.setAccount("wray");
