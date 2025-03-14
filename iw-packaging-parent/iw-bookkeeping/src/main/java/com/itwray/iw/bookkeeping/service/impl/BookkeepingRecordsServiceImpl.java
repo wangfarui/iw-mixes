@@ -22,8 +22,10 @@ import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
+import com.itwray.iw.web.model.enums.OrderNoEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import com.itwray.iw.web.utils.OrderNoUtils;
 import com.itwray.iw.web.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,7 +72,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             bookkeepingRecords.setRecordTime(bookkeepingRecords.getRecordDate().atTime(LocalTime.now()));
         }
         // 生成订单号
-        bookkeepingRecords.setOrderNo(UUID.randomUUID().toString().substring(0, 30));
+        bookkeepingRecords.setOrderNo(OrderNoUtils.getAndIncrement(OrderNoEnum.BOOKKEEPING_RECORDS));
 
         // 保存记账记录
         getBaseDao().save(bookkeepingRecords);
