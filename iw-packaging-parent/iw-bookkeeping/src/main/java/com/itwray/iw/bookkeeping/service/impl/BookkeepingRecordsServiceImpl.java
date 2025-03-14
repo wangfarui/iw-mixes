@@ -123,7 +123,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         if (CollUtil.isNotEmpty(dto.getTagIdList())) {
             dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
         }
-        PageVo<BookkeepingRecordPageVo> pageVo = new PageVo<>();
+        PageVo<BookkeepingRecordPageVo> pageVo = new PageVo<>(dto);
         getBaseDao().getBaseMapper().page(pageVo, dto);
         return pageVo;
     }
