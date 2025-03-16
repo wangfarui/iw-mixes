@@ -33,6 +33,11 @@ public class BookkeepingRecordPageDto extends PageDto {
     private LocalDate recordEndDate;
 
     /**
+     * 记录来源
+     */
+    private String recordSource;
+
+    /**
      * 记录分类
      */
     private Integer recordType;

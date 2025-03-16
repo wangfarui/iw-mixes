@@ -30,6 +30,9 @@
         <if test="dto.recordStartDate != null and dto.recordEndDate != null">
             AND br.record_date BETWEEN #{dto.recordStartDate} AND #{dto.recordEndDate}
         </if>
+        <if test="dto.recordSource != null and dto.recordSource != ''">
+            AND br.record_source like concat('%', #{dto.recordSource}, '%')
+        </if>
         <if test="dto.recordType != null">
             AND br.record_type = #{dto.recordType}
         </if>
