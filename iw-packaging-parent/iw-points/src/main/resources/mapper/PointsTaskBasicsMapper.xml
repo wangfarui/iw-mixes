@@ -2,4 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itwray.iw.points.mapper.PointsTaskBasicsMapper">
 
+    <select id="queryTaskNum" resultType="com.itwray.iw.points.model.bo.QueryTaskNumBo">
+        select task_group_id, count(*) as taskNum
+        from points_task_basics
+        where task_group_id in
+        <foreach collection="groupIds" item="item" open="(" close=")" separator=",">#{item}</foreach>
+        <if test="taskStatus != null">
+            and task_status = #{taskStatus}
+        </if>
+        group by task_group_id
+    </select>
 </mapper>

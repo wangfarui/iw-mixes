@@ -25,6 +25,11 @@ public abstract class DateUtils {
     public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /**
+     * 时间字符串格式
+     */
+    public static final String TIME_FORMAT = "HH:mm:ss";
+
+    /**
      * 日期时间的格式化器
      */
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT);

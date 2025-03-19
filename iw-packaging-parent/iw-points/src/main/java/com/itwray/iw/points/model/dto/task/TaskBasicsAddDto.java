@@ -1,11 +1,10 @@
-package com.itwray.iw.points.model.dto;
+package com.itwray.iw.points.model.dto.task;
 
 import com.itwray.iw.web.model.dto.AddDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
@@ -16,10 +15,7 @@ import java.time.LocalTime;
  */
 @Data
 @Schema(name = "任务基础表 新增DTO")
-public class PointsTaskBasicsAddDto implements AddDto {
-
-    @Schema(title = "id")
-    private Integer id;
+public class TaskBasicsAddDto implements AddDto {
 
     @Schema(title = "父任务id")
     private Integer parentId;
@@ -32,9 +28,6 @@ public class PointsTaskBasicsAddDto implements AddDto {
 
     @Schema(title = "任务备注")
     private String taskRemark;
-
-    @Schema(title = "任务状态 0-未完成 1-已完成 2-已放弃")
-    private Integer taskStatus;
 
     @Schema(title = "截止日期(在重复任务中可被理解为开始日期)")
     private LocalDate deadlineDate;
@@ -50,17 +43,5 @@ public class PointsTaskBasicsAddDto implements AddDto {
 
     @Schema(title = "排序 0-默认排序")
     private Integer sort;
-
-    @Schema(title = "是否删除(true表示已删除, 默认false表示未删除)")
-    private Boolean deleted;
-
-    @Schema(title = "创建时间")
-    private LocalDateTime createTime;
-
-    @Schema(title = "更新时间")
-    private LocalDateTime updateTime;
-
-    @Schema(title = "用户id")
-    private Integer userId;
 
 }

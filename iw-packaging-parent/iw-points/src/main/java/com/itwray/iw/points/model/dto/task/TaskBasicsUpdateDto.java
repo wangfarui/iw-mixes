@@ -1,9 +1,8 @@
-package com.itwray.iw.points.model.dto;
+package com.itwray.iw.points.model.dto.task;
 
 import com.itwray.iw.web.model.dto.UpdateDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * 任务基础表 更新DTO
@@ -13,7 +12,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @Schema(name = "任务基础表 更新DTO")
-public class PointsTaskBasicsUpdateDto implements UpdateDto {
+public class TaskBasicsUpdateDto implements UpdateDto {
 
     @Schema(title = "id")
     private Integer id;

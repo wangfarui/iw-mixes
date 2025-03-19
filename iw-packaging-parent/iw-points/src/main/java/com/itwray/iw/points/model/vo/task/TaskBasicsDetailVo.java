@@ -1,5 +1,7 @@
-package com.itwray.iw.points.model.vo;
+package com.itwray.iw.points.model.vo.task;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.DetailVo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -16,7 +18,7 @@ import java.time.LocalTime;
  */
 @Data
 @Schema(name = "任务基础表 详情VO")
-public class PointsTaskBasicsDetailVo implements DetailVo {
+public class TaskBasicsDetailVo implements DetailVo {
 
     @Schema(title = "id")
     private Integer id;
@@ -37,9 +39,11 @@ public class PointsTaskBasicsDetailVo implements DetailVo {
     private Integer taskStatus;
 
     @Schema(title = "截止日期(在重复任务中可被理解为开始日期)")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate deadlineDate;
 
     @Schema(title = "截止时间(在重复任务中可被理解为开始时间)")
+    @JsonFormat(pattern = DateUtils.TIME_FORMAT)
     private LocalTime deadlineTime;
 
     @Schema(title = "优先级(数值越大,优先级越高) 0-无优先级")
@@ -51,16 +55,12 @@ public class PointsTaskBasicsDetailVo implements DetailVo {
     @Schema(title = "排序 0-默认排序")
     private Integer sort;
 
-    @Schema(title = "是否删除(true表示已删除, 默认false表示未删除)")
-    private Boolean deleted;
-
     @Schema(title = "创建时间")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime createTime;
 
     @Schema(title = "更新时间")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime updateTime;
-
-    @Schema(title = "用户id")
-    private Integer userId;
 
 }

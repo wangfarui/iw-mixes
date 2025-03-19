@@ -1,8 +1,8 @@
 package com.itwray.iw.points.controller;
 
-import com.itwray.iw.points.model.dto.PointsTaskBasicsAddDto;
-import com.itwray.iw.points.model.dto.PointsTaskBasicsUpdateDto;
-import com.itwray.iw.points.model.vo.PointsTaskBasicsDetailVo;
+import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
+import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
+import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
 import com.itwray.iw.web.controller.WebController;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @Tag(name = "任务基础表接口")
 public class PointsTaskBasicsController extends WebController<PointsTaskBasicsService,
-        PointsTaskBasicsAddDto, PointsTaskBasicsUpdateDto, PointsTaskBasicsDetailVo, Integer> {
+        TaskBasicsAddDto, TaskBasicsUpdateDto, TaskBasicsDetailVo, Integer> {
 
     public PointsTaskBasicsController(PointsTaskBasicsService webService) {
         super(webService);

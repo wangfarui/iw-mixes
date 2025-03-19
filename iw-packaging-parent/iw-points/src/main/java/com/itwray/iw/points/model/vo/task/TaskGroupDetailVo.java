@@ -1,5 +1,7 @@
-package com.itwray.iw.points.model.vo;
+package com.itwray.iw.points.model.vo.task;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.DetailVo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -14,7 +16,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Schema(name = "任务分组表 详情VO")
-public class PointsTaskGroupDetailVo implements DetailVo {
+public class TaskGroupDetailVo implements DetailVo {
 
     @Schema(title = "id")
     private Integer id;
@@ -31,16 +33,12 @@ public class PointsTaskGroupDetailVo implements DetailVo {
     @Schema(title = "排序 0-默认排序")
     private Integer sort;
 
-    @Schema(title = "是否删除(true表示已删除, 默认false表示未删除)")
-    private Boolean deleted;
-
     @Schema(title = "创建时间")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime createTime;
 
     @Schema(title = "更新时间")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime updateTime;
-
-    @Schema(title = "用户id")
-    private Integer userId;
 
 }
