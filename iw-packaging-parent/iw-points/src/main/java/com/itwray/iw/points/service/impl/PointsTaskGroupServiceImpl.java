@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 任务分组表 服务实现类
@@ -48,13 +49,45 @@ public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupMa
         if (list.isEmpty()) {
             return Collections.emptyList();
         }
+
         List<Integer> groupIdList = list.stream().map(PointsTaskGroupEntity::getId).toList();
-        Map<Integer, Integer> groupTaskNumMap = pointsTaskBasicsDao.queryTaskNumByGroupIds(groupIdList);
-        return list.stream().map(t -> {
-            TaskGroupListVo vo = BeanUtil.copyProperties(t, TaskGroupListVo.class);
-            vo.setTaskNum(groupTaskNumMap.get(t.getId()));
-            return vo;
-        }).toList();
+
+        // 如果parentId为空,则表示当前查询的是清单分组,需要统计所有清单分组下子分组的所有任务数量
+        if (NumberUtils.isNullOrZero(parentId)) {
+            List<PointsTaskGroupEntity> subGroupList = getBaseDao().lambdaQuery()
+                    .in(PointsTaskGroupEntity::getParentId, groupIdList)
+                    .select(PointsTaskGroupEntity::getId, PointsTaskGroupEntity::getParentId)
+                    .list();
+
+            Map<Integer, List<Integer>> parentIdMap = subGroupList.stream()
+                    .collect(Collectors.groupingBy(PointsTaskGroupEntity::getParentId,
+                            Collectors.mapping(PointsTaskGroupEntity::getId, Collectors.toList())
+                            ));
+
+            groupIdList = subGroupList.stream().map(PointsTaskGroupEntity::getId).toList();
+            Map<Integer, Integer> groupTaskNumMap = pointsTaskBasicsDao.queryTaskNumByGroupIds(groupIdList);
+            return list.stream().map(t -> {
+                TaskGroupListVo vo = BeanUtil.copyProperties(t, TaskGroupListVo.class);
+                List<Integer> subGroupIdList = parentIdMap.get(t.getId());
+                if (subGroupIdList == null) {
+                    vo.setTaskNum(0);
+                    return vo;
+                }
+                int taskNum = 0;
+                for (Integer subGroupId : subGroupIdList) {
+                    taskNum += groupTaskNumMap.getOrDefault(subGroupId, 0);
+                }
+                vo.setTaskNum(taskNum);
+                return vo;
+            }).toList();
+        } else {
+            Map<Integer, Integer> groupTaskNumMap = pointsTaskBasicsDao.queryTaskNumByGroupIds(groupIdList);
+            return list.stream().map(t -> {
+                TaskGroupListVo vo = BeanUtil.copyProperties(t, TaskGroupListVo.class);
+                vo.setTaskNum(groupTaskNumMap.get(t.getId()));
+                return vo;
+            }).toList();
+        }
     }
 
     @Override

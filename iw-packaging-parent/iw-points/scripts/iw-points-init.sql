@@ -116,3 +116,14 @@ create table points_task_basics
     primary key (id),
     key idx_task_group (task_group_id)
 ) comment '任务基础表';
+
+drop table if exists points_task_relation;
+create table points_task_relation
+(
+    id int unsigned auto_increment comment 'id',
+    task_id       int unsigned not null comment '任务id',
+    reward_points         tinyint   default 0                 not null comment '奖励积分',
+    punish_points         tinyint   default 0                 not null comment '处罚积分',
+    primary key (id),
+    key idx_task_id (task_id)
+) comment '任务关联表';

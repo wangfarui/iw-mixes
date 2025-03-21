@@ -35,7 +35,7 @@ public class PointsTaskGroupController extends WebController<PointsTaskGroupServ
     }
 
     @GetMapping("/list")
-    @Operation(summary = "查询积分任务列表")
+    @Operation(summary = "查询任务分组列表")
     public List<TaskGroupListVo> list(@RequestParam(value = "parentId", required = false) Integer parentId) {
         return getWebService().queryListByParentId(parentId);
     }
