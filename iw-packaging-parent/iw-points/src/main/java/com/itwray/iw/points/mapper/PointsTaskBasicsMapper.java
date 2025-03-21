@@ -3,7 +3,7 @@ package com.itwray.iw.points.mapper;
 import com.itwray.iw.points.model.bo.QueryTaskNumBo;
 import com.itwray.iw.points.model.entity.PointsTaskBasicsEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.itwray.iw.points.model.param.QueryTaskNumParam;
+import com.itwray.iw.points.model.param.QueryGroupTaskNumParam;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -17,5 +17,5 @@ import java.util.List;
 @Mapper
 public interface PointsTaskBasicsMapper extends BaseMapper<PointsTaskBasicsEntity> {
 
-    List<QueryTaskNumBo> queryTaskNum(QueryTaskNumParam param);
+    List<QueryTaskNumBo> queryTaskNum(QueryGroupTaskNumParam param);
 }

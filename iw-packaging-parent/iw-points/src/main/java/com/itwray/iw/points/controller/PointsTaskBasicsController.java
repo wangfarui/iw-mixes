@@ -1,11 +1,11 @@
 package com.itwray.iw.points.controller;
 
-import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
+import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
+import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
-import com.itwray.iw.points.model.vo.task.TaskGroupListVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
 import com.itwray.iw.web.controller.WebController;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,5 +36,11 @@ public class PointsTaskBasicsController extends WebController<PointsTaskBasicsSe
     @Operation(summary = "查询任务列表")
     public List<TaskBasicsListVo> list(@RequestBody TaskBasicsListDto dto) {
         return getWebService().queryList(dto);
+    }
+
+    @GetMapping("/statisticsFixedGroupTaskNum")
+    @Operation(summary = "统计固定分组任务数量")
+    public FixedGroupTaskNumVo statisticsFixedGroupTaskNum() {
+        return getWebService().statisticsFixedGroupTaskNum();
     }
 }

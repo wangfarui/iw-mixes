@@ -8,6 +8,7 @@ import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
 import com.itwray.iw.points.model.entity.PointsTaskBasicsEntity;
 import com.itwray.iw.points.model.enums.TaskStatusEnum;
+import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
@@ -42,5 +43,10 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
                 .stream()
                 .map(t -> BeanUtil.copyProperties(t, TaskBasicsListVo.class))
                 .toList();
+    }
+
+    @Override
+    public FixedGroupTaskNumVo statisticsFixedGroupTaskNum() {
+        return null;
     }
 }

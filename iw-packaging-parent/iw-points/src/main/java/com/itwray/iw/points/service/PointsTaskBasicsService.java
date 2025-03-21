@@ -3,6 +3,7 @@ package com.itwray.iw.points.service;
 import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
+import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
 import com.itwray.iw.web.service.WebService;
@@ -18,4 +19,7 @@ import java.util.List;
 public interface PointsTaskBasicsService extends WebService<TaskBasicsAddDto, TaskBasicsUpdateDto, TaskBasicsDetailVo, Integer> {
 
     List<TaskBasicsListVo> queryList(TaskBasicsListDto dto);
+
+    FixedGroupTaskNumVo statisticsFixedGroupTaskNum();
+
 }

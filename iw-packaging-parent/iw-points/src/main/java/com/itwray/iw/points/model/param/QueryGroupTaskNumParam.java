@@ -7,13 +7,13 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 查询任务数量
+ * 查询分组任务数量
  *
  * @author wray
  * @since 2025/3/19
  */
 @Data
-public class QueryTaskNumParam {
+public class QueryGroupTaskNumParam {
 
     /**
      * 分组id
@@ -27,7 +27,7 @@ public class QueryTaskNumParam {
     @Nullable
     private Integer taskStatus;
 
-    public QueryTaskNumParam(List<Integer> groupIds) {
+    public QueryGroupTaskNumParam(List<Integer> groupIds) {
         this.groupIds = groupIds;
     }
 }
