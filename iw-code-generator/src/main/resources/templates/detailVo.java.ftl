@@ -1,4 +1,4 @@
-package ${package.Parent}.model.dto;
+package ${package.Parent}.model.vo;
 
 import com.itwray.iw.web.model.vo.DetailVo;
 import io.swagger.v3.oas.annotations.media.Schema;

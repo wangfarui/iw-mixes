@@ -50,7 +50,7 @@ public class CodeGenerator {
                 .dataSourceConfig(builder ->
                         builder.typeConvertHandler((globalConfig, typeRegistry, metaInfo) -> {
                             int typeCode = metaInfo.getJdbcType().TYPE_CODE;
-                            if (typeCode == Types.SMALLINT || typeCode == Types.TINYINT) {
+                            if (typeCode == Types.SMALLINT || typeCode == Types.TINYINT || typeCode == Types.BIT) {
                                 // 自定义类型转换
                                 return DbColumnType.INTEGER;
                             }
