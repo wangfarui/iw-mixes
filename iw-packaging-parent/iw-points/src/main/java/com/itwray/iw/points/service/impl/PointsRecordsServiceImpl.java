@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RocketMQMessageListener(consumerGroup = "points-records-service", topic = MQTopicConstants.POINTS_RECORDS, tag = "*")
-public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsMapper, PointsRecordsEntity, PointsRecordsDao,
+public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsDao, PointsRecordsMapper, PointsRecordsEntity,
         PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo, Integer>
         implements PointsRecordsService, RocketMQClientListener<PointsRecordsAddDto> {
 

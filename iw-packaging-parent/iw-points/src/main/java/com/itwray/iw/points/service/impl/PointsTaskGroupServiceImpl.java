@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @since 2025-03-19
  */
 @Service
-public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupMapper, PointsTaskGroupEntity, PointsTaskGroupDao,
+public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupDao, PointsTaskGroupMapper, PointsTaskGroupEntity,
         TaskGroupAddDto, TaskGroupUpdateDto, TaskGroupDetailVo, Integer> implements PointsTaskGroupService {
 
     private final PointsTaskBasicsDao pointsTaskBasicsDao;

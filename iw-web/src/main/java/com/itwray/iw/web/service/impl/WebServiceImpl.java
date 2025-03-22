@@ -20,7 +20,7 @@ import java.io.Serializable;
  * @author wray
  * @since 2024/9/11
  */
-public abstract class WebServiceImpl<M extends BaseMapper<T>, T extends IdEntity<ID>, D extends BaseDao<M, T>,
+public abstract class WebServiceImpl<D extends BaseDao<M, T>, M extends BaseMapper<T>, T extends IdEntity<ID>,
         A extends AddDto, U extends UpdateDto, V extends DetailVo, ID extends Serializable> implements WebService<A, U, V, ID> {
 
     private final D baseDao;

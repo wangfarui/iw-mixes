@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * @since 2024/8/28
  */
 @Service
-public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRecordsMapper, BookkeepingRecordsEntity, BookkeepingRecordsDao,
+public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRecordsDao, BookkeepingRecordsMapper, BookkeepingRecordsEntity,
         BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo, Integer> implements BookkeepingRecordsService {
 
     private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;

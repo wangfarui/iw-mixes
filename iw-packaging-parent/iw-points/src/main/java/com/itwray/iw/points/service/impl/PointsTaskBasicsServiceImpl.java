@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2025-03-19
  */
 @Service
-public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasicsMapper, PointsTaskBasicsEntity, PointsTaskBasicsDao,
+public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasicsDao, PointsTaskBasicsMapper, PointsTaskBasicsEntity,
         TaskBasicsAddDto, TaskBasicsUpdateDto, TaskBasicsDetailVo, Integer> implements PointsTaskBasicsService {
 
     public PointsTaskBasicsServiceImpl(PointsTaskBasicsDao baseDao) {

@@ -46,7 +46,7 @@ import java.util.Set;
  */
 @Service
 @Slf4j
-public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplicationAccountMapper, BaseApplicationAccountEntity, BaseApplicationAccountDao,
+public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplicationAccountDao, BaseApplicationAccountMapper, BaseApplicationAccountEntity,
         ApplicationAccountAddDto, ApplicationAccountUpdateDto, ApplicationAccountDetailVo, Integer> implements BaseApplicationAccountService, ApplicationListener<EnvironmentChangeEvent> {
 
     @Value("${iw.auth.application-account.aes-key}")
