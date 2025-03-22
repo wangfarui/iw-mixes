@@ -52,6 +52,12 @@ public class GlobalConfig {
      */
     private String parentPackage;
 
+    /**
+     * 是否启用Web模块
+     * <p>包含 WebService、WebServiceImpl、WebController、Dto、Vo</p>
+     */
+    private boolean enabledWebModule;
+
     public String getDbUrl() {
         return getIfAbsent(dbUrl, () -> "jdbc:mysql://localhost:3306/iw_mixes?serverTimezone=Asia/Shanghai");
     }

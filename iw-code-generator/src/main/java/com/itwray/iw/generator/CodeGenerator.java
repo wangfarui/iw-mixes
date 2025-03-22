@@ -100,6 +100,8 @@ public class CodeGenerator {
                 )
                 .injectionConfig(builder ->
                         builder.beforeOutputFile((tableInfo, stringObjectMap) -> {
+                                    // 是否启用WebModule
+                                    stringObjectMap.put("enabledWebModule", config.isEnabledWebModule());
                                     // 实际数据表name（去除服务前缀）
                                     String tableName = tableInfo.getName();
                                     String[] names = tableName.split(ConstVal.UNDERLINE);
