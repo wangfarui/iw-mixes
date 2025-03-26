@@ -1,17 +1,20 @@
 package com.itwray.iw.points.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.itwray.iw.common.utils.ConstantEnumUtil;
 import com.itwray.iw.points.dao.PointsTaskBasicsDao;
 import com.itwray.iw.points.mapper.PointsTaskBasicsMapper;
 import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
+import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateStatusDto;
 import com.itwray.iw.points.model.entity.PointsTaskBasicsEntity;
 import com.itwray.iw.points.model.enums.TaskStatusEnum;
 import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
+import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -48,5 +51,28 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
     @Override
     public FixedGroupTaskNumVo statisticsFixedGroupTaskNum() {
         return null;
+    }
+
+    @Override
+    public void updateTaskStatus(TaskBasicsUpdateStatusDto dto) {
+        if (!ConstantEnumUtil.isEnumCode(TaskStatusEnum.class, dto.getTaskStatus())) {
+            throw new BusinessException("任务状态异常");
+        }
+        getBaseDao().queryById(dto.getId());
+        getBaseDao().lambdaUpdate()
+                .eq(PointsTaskBasicsEntity::getId, dto.getId())
+                .set(PointsTaskBasicsEntity::getTaskStatus, dto.getTaskStatus())
+                .update();
+    }
+
+    @Override
+    public List<TaskBasicsListVo> doneList() {
+        return getBaseDao().lambdaQuery()
+                .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.DONE.getCode())
+                .orderByDesc(PointsTaskBasicsEntity::getUpdateTime)
+                .list()
+                .stream()
+                .map(t -> BeanUtil.copyProperties(t, TaskBasicsListVo.class))
+                .toList();
     }
 }

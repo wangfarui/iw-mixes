@@ -3,6 +3,7 @@ package com.itwray.iw.points.controller;
 import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
+import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateStatusDto;
 import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
@@ -43,4 +44,17 @@ public class PointsTaskBasicsController extends WebController<PointsTaskBasicsSe
     public FixedGroupTaskNumVo statisticsFixedGroupTaskNum() {
         return getWebService().statisticsFixedGroupTaskNum();
     }
+
+    @PutMapping("/updateStatus")
+    @Operation(summary = "完成任务")
+    public void updateTaskStatus(@RequestBody TaskBasicsUpdateStatusDto dto) {
+        getWebService().updateTaskStatus(dto);
+    }
+
+    @GetMapping("/doneList")
+    @Operation(summary = "查询已完成的任务列表")
+    public List<TaskBasicsListVo> doneList() {
+        return getWebService().doneList();
+    }
+
 }

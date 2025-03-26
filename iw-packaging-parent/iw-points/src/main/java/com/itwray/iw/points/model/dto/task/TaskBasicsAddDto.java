@@ -1,5 +1,7 @@
 package com.itwray.iw.points.model.dto.task;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.AddDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -30,9 +32,11 @@ public class TaskBasicsAddDto implements AddDto {
     private String taskRemark;
 
     @Schema(title = "截止日期(在重复任务中可被理解为开始日期)")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate deadlineDate;
 
     @Schema(title = "截止时间(在重复任务中可被理解为开始时间)")
+    @JsonFormat(pattern = DateUtils.TIME_FORMAT)
     private LocalTime deadlineTime;
 
     @Schema(title = "优先级(数值越大,优先级越高) 0-无优先级")

@@ -3,6 +3,7 @@ package com.itwray.iw.points.service;
 import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
+import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateStatusDto;
 import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
@@ -22,4 +23,7 @@ public interface PointsTaskBasicsService extends WebService<TaskBasicsAddDto, Ta
 
     FixedGroupTaskNumVo statisticsFixedGroupTaskNum();
 
+    void updateTaskStatus(TaskBasicsUpdateStatusDto dto);
+
+    List<TaskBasicsListVo> doneList();
 }

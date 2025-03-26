@@ -5,7 +5,7 @@
     <select id="queryTaskNum" resultType="com.itwray.iw.points.model.bo.QueryTaskNumBo">
         select task_group_id, count(*) as taskNum
         from points_task_basics
-        where task_group_id in
+        where deleted = 0 and task_group_id in
         <foreach collection="groupIds" item="item" open="(" close=")" separator=",">#{item}</foreach>
         <if test="taskStatus != null">
             and task_status = #{taskStatus}
