@@ -1,6 +1,7 @@
 package com.itwray.iw.points.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.points.dao.PointsTaskBasicsDao;
 import com.itwray.iw.points.dao.PointsTaskGroupDao;
@@ -19,9 +20,7 @@ import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -59,13 +58,21 @@ public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupDa
                     .select(PointsTaskGroupEntity::getId, PointsTaskGroupEntity::getParentId)
                     .list();
 
-            Map<Integer, List<Integer>> parentIdMap = subGroupList.stream()
-                    .collect(Collectors.groupingBy(PointsTaskGroupEntity::getParentId,
-                            Collectors.mapping(PointsTaskGroupEntity::getId, Collectors.toList())
-                            ));
+            Map<Integer, List<Integer>> parentIdMap;
+            Map<Integer, Integer> groupTaskNumMap;
+            if (CollUtil.isEmpty(subGroupList)) {
+                parentIdMap = new HashMap<>();
+                groupTaskNumMap = new HashMap<>();
+            } else {
+                parentIdMap = subGroupList.stream()
+                        .collect(Collectors.groupingBy(PointsTaskGroupEntity::getParentId,
+                                Collectors.mapping(PointsTaskGroupEntity::getId, Collectors.toList())
+                        ));
 
-            groupIdList = subGroupList.stream().map(PointsTaskGroupEntity::getId).toList();
-            Map<Integer, Integer> groupTaskNumMap = pointsTaskBasicsDao.queryTaskNumByGroupIds(groupIdList);
+                groupIdList = subGroupList.stream().map(PointsTaskGroupEntity::getId).toList();
+                groupTaskNumMap = pointsTaskBasicsDao.queryTaskNumByGroupIds(groupIdList);
+            }
+
             return list.stream().map(t -> {
                 TaskGroupListVo vo = BeanUtil.copyProperties(t, TaskGroupListVo.class);
                 List<Integer> subGroupIdList = parentIdMap.get(t.getId());
