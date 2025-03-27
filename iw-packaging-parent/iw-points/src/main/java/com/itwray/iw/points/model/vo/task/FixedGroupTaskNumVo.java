@@ -1,24 +1,32 @@
 package com.itwray.iw.points.model.vo.task;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * 固定分组任务数量统计VO
+ * 统计固定分组的待完成任务数量
  *
  * @author wray
- * @since 2025/3/21
+ * @since 2025/3/19
  */
 @Data
-@Schema(name = "固定分组任务数量统计VO")
+@NoArgsConstructor
+@AllArgsConstructor
 public class FixedGroupTaskNumVo {
 
-    @Schema(title = "今日任务数量")
-    private Integer todayNum;
+    /**
+     * 今日的任务数量
+     */
+    private Long todayNum;
 
-    @Schema(title = "最近7天任务数量")
-    private Integer last7DayNum;
+    /**
+     * 近一周的任务数量
+     */
+    private Long weekNum;
 
-    @Schema(title = "默认分组(收集箱)任务数量")
-    private Integer defaultGroupNum;
+    /**
+     * 无分组(收集箱)的任务数量
+     */
+    private Long noGroupNum;
 }

@@ -10,7 +10,7 @@ import com.itwray.iw.points.model.dto.task.TaskGroupUpdateDto;
 import com.itwray.iw.points.model.entity.PointsTaskBasicsEntity;
 import com.itwray.iw.points.model.entity.PointsTaskGroupEntity;
 import com.itwray.iw.points.model.enums.TaskStatusEnum;
-import com.itwray.iw.points.model.vo.task.StatisticsLatestTaskNumVo;
+import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupListVo;
 import com.itwray.iw.points.service.PointsTaskGroupService;
@@ -91,7 +91,7 @@ public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupDa
     }
 
     @Override
-    public StatisticsLatestTaskNumVo statisticsLatestTaskNum() {
+    public FixedGroupTaskNumVo statisticsLatestTaskNum() {
         LocalDate nowDate = LocalDate.now();
         Long todayNum = pointsTaskBasicsDao.lambdaQuery()
                 .eq(PointsTaskBasicsEntity::getDeadlineDate, nowDate)
@@ -105,6 +105,6 @@ public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupDa
                 .eq(PointsTaskBasicsEntity::getTaskGroupId, WebCommonConstants.DATABASE_DEFAULT_INT_VALUE)
                 .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT.getCode())
                 .count();
-        return new StatisticsLatestTaskNumVo(todayNum, weekNum, noGroupNum);
+        return new FixedGroupTaskNumVo(todayNum, weekNum, noGroupNum);
     }
 }

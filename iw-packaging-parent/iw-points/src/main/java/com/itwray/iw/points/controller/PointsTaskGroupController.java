@@ -2,7 +2,7 @@ package com.itwray.iw.points.controller;
 
 import com.itwray.iw.points.model.dto.task.TaskGroupAddDto;
 import com.itwray.iw.points.model.dto.task.TaskGroupUpdateDto;
-import com.itwray.iw.points.model.vo.task.StatisticsLatestTaskNumVo;
+import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupListVo;
 import com.itwray.iw.points.service.PointsTaskGroupService;
@@ -42,7 +42,7 @@ public class PointsTaskGroupController extends WebController<PointsTaskGroupServ
 
     @GetMapping("/statisticsLatestTaskNum")
     @Operation(summary = "统计最近的任务数量")
-    public StatisticsLatestTaskNumVo statisticsLatestTaskNum() {
+    public FixedGroupTaskNumVo statisticsLatestTaskNum() {
         return getWebService().statisticsLatestTaskNum();
     }
 }

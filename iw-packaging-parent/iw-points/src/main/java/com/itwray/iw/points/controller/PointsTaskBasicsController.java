@@ -3,6 +3,7 @@ package com.itwray.iw.points.controller;
 import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
+import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateStatusDto;
 import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
@@ -38,9 +39,23 @@ public class PointsTaskBasicsController extends WebController<PointsTaskBasicsSe
         return getWebService().queryList(dto);
     }
 
-    @GetMapping("/statisticsFixedGroupTaskNum")
-    @Operation(summary = "统计固定分组任务数量")
-    public FixedGroupTaskNumVo statisticsFixedGroupTaskNum() {
-        return getWebService().statisticsFixedGroupTaskNum();
+    @PutMapping("/updateStatus")
+    @Operation(summary = "更新任务状态")
+    public void updateTaskStatus(@RequestBody TaskBasicsUpdateStatusDto dto) {
+        getWebService().updateTaskStatus(dto);
     }
+
+    @GetMapping("/doneList")
+    @Operation(summary = "查询已完成的任务列表")
+    public List<TaskBasicsListVo> doneList(@RequestParam(value = "taskGroupId", required = false) Integer taskGroupId,
+                                           @RequestParam(value = "more", required = false) Boolean more) {
+        return getWebService().doneList(taskGroupId, more);
+    }
+
+    @GetMapping("/deletedList")
+    @Operation(summary = "查询已删除的任务列表")
+    public List<TaskBasicsListVo> deletedList(@RequestParam(value = "more", required = false) Boolean more) {
+        return getWebService().deletedList(more);
+    }
+
 }
