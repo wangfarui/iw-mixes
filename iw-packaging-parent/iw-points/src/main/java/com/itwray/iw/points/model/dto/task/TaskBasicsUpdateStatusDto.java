@@ -18,7 +18,7 @@ public class TaskBasicsUpdateStatusDto {
     @NotNull(message = "任务id不能为空")
     private Integer id;
 
-    @Schema(title = "任务状态 0-未完成 1-已完成 2-已放弃")
+    @Schema(title = "任务状态 0-未完成 1-已完成 2-已放弃 3-已删除")
     @NotNull(message = "任务状态不能为空")
     private Integer taskStatus;
 }

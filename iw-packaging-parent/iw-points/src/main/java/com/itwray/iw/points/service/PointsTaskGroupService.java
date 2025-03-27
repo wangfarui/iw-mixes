@@ -2,7 +2,7 @@ package com.itwray.iw.points.service;
 
 import com.itwray.iw.points.model.dto.task.TaskGroupAddDto;
 import com.itwray.iw.points.model.dto.task.TaskGroupUpdateDto;
-import com.itwray.iw.points.model.vo.task.StatisticsLatestTaskNumVo;
+import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupListVo;
 import com.itwray.iw.web.service.WebService;
@@ -19,6 +19,6 @@ public interface PointsTaskGroupService extends WebService<TaskGroupAddDto, Task
 
     List<TaskGroupListVo> queryListByParentId(Integer parentId);
 
-    StatisticsLatestTaskNumVo statisticsLatestTaskNum();
+    FixedGroupTaskNumVo statisticsLatestTaskNum();
 
 }

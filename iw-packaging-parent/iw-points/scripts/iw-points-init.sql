@@ -77,3 +77,6 @@ create table points_task_relation
     primary key (id),
     key idx_task_id (task_id)
 ) comment '任务关联表';
+
+alter table points_task_basics
+add column done_time datetime null comment '任务完成时间' after sort;

@@ -15,6 +15,7 @@ public enum TaskStatusEnum implements BusinessConstantEnum {
     WAIT(0, "待完成"),
     DONE(1, "已完成"),
     GIVE_UP(2, "已放弃"),
+    DELETED(3, "已删除"),
     ;
 
     private final Integer code;

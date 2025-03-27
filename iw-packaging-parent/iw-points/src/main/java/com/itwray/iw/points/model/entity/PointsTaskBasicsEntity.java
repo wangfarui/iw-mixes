@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
@@ -76,4 +77,9 @@ public class PointsTaskBasicsEntity extends UserEntity<Integer> {
      * 排序 0-默认排序
      */
     private Integer sort;
+
+    /**
+     * 任务完成时间
+     */
+    private LocalDateTime doneTime;
 }
