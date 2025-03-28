@@ -40,4 +40,18 @@ public abstract class WebCommonConstants {
         }
         return "limit " + limitNum;
     }
+
+    /**
+     * 返回标准的limit分页语法
+     *
+     * @param currentPage 当前页
+     * @param pageSize    每页数量
+     * @return limit #{startNum}, #{pageSize}
+     */
+    public static String standardPageLimit(Integer currentPage, Integer pageSize) {
+        if (pageSize == null || pageSize <= 0) {
+            throw new IllegalArgumentException("pageSize is illegal");
+        }
+        return "limit " + ((currentPage == null || currentPage <= 0) ? 0 : (currentPage - 1) * pageSize) + ", " + pageSize;
+    }
 }
