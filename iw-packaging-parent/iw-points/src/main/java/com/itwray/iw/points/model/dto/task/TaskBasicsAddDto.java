@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.AddDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -23,9 +25,11 @@ public class TaskBasicsAddDto implements AddDto {
     private Integer parentId;
 
     @Schema(title = "任务分组id 0-无分组(收集箱)")
+    @NotNull(message = "任务分组不能为空")
     private Integer taskGroupId;
 
     @Schema(title = "任务名称")
+    @NotBlank(message = "任务名称不能为空")
     private String taskName;
 
     @Schema(title = "任务备注")

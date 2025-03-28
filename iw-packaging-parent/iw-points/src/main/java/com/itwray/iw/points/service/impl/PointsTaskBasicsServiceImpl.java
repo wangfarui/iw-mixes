@@ -15,6 +15,7 @@ import com.itwray.iw.points.service.PointsTaskBasicsService;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,13 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
 
     public PointsTaskBasicsServiceImpl(PointsTaskBasicsDao baseDao) {
         super(baseDao);
+    }
+
+    @Override
+    @Transactional
+    public Integer add(TaskBasicsAddDto dto) {
+        dto.setSort(getBaseDao().queryMaxSortByGroupId(dto.getTaskGroupId()));
+        return super.add(dto);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.itwray.iw.points.model.dto.task.TaskGroupUpdateDto;
 import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupListVo;
+import com.itwray.iw.points.model.vo.task.TaskGroupMoveListVo;
 import com.itwray.iw.points.service.PointsTaskGroupService;
 import com.itwray.iw.web.controller.WebController;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,5 +45,11 @@ public class PointsTaskGroupController extends WebController<PointsTaskGroupServ
     @Operation(summary = "统计最近的任务数量")
     public FixedGroupTaskNumVo statisticsLatestTaskNum() {
         return getWebService().statisticsLatestTaskNum();
+    }
+
+    @GetMapping("/moveList")
+    @Operation(summary = "查询可移动的任务分组列表")
+    public List<TaskGroupMoveListVo> moveList() {
+        return getWebService().moveList();
     }
 }

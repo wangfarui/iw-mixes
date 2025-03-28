@@ -6,6 +6,7 @@ import com.itwray.iw.points.model.entity.PointsTaskBasicsEntity;
 import com.itwray.iw.points.model.enums.TaskStatusEnum;
 import com.itwray.iw.points.model.param.QueryGroupTaskNumParam;
 import com.itwray.iw.points.model.param.QueryTaskNumCondition;
+import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDao;
 import org.springframework.stereotype.Component;
 
@@ -48,5 +49,24 @@ public class PointsTaskBasicsDao extends BaseDao<PointsTaskBasicsMapper, PointsT
                 .ge(condition.getStartDeadlineDate() != null, PointsTaskBasicsEntity::getDeadlineDate, condition.getStartDeadlineDate())
                 .le(condition.getEndDeadlineDate() != null, PointsTaskBasicsEntity::getDeadlineDate, condition.getEndDeadlineDate())
                 .count().intValue();
+    }
+
+    /**
+     * 查询指定分组下排序值最大的任务 + 1
+     *
+     * @param taskGroupId 任务分组id
+     * @return 最大排序值 + 1
+     */
+    public Integer queryMaxSortByGroupId(Integer taskGroupId) {
+        PointsTaskBasicsEntity pointsTaskBasicsEntity = this.lambdaQuery()
+                .eq(PointsTaskBasicsEntity::getTaskGroupId, taskGroupId)
+                .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT)
+                .orderByDesc(PointsTaskBasicsEntity::getSort)
+                .last(WebCommonConstants.LIMIT_ONE)
+                .one();
+        if (pointsTaskBasicsEntity == null) {
+            return WebCommonConstants.DATABASE_DEFAULT_INT_VALUE;
+        }
+        return pointsTaskBasicsEntity.getSort() + 1;
     }
 }
