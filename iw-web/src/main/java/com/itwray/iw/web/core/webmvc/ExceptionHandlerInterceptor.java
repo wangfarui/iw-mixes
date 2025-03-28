@@ -1,5 +1,6 @@
 package com.itwray.iw.web.core.webmvc;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.IwException;
 import com.itwray.iw.common.constants.GeneralApiCode;
@@ -13,6 +14,7 @@ import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +42,15 @@ public class ExceptionHandlerInterceptor {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public GeneralResponse<?> httpRequestMethodNotSupportedExceptionHandler() {
         return new GeneralResponse<>(GeneralApiCode.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public GeneralResponse<?> HttpMessageNotReadableExceptionHandler(HttpMessageNotReadableException e) {
+        if (e.getCause() instanceof InvalidFormatException ife) {
+            log.warn("JSON反序列化异常, 详细信息: {}", ife.getMessage());
+            return GeneralResponse.fail("参数异常");
+        }
+        return this.defaultExceptionHandler(e);
     }
 
     @ExceptionHandler(AuthorizedException.class)
