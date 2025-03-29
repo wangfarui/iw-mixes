@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.dto.PageDto;
 import com.itwray.iw.web.model.entity.IdEntity;
@@ -43,7 +44,7 @@ public class BaseDao<M extends BaseMapper<T>, T extends IdEntity> extends Servic
         T entity = this.getById(id);
         // 物理数据不存在或已逻辑删除
         if (entity == null) {
-            throw new IwWebException(errMsg);
+            throw new BusinessException(errMsg);
         }
         return entity;
     }

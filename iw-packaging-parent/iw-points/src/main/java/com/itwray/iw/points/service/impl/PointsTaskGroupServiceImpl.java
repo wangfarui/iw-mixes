@@ -14,6 +14,7 @@ import com.itwray.iw.points.model.enums.TaskStatusEnum;
 import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupListVo;
+import com.itwray.iw.points.model.vo.task.TaskGroupMoveListVo;
 import com.itwray.iw.points.service.PointsTaskGroupService;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
@@ -113,5 +114,33 @@ public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupDa
                 .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT.getCode())
                 .count();
         return new FixedGroupTaskNumVo(todayNum, weekNum, noGroupNum);
+    }
+
+    @Override
+    public List<TaskGroupMoveListVo> moveList() {
+        List<PointsTaskGroupEntity> list = getBaseDao().lambdaQuery()
+                .eq(PointsTaskGroupEntity::getParentId, WebCommonConstants.DATABASE_DEFAULT_INT_VALUE)
+                .list();
+        if (CollUtil.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+        List<Integer> taskGroupIdList = list.stream().map(PointsTaskGroupEntity::getId).toList();
+        Map<Integer, List<PointsTaskGroupEntity>> taskGroupMap = getBaseDao().lambdaQuery()
+                .in(PointsTaskGroupEntity::getParentId, taskGroupIdList)
+                .list()
+                .stream()
+                .collect(Collectors.groupingBy(PointsTaskGroupEntity::getParentId));
+        return list.stream().map(t -> {
+            TaskGroupMoveListVo vo = new TaskGroupMoveListVo(t.getId(), t.getGroupName());
+            List<PointsTaskGroupEntity> subGroupEntityList = taskGroupMap.get(vo.getId());
+            if (CollUtil.isEmpty(subGroupEntityList)) {
+                return vo;
+            }
+            List<TaskGroupMoveListVo> subGroupVoList = subGroupEntityList.stream()
+                    .map(groupEntity -> new TaskGroupMoveListVo(groupEntity.getId(), groupEntity.getGroupName()))
+                    .toList();
+            vo.setSubGroupList(subGroupVoList);
+            return vo;
+        }).toList();
     }
 }

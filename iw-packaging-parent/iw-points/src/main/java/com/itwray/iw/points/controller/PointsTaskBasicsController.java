@@ -48,14 +48,20 @@ public class PointsTaskBasicsController extends WebController<PointsTaskBasicsSe
     @GetMapping("/doneList")
     @Operation(summary = "查询已完成的任务列表")
     public List<TaskBasicsListVo> doneList(@RequestParam(value = "taskGroupId", required = false) Integer taskGroupId,
-                                           @RequestParam(value = "more", required = false) Boolean more) {
-        return getWebService().doneList(taskGroupId, more);
+                                           @RequestParam(value = "currentPage", required = false) Integer currentPage) {
+        return getWebService().doneList(taskGroupId, currentPage);
     }
 
     @GetMapping("/deletedList")
-    @Operation(summary = "查询已删除的任务列表")
+    @Operation(summary = "查询垃圾箱（已删除的任务列表）")
     public List<TaskBasicsListVo> deletedList(@RequestParam(value = "more", required = false) Boolean more) {
         return getWebService().deletedList(more);
+    }
+
+    @DeleteMapping("/clearDeletedList")
+    @Operation(summary = "清空垃圾箱")
+    public void clearDeletedList() {
+        getWebService().clearDeletedList();
     }
 
 }

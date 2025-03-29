@@ -5,6 +5,7 @@ import com.itwray.iw.points.model.dto.task.TaskGroupUpdateDto;
 import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskGroupListVo;
+import com.itwray.iw.points.model.vo.task.TaskGroupMoveListVo;
 import com.itwray.iw.web.service.WebService;
 
 import java.util.List;
@@ -21,4 +22,5 @@ public interface PointsTaskGroupService extends WebService<TaskGroupAddDto, Task
 
     FixedGroupTaskNumVo statisticsLatestTaskNum();
 
+    List<TaskGroupMoveListVo> moveList();
 }

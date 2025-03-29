@@ -23,7 +23,9 @@ public interface PointsTaskBasicsService extends WebService<TaskBasicsAddDto, Ta
 
     void updateTaskStatus(TaskBasicsUpdateStatusDto dto);
 
-    List<TaskBasicsListVo> doneList(Integer taskGroupId, Boolean more);
+    List<TaskBasicsListVo> doneList(Integer taskGroupId, Integer currentPage);
 
     List<TaskBasicsListVo> deletedList(Boolean more);
+
+    void clearDeletedList();
 }
