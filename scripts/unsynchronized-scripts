@@ -1,5 +1,3 @@
 # 存放多用户多端开发后需要同步的脚本
 
-alter table points_task_basics
-add column done_time datetime null comment '任务完成时间' after sort;
 
