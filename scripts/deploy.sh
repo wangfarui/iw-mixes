@@ -4,7 +4,7 @@
 
 # 初始化变量
 PROJECT_NAME=""
-VERSION="0.0.1-SNAPSHOT"  # 默认版本号
+VERSION="0.1.0-SNAPSHOT"  # 默认版本号
 SERVER_NAME="aliyun87" # 默认发布服务器
 TARGET_DIR="/root/iw-mixes" # 目标服务器目录
 SOURCE_DIR="/Users/wangfarui/workspaces/wfr/iw-mixes/iw-packaging-parent" # 源服务器目录

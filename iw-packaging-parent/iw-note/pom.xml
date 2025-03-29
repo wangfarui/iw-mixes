@@ -5,12 +5,13 @@
     <parent>
         <artifactId>iw-packaging-parent</artifactId>
         <groupId>com.itwray.mixes</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>iw-note</artifactId>
     <description>IW Project Note Module</description>
+    <version>0.0.1-SNAPSHOT</version>
 
     <properties>
         <iw.mainClass>com.itwray.iw.note.IwNoteApplication</iw.mainClass>
