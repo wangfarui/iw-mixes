@@ -10,6 +10,7 @@ import com.itwray.iw.auth.model.dto.DictPageDto;
 import com.itwray.iw.auth.model.dto.DictUpdateDto;
 import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
+import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.constants.EnableEnum;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
@@ -17,7 +18,7 @@ import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
 import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDictDao;
-import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.mapper.BaseDictMapper;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
 import com.itwray.iw.web.model.enums.DictTypeEnum;
@@ -134,7 +135,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     @Transactional
     public void update(DictUpdateDto dto) {
         // 根据id查询字典类型
-        BaseDictEntity baseDictEntity = this.checkDataSecurity(dto.getId());
+        BaseDictEntity baseDictEntity = this.checkDataSecurity(dto.getId(), dto.getDictStatus());
 
         super.update(dto);
 
@@ -147,7 +148,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     @Transactional
     public void delete(Integer id) {
         // 根据id查询字典类型
-        BaseDictEntity dictEntity = this.checkDataSecurity(id);
+        BaseDictEntity dictEntity = this.checkDataSecurity(id, null);
 
         super.delete(id);
 
@@ -188,16 +189,17 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
      * @param id 字典id
      * @return BaseDictEntity
      */
-    private BaseDictEntity checkDataSecurity(Serializable id) {
+    private BaseDictEntity checkDataSecurity(Serializable id, Integer dictStatus) {
         BaseDictEntity dictEntity = getBaseDao().queryById(id);
 
         // 判断当前字典类型是否少于1个值
         Long dictEntityCounts = getBaseDao().lambdaQuery()
                 .eq(BaseDictEntity::getDictType, dictEntity.getDictType())
                 .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
+                .ne(dictStatus == null || BoolEnum.FALSE.getCode().equals(dictStatus), BaseDictEntity::getId, id)
                 .count();
-        if (dictEntityCounts <= 1) {
-            throw new IwWebException("当前字典类型至少需要包含一个启用的字典值！");
+        if (dictEntityCounts < 1) {
+            throw new BusinessException("当前字典类型至少需要包含一个启用的字典值！");
         }
 
         return dictEntity;
