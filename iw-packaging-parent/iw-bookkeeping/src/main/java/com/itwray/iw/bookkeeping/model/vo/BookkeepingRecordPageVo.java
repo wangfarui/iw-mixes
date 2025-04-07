@@ -28,6 +28,11 @@ public class BookkeepingRecordPageVo {
     private LocalDateTime recordTime;
 
     /**
+     * 记录时间字符串
+     */
+    private String recordTimeStr;
+
+    /**
      * 记录类型
      */
     private RecordCategoryEnum recordCategory;

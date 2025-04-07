@@ -35,9 +35,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -146,6 +146,22 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         }
         PageVo<BookkeepingRecordPageVo> pageVo = new PageVo<>(dto);
         getBaseDao().getBaseMapper().page(pageVo, dto);
+
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        pageVo.getRecords().forEach(t -> {
+            // 格式化记账日期
+            LocalDate localDate = t.getRecordTime().toLocalDate();
+            if (now.equals(localDate)) {
+                t.setRecordTimeStr("今天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
+            } else if (now.equals(localDate.plusDays(1))) {
+                t.setRecordTimeStr("昨天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
+            } else {
+                t.setRecordTimeStr(t.getRecordTime().format(dateTimeFormatter));
+            }
+        });
+
         return pageVo;
     }
 
