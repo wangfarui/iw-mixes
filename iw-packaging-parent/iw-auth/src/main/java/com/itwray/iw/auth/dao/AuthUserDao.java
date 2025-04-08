@@ -14,6 +14,7 @@ import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDao;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.model.enums.mq.RegisterNewUserTopicEnum;
 import com.itwray.iw.web.utils.IpUtils;
 import com.itwray.iw.web.utils.SpringWebHolder;
 import jakarta.servlet.http.HttpServletResponse;
@@ -73,7 +74,7 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
 
         // 发送注册新用户成功的MQ消息
         bo.setUserId(addUser.getId());
-        MQProducerHelper.send(MQTopicConstants.REGISTER_NEW_USER, bo);
+        MQProducerHelper.send(RegisterNewUserTopicEnum.INIT, bo);
 
         return addUser;
     }

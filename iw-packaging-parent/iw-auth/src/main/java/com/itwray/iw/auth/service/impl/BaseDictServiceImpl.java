@@ -14,14 +14,15 @@ import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.constants.EnableEnum;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
+import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
-import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDictDao;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.mapper.BaseDictMapper;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
 import com.itwray.iw.web.model.enums.DictTypeEnum;
+import com.itwray.iw.web.model.enums.mq.RegisterNewUserTopicEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.UserUtils;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-@RocketMQMessageListener(consumerGroup = "auth-dict-service", topic = MQTopicConstants.REGISTER_NEW_USER, tag = "*")
+@RocketMQMessageListener(consumerGroup = "auth-dict-service", topic = RegisterNewUserTopicEnum.TOPIC_NAME, tag = "init")
 public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMapper, BaseDictEntity,
         DictAddDto, DictUpdateDto, DictDetailVo, Integer> implements BaseDictService, RocketMQClientListener<UserAddBo> {
 
@@ -227,6 +228,17 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     @Override
     @Transactional
     public void doConsume(UserAddBo bo) {
+        // 初始化字典数据
+        this.initDictData(bo);
+
+        // 字典数据初始化完成之后, 发送 依赖字典数据 的消息
+        MQProducerHelper.send(RegisterNewUserTopicEnum.DEPEND_DICT, bo);
+    }
+
+    /**
+     * 新用户注册初始化基础字典数据
+     */
+    private void initDictData(UserAddBo bo) {
         // 判断该用户是否已生成过字典数据
         BaseDictEntity dictEntity = getBaseDao().lambdaQuery()
                 .eq(BaseDictEntity::getUserId, bo.getUserId())

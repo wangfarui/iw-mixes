@@ -5,6 +5,7 @@ import com.itwray.iw.starter.rocketmq.web.RocketMQDataDaoHolder;
 import com.itwray.iw.starter.rocketmq.web.dao.BaseMqProduceRecordsDao;
 import com.itwray.iw.starter.rocketmq.web.entity.BaseMqProduceRecordsEntity;
 import com.itwray.iw.web.model.dto.UserDto;
+import com.itwray.iw.web.model.enums.mq.MQDestination;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.apis.message.MessageId;
 import org.apache.rocketmq.client.apis.producer.SendReceipt;
@@ -50,27 +51,37 @@ public abstract class MQProducerHelper {
     /**
      * 同步发送消息
      *
-     * @param topic Topic
-     * @param obj   消息对象
+     * @param destination MQ消息目标
+     * @param obj         消息对象
      */
-    public static void send(String topic, Object obj) {
+    public static void send(MQDestination destination, Object obj) {
+        send(destination.getDestination(), obj);
+    }
+
+    /**
+     * 同步发送消息
+     *
+     * @param destination `topicName:tags`
+     * @param obj         消息对象
+     */
+    public static void send(String destination, Object obj) {
         Message<byte[]> message = buildMessage(obj);
-        SendReceipt sendReceipt = rocketMQClientTemplate.syncSendNormalMessage(topic, message);
-        MQProducerHelper.recordProductionMessages(topic, obj, sendReceipt.getMessageId());
+        SendReceipt sendReceipt = rocketMQClientTemplate.syncSendNormalMessage(destination, message);
+        MQProducerHelper.recordProductionMessages(destination, obj, sendReceipt.getMessageId());
         log.info("MQ消息同步发送成功, messageId: {}", sendReceipt.getMessageId().toString());
     }
 
     /**
      * 异步发送消息
      *
-     * @param topic Topic
-     * @param obj   消息对象
+     * @param destination `topicName:tags`
+     * @param obj         消息对象
      */
-    public static void asyncSend(String topic, Object obj) {
+    public static void asyncSend(String destination, Object obj) {
         Message<byte[]> message = buildMessage(obj);
-        CompletableFuture<SendReceipt> completableFuture = rocketMQClientTemplate.asyncSendNormalMessage(topic, message, null);
+        CompletableFuture<SendReceipt> completableFuture = rocketMQClientTemplate.asyncSendNormalMessage(destination, message, null);
         completableFuture.thenAccept(sendReceipt -> {
-                    MQProducerHelper.recordProductionMessages(topic, obj, sendReceipt.getMessageId());
+                    MQProducerHelper.recordProductionMessages(destination, obj, sendReceipt.getMessageId());
                     log.info("MQ消息异步发送成功, messageId: {}", sendReceipt.getMessageId().toString());
                 })
                 .exceptionally(e -> {
@@ -94,19 +105,21 @@ public abstract class MQProducerHelper {
     /**
      * 记录生产者消息
      *
-     * @param topic     MQ的Topic
-     * @param obj       MQ的消息对象
-     * @param messageId 发送成功后的消息id
+     * @param destination `topicName:tags`
+     * @param obj         MQ的消息对象
+     * @param messageId   发送成功后的消息id
      */
-    private static void recordProductionMessages(String topic, Object obj, MessageId messageId) {
+    private static void recordProductionMessages(String destination, Object obj, MessageId messageId) {
         executorService.submit(() -> {
             try {
+                String[] tempArr = destination.split(":", 2);
                 BaseMqProduceRecordsDao baseMqProduceRecordsDao = RocketMQDataDaoHolder.getBaseMqProduceRecordsDao();
                 BaseMqProduceRecordsEntity entity = new BaseMqProduceRecordsEntity();
                 entity.setServiceName(RocketMQDataDaoHolder.getApplicationName());
                 entity.setMessageId(messageId.toString());
                 entity.setVersion(messageId.getVersion());
-                entity.setTopic(topic);
+                entity.setTopic(tempArr[0]);
+                entity.setTag(tempArr.length > 1 ? tempArr[1] : "");
                 entity.setBody(JSONUtil.toJsonStr(obj));
                 entity.setCreateTime(LocalDateTime.now());
                 if (obj instanceof UserDto userDto) {
