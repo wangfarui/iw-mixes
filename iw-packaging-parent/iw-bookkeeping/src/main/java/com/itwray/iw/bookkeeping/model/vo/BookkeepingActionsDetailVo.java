@@ -6,6 +6,8 @@ import com.itwray.iw.web.model.vo.DetailVo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 记账行为表 详情VO
  *
@@ -36,6 +38,6 @@ public class BookkeepingActionsDetailVo implements DetailVo {
     private String recordTags;
 
     @Schema(title = "排序 0-默认排序")
-    private Integer sort;
+    private BigDecimal sort;
 
 }

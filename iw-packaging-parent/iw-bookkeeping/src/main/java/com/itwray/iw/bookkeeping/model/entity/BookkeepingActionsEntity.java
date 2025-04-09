@@ -7,6 +7,8 @@ import com.itwray.iw.web.model.entity.UserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
  * 记账行为表
  *
@@ -52,5 +54,5 @@ public class BookkeepingActionsEntity extends UserEntity<Integer> {
     /**
      * 排序 0-默认排序
      */
-    private Integer sort;
+    private BigDecimal sort;
 }

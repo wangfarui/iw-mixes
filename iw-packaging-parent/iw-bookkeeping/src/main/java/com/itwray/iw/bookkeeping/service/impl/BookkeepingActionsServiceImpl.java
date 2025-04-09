@@ -20,7 +20,9 @@ import com.itwray.iw.web.utils.UserUtils;
 import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -34,27 +36,40 @@ import java.util.List;
 public class BookkeepingActionsServiceImpl extends WebServiceImpl<BookkeepingActionsDao, BookkeepingActionsMapper, BookkeepingActionsEntity,
         BookkeepingActionsAddDto, BookkeepingActionsUpdateDto, BookkeepingActionsDetailVo, Integer> implements BookkeepingActionsService, RocketMQClientListener<UserAddBo> {
 
-    private final BaseDictDao baseDictDao;
-
     @Autowired
-    public BookkeepingActionsServiceImpl(BookkeepingActionsDao baseDao, BaseDictDao baseDictDao) {
+    public BookkeepingActionsServiceImpl(BookkeepingActionsDao baseDao) {
         super(baseDao);
-        this.baseDictDao = baseDictDao;
     }
 
     @Override
+    @Transactional
     public Integer add(BookkeepingActionsAddDto dto) {
+        // 查询当前用户记账行为中排序最大值
+        BookkeepingActionsEntity entity = getBaseDao().lambdaQuery()
+                .eq(BookkeepingActionsEntity::getUserId, UserUtils.getUserId())
+                .orderByDesc(BookkeepingActionsEntity::getSort)
+                .last(WebCommonConstants.LIMIT_ONE)
+                .one();
+        if (entity != null) {
+            dto.setSort(entity.getSort().add(BigDecimal.TEN));
+        } else {
+            dto.setSort(BigDecimal.TEN);
+        }
+
+        Integer id = super.add(dto);
         BookkeepingRedisKeyEnum.ACTION_LIST.delete(UserUtils.getUserId(), dto.getRecordCategory());
-        return super.add(dto);
+        return id;
     }
 
     @Override
+    @Transactional
     public void update(BookkeepingActionsUpdateDto dto) {
         BookkeepingRedisKeyEnum.ACTION_LIST.delete(UserUtils.getUserId(), dto.getRecordCategory());
         super.update(dto);
     }
 
     @Override
+    @Transactional
     public void delete(Integer id) {
         BookkeepingActionsEntity entity = getBaseDao().queryById(id);
         BookkeepingRedisKeyEnum.ACTION_LIST.delete(UserUtils.getUserId(), entity.getRecordCategory());
@@ -75,7 +90,7 @@ public class BookkeepingActionsServiceImpl extends WebServiceImpl<BookkeepingAct
                 .eq(BookkeepingActionsEntity::getUserId, userId)
                 .eq(BookkeepingActionsEntity::getRecordCategory, recordCategory)
                 .orderByAsc(BookkeepingActionsEntity::getSort)
-                .orderByDesc(BookkeepingActionsEntity::getId)
+                .orderByAsc(BookkeepingActionsEntity::getId)
                 .list()
                 .stream()
                 .map(t -> BeanUtil.copyProperties(t, BookkeepingActionsDetailVo.class))
@@ -92,6 +107,7 @@ public class BookkeepingActionsServiceImpl extends WebServiceImpl<BookkeepingAct
     }
 
     @Override
+    @Transactional
     public void doConsume(UserAddBo bo) {
         // 判断该用户是否已生成过字典数据
         BookkeepingActionsEntity actionsEntity = getBaseDao().lambdaQuery()

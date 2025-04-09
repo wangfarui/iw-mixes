@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 记账行为表 新增DTO
  *
@@ -38,6 +40,6 @@ public class BookkeepingActionsAddDto implements AddDto {
     private String recordTags;
 
     @Schema(title = "排序 0-默认排序")
-    private Integer sort;
+    private BigDecimal sort;
 
 }
