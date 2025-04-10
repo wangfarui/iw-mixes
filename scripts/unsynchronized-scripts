@@ -33,3 +33,6 @@ from bookkeeping_actions ba
 join auth_user au on ba.user_id != au.id
 where ba.user_id = 0
 ;
+
+alter table bookkeeping_records
+add column record_icon varchar(255) default '' not null comment '记录图标' after record_source;

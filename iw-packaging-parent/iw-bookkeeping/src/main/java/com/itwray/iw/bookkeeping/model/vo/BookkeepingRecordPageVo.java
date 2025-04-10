@@ -51,4 +51,9 @@ public class BookkeepingRecordPageVo {
      * 记录分类
      */
     private Integer recordType;
+
+    /**
+     * 记录图标
+     */
+    private String recordIcon;
 }

@@ -49,3 +49,5 @@ values
 (2, "工资", 5, "/icon/shouru/gongzi", 10, 0),
 (2, "兼职", 5, "/icon/shouru/jianzhi", 20, 0);
 
+alter table bookkeeping_records
+add column record_icon varchar(255) default '' not null comment '记录图标' after record_source;
