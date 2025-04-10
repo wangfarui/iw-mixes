@@ -32,6 +32,27 @@ public interface RedisKeyManager {
     }
 
     /**
+     * 获取Redis Key为String类型的Value
+     *
+     * @param valueType Value的类型
+     * @param args      key的参数
+     * @param <T>       valueType
+     * @return valueType类型的Value值
+     */
+    default <T> T getStringValue(Class<T> valueType, Object... args) {
+        return RedisUtil.get(getKey(args), valueType);
+    }
+
+    /**
+     * 删除Redis Key为String类型的Value
+     *
+     * @param args key的参数
+     */
+    default void delete(Object... args) {
+        RedisUtil.delete(getKey(args));
+    }
+
+    /**
      * 使用当前Redis Key枚举, 写入Key为String类型的Redis值
      *
      * @param value Redis Key的值
