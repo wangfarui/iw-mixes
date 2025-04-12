@@ -66,7 +66,7 @@ public class InternalApiServiceImpl implements InternalApiService {
 
         // 在线查询汇率
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("format", dto.getFromCurrency());
+        paramMap.put("from", dto.getFromCurrency());
         paramMap.put("to", dto.getToCurrency());
         paramMap.put("date", dto.getQueryDate().format(DateUtils.DATE_FORMATTER));
         paramMap.put("access_key", exchangeRateAccessKey);

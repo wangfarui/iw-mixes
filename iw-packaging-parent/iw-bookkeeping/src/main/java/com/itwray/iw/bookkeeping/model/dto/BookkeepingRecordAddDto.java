@@ -72,4 +72,9 @@ public class BookkeepingRecordAddDto implements AddDto {
 
     @Schema(title = "记录图标")
     private String recordIcon;
+
+    /**
+     * 转换前货币
+     */
+    private String fromCurrency;
 }

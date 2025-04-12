@@ -46,6 +46,10 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-points-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-external-client</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
