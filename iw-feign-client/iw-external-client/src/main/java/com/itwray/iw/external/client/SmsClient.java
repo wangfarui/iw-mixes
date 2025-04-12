@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @since 2024/12/19
  */
 @Validated
-@FeignClient(value = ExternalClientConstants.SERVICE_NAME, contextId = "external-client", path = ExternalClientConstants.INTERNAL_SERVICE_PATH + "/sms", configuration = InternalFeignConfig.class)
+@FeignClient(value = ExternalClientConstants.SERVICE_NAME, contextId = "sms-client", path = ExternalClientConstants.INTERNAL_SERVICE_PATH + "/sms", configuration = InternalFeignConfig.class)
 public interface SmsClient {
 
     @PostMapping("/sendVerificationCode")
