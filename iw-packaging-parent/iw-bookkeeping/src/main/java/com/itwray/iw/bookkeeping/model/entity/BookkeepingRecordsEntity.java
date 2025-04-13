@@ -55,6 +55,11 @@ public class BookkeepingRecordsEntity extends UserEntity<Integer> {
     private String recordSource;
 
     /**
+     * 记录图标
+     */
+    private String recordIcon;
+
+    /**
      * 金额
      */
     private BigDecimal amount;

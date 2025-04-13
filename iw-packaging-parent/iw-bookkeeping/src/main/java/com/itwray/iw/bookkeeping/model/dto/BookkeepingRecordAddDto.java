@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.AddDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -68,4 +69,12 @@ public class BookkeepingRecordAddDto implements AddDto {
      * 是否计入统计
      */
     private Integer isStatistics;
+
+    @Schema(title = "记录图标")
+    private String recordIcon;
+
+    /**
+     * 转换前货币
+     */
+    private String fromCurrency;
 }

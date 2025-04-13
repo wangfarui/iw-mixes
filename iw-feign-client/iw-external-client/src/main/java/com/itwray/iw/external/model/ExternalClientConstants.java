@@ -13,7 +13,6 @@ public abstract class ExternalClientConstants {
     /**
      * 外部服务名
      */
-    @Value("${spring.application.name}")
     public static final String SERVICE_NAME = "iw-external-service";
 
     /**

@@ -2,7 +2,7 @@ package com.itwray.iw.external.client;
 
 import com.itwray.iw.external.core.InternalFeignConfig;
 import com.itwray.iw.external.model.ExternalClientConstants;
-import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
+import com.itwray.iw.external.model.dto.GetExchangeRateDto;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -11,17 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
- * SMS短信 Client
+ * Description
  *
  * @author wray
- * @since 2024/12/19
+ * @since 2025/4/12
  */
 @Validated
-@FeignClient(value = ExternalClientConstants.SERVICE_NAME, contextId = "sms-client", path = ExternalClientConstants.INTERNAL_SERVICE_PATH + "/sms", configuration = InternalFeignConfig.class)
-public interface SmsClient {
+@FeignClient(value = ExternalClientConstants.SERVICE_NAME, contextId = "internal-client", path = ExternalClientConstants.INTERNAL_SERVICE_PATH + "/api", configuration = InternalFeignConfig.class)
+public interface InternalApiClient {
 
-    @PostMapping("/sendVerificationCode")
-    @Operation(summary = "发送验证码")
-    void sendVerificationCode(@RequestBody @Valid SmsSendVerificationCodeDto dto);
+    @PostMapping("/getExchangeRate")
+    @Operation(summary = "查询汇率")
+    Object getExchangeRate(@RequestBody @Valid GetExchangeRateDto dto);
 }
-

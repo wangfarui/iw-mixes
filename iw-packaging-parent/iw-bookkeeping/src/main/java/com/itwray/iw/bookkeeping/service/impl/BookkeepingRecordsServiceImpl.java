@@ -14,6 +14,8 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.utils.DateUtils;
+import com.itwray.iw.external.client.InternalApiClient;
+import com.itwray.iw.external.model.dto.GetExchangeRateDto;
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
 import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
@@ -27,17 +29,19 @@ import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.OrderNoUtils;
 import com.itwray.iw.web.utils.UserUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -52,11 +56,16 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;
 
+    private final InternalApiClient internalApiClient;
+
+    @SuppressWarnings("all")
     @Autowired
     public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao,
-                                         BaseDictBusinessRelationDao baseDictBusinessRelationDao) {
+                                         BaseDictBusinessRelationDao baseDictBusinessRelationDao,
+                                         InternalApiClient internalApiClient) {
         super(baseDao);
         this.baseDictBusinessRelationDao = baseDictBusinessRelationDao;
+        this.internalApiClient = internalApiClient;
     }
 
     @Override
@@ -73,6 +82,20 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         }
         // 生成订单号
         bookkeepingRecords.setOrderNo(OrderNoUtils.getAndIncrement(OrderNoEnum.BOOKKEEPING_RECORDS));
+        // 如果货币类型不为空，则转换货币
+        if (StringUtils.isNotBlank(dto.getFromCurrency())) {
+            GetExchangeRateDto exchangeRateDto = new GetExchangeRateDto();
+            exchangeRateDto.setFromCurrency(dto.getFromCurrency());
+            exchangeRateDto.setToCurrency("CNY");
+            exchangeRateDto.setQueryDate(dto.getRecordDate());
+            exchangeRateDto.setFromAmount(dto.getAmount());
+            Object exchangeRateVo = internalApiClient.getExchangeRate(exchangeRateDto);
+            if (exchangeRateVo != null) {
+                if (exchangeRateVo instanceof Map map) {
+                    bookkeepingRecords.setAmount(new BigDecimal(map.get("toAmount").toString()).setScale(2, RoundingMode.HALF_UP));
+                }
+            }
+        }
 
         // 保存记账记录
         getBaseDao().save(bookkeepingRecords);
@@ -146,6 +169,22 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         }
         PageVo<BookkeepingRecordPageVo> pageVo = new PageVo<>(dto);
         getBaseDao().getBaseMapper().page(pageVo, dto);
+
+        LocalDate now = LocalDate.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        pageVo.getRecords().forEach(t -> {
+            // 格式化记账日期
+            LocalDate localDate = t.getRecordTime().toLocalDate();
+            if (now.equals(localDate)) {
+                t.setRecordTimeStr("今天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
+            } else if (now.equals(localDate.plusDays(1))) {
+                t.setRecordTimeStr("昨天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
+            } else {
+                t.setRecordTimeStr(t.getRecordTime().format(dateTimeFormatter));
+            }
+        });
+
         return pageVo;
     }
 

@@ -35,6 +35,16 @@ public abstract class DateUtils {
     public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT);
 
     /**
+     * 日期的格式化器
+     */
+    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
+
+    /**
+     * 时间的格式化器
+     */
+    public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(TIME_FORMAT);
+
+    /**
      * 返回当前月的开始日期
      */
     public static LocalDate startDateOfNowMonth() {

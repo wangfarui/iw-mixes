@@ -81,4 +81,9 @@ public class BookkeepingRecordDetailVo implements DetailVo {
      * 是否计入统计
      */
     private Integer isStatistics;
+
+    /**
+     * 记录图标
+     */
+    private String recordIcon;
 }
