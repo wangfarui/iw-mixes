@@ -1,7 +1,1 @@
 # 存放多用户多端开发后需要同步的脚本
-
-iw-web nacos配置
-    # 汇率api的accessKey
-    exchangeRate:
-      key: xxx
-
