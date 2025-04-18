@@ -63,4 +63,9 @@ public class TaskBasicsDetailVo implements DetailVo {
     @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime updateTime;
 
+    @Schema(title = "奖励积分")
+    private Integer rewardPoints;
+
+    @Schema(title = "处罚积分")
+    private Integer punishPoints;
 }

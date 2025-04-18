@@ -12,9 +12,8 @@ import com.itwray.iw.bookkeeping.model.entity.BookkeepingActionsEntity;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingActionsDetailVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingActionsService;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
+import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
-import com.itwray.iw.web.dao.BaseDictDao;
-import com.itwray.iw.web.model.enums.mq.RegisterNewUserTopicEnum;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.UserUtils;
 import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
@@ -32,7 +31,7 @@ import java.util.List;
  * @since 2025-04-08
  */
 @Service
-@RocketMQMessageListener(consumerGroup = "bookkeeping-service", topic = RegisterNewUserTopicEnum.TOPIC_NAME, tag = "dependDict")
+@RocketMQMessageListener(consumerGroup = "bookkeeping-service", topic = MQTopicConstants.REGISTER_NEW_USER, tag = "dependDict")
 public class BookkeepingActionsServiceImpl extends WebServiceImpl<BookkeepingActionsDao, BookkeepingActionsMapper, BookkeepingActionsEntity,
         BookkeepingActionsAddDto, BookkeepingActionsUpdateDto, BookkeepingActionsDetailVo, Integer> implements BookkeepingActionsService, RocketMQClientListener<UserAddBo> {
 

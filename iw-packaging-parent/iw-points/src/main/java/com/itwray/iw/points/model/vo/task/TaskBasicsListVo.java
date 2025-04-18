@@ -27,6 +27,9 @@ public class TaskBasicsListVo {
     @Schema(title = "任务分组id 0-无分组(收集箱)")
     private Integer taskGroupId;
 
+    @Schema(title = "任务分组名称")
+    private String taskGroupName;
+
     @Schema(title = "任务名称")
     private String taskName;
 
