@@ -16,6 +16,7 @@ import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
+import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDictDao;
 import com.itwray.iw.web.exception.BusinessException;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-@RocketMQMessageListener(consumerGroup = "auth-dict-service", topic = RegisterNewUserTopicEnum.TOPIC_NAME, tag = "init")
+@RocketMQMessageListener(consumerGroup = "auth-dict-service", topic = MQTopicConstants.REGISTER_NEW_USER, tag = "init")
 public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMapper, BaseDictEntity,
         DictAddDto, DictUpdateDto, DictDetailVo, Integer> implements BaseDictService, RocketMQClientListener<UserAddBo> {
 

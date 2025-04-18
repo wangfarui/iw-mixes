@@ -4,34 +4,35 @@ import com.itwray.iw.web.constants.MQTopicConstants;
 import lombok.Getter;
 
 /**
- * 注册新用户 枚举
+ * 积分记录 Topic
  *
  * @author wray
- * @since 2025/4/8
+ * @since 2025/4/18
  */
 @Getter
-public enum RegisterNewUserTopicEnum implements MQDestination {
+public enum PointsRecordsTopicEnum implements MQDestination {
 
-    INIT("init", "初始化"),
-    DEPEND_DICT("dependDict", "依赖字典数据"),
+    TASK("task", "积分任务"),
+    EXCITATION_BOOKKEEPING("excitation_bookkeeping", "记账收入激励"),
     ;
 
     private final String tag;
 
     private final String name;
 
-    RegisterNewUserTopicEnum(String tag, String name) {
+    PointsRecordsTopicEnum(String tag, String name) {
         this.tag = tag;
         this.name = name;
     }
 
+
     @Override
     public String getTopic() {
-        return MQTopicConstants.REGISTER_NEW_USER;
+        return MQTopicConstants.POINTS_RECORDS;
     }
 
     @Override
     public String getDestination() {
-        return MQTopicConstants.REGISTER_NEW_USER + ":" + getTag();
+        return MQTopicConstants.POINTS_RECORDS + ":" + getTag();
     }
 }

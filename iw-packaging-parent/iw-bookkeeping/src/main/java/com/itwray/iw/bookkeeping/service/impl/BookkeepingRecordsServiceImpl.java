@@ -20,11 +20,11 @@ import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
 import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
-import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
 import com.itwray.iw.web.model.enums.OrderNoEnum;
+import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.OrderNoUtils;
@@ -235,7 +235,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         pointsRecordsAddDto.setSource("记账收入: " + orderNo);
         pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
         pointsRecordsAddDto.setUserId(UserUtils.getUserId());
-        MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
+        MQProducerHelper.send(PointsRecordsTopicEnum.EXCITATION_BOOKKEEPING, pointsRecordsAddDto);
     }
 
     private void deductPointsRecordsByExcitation(String orderNo) {
@@ -245,6 +245,6 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         pointsRecordsAddDto.setSource("记账收入被删除: " + orderNo);
         pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
         pointsRecordsAddDto.setUserId(UserUtils.getUserId());
-        MQProducerHelper.send(MQTopicConstants.POINTS_RECORDS, pointsRecordsAddDto);
+        MQProducerHelper.send(PointsRecordsTopicEnum.EXCITATION_BOOKKEEPING, pointsRecordsAddDto);
     }
 }

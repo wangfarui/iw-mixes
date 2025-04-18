@@ -5,8 +5,8 @@ import com.itwray.iw.points.dao.PointsTotalDao;
 import com.itwray.iw.points.model.entity.PointsTotalEntity;
 import com.itwray.iw.points.service.PointsTotalService;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
+import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
-import com.itwray.iw.web.model.enums.mq.RegisterNewUserTopicEnum;
 import com.itwray.iw.web.utils.UserUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 @Service
 @Slf4j
-@RocketMQMessageListener(consumerGroup = "points-total-service", topic = RegisterNewUserTopicEnum.TOPIC_NAME, tag = "init")
+@RocketMQMessageListener(consumerGroup = "points-total-service", topic = MQTopicConstants.REGISTER_NEW_USER, tag = "init")
 public class PointsTotalServiceImpl implements PointsTotalService, RocketMQClientListener<UserAddBo> {
 
     private final PointsTotalDao pointsTotalDao;
