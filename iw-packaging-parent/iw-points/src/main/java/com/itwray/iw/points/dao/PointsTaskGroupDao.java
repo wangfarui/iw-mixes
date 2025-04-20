@@ -46,7 +46,7 @@ public class PointsTaskGroupDao extends BaseDao<PointsTaskGroupMapper, PointsTas
         for (PointsTaskGroupEntity groupEntity : groupEntityList) {
             String parentName = parentGroupNameMap.get(groupEntity.getParentId());
             if (parentName != null) {
-                gourpNameMap.put(groupEntity.getId(), parentName + "-" + groupEntity.getGroupName());
+                gourpNameMap.put(groupEntity.getId(), parentName + "/" + groupEntity.getGroupName());
             } else {
                 gourpNameMap.put(groupEntity.getId(), groupEntity.getGroupName());
             }
