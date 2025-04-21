@@ -38,4 +38,9 @@ public class PointsTaskRelationEntity extends IdEntity<Integer> {
      * 处罚积分
      */
     private Integer punishPoints;
+
+    /**
+     * 惩罚状态 0-未惩罚 1-已惩罚
+     */
+    private Integer punishStatus;
 }
