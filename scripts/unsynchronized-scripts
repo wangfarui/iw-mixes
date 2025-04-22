@@ -1,1 +1,4 @@
 # 存放多用户多端开发后需要同步的脚本
+
+alter table points_task_relation
+add column punish_status tinyint(1) default 0 not null comment '惩罚状态 0-未惩罚 1-已惩罚';

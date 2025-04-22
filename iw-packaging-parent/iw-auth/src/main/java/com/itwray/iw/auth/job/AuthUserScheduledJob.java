@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +37,7 @@ public class AuthUserScheduledJob {
     @Scheduled(fixedRate = 10, timeUnit = TimeUnit.MINUTES, initialDelay = 1)
     public void clearUserToken() {
         long currentTimeMillis = System.currentTimeMillis();
-        log.info("[clearUserToken]任务开始执行");
+        log.info("Job[clearUserToken]任务开始执行, 开始时间: {}", LocalDateTime.now());
         List<Integer> userEntityList = authUserDao.lambdaQuery()
                 .eq(AuthUserEntity::getEnabled, EnableEnum.ENABLE.getCode())
                 .select(AuthUserEntity::getId)
@@ -57,10 +58,10 @@ public class AuthUserScheduledJob {
                     }
                 }
                 if (count > 0) {
-                    log.info("用户[{}]成功清理{}个过期token", userId, count);
+                    log.info("Job[clearUserToken], 用户[{}]成功清理{}个过期token", userId, count);
                 }
             }
         }
-        log.info("[clearUserToken]任务执行完毕, 执行用时: {}s", (System.currentTimeMillis() - currentTimeMillis) / 1000);
+        log.info("Job[clearUserToken]任务执行完毕, 执行用时: {}s", (System.currentTimeMillis() - currentTimeMillis) / 1000);
     }
 }

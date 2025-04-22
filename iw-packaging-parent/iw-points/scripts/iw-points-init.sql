@@ -80,3 +80,6 @@ create table points_task_relation
 
 alter table points_task_basics
 add column done_time datetime null comment '任务完成时间' after sort;
+
+alter table points_task_relation
+add column punish_status tinyint(1) default 0 not null comment '惩罚状态 0-未惩罚 1-已惩罚';

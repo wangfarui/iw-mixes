@@ -26,6 +26,7 @@ import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -85,7 +86,7 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
         // 如果是完成任务操作
         if (TaskStatusEnum.DONE.equals(dto.getTaskStatus())) {
             PointsTaskRelationEntity taskRelationEntity = pointsTaskRelationDao.getByTaskId(taskBasicsEntity.getId());
-            if (taskRelationEntity != null) {
+            if (taskRelationEntity != null && !LocalDate.now().isAfter(taskBasicsEntity.getDeadlineDate())) {
                 this.syncPoints(taskBasicsEntity, taskRelationEntity.getRewardPoints(), true);
             }
         } else {
