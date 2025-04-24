@@ -220,8 +220,23 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
         if (dictTypeEnum == null) {
             throw new BusinessException("字典类型错误");
         }
-        if (dictTypeEnum.getDataType().equals(DictTypeEnum.DataType.CODE) && dto.getDictCode() == null) {
-            throw new BusinessException("CODE类型的字典项, 其字典code不能为空");
+        if (dictTypeEnum.getDataType().equals(DictTypeEnum.DataType.CODE)) {
+            if (dto.getDictCode() == null) {
+                throw new BusinessException("CODE类型的字典项, 其字典code不能为空");
+            }
+            Integer oldDictId = null;
+            if (dto instanceof DictUpdateDto updateDto) {
+                oldDictId = updateDto.getId();
+            }
+            // 检测字典code是否重复
+            Long count = getBaseDao().lambdaQuery()
+                    .eq(BaseDictEntity::getDictType, dto.getDictType())
+                    .eq(BaseDictEntity::getDictCode, dto.getDictCode())
+                    .ne(oldDictId != null, BaseDictEntity::getId, oldDictId)
+                    .count();
+            if (count > 0) {
+                throw new BusinessException("CODE类型的字典项, 其字典code不能重复");
+            }
         }
     }
 
