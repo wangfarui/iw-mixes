@@ -42,5 +42,5 @@ public class BaseBusinessFileEntity extends UserEntity<Integer> {
     /**
      * 文件路径
      */
-    private String fileUri;
+    private String fileUrl;
 }
