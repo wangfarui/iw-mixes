@@ -3,7 +3,7 @@ package com.itwray.iw.common.utils;
 import com.itwray.iw.common.ConstantEnum;
 
 /**
- * ConstantEnumUtil
+ * 基于 {@link ConstantEnum} 工具类
  *
  * @author wray
  * @since 2025/3/25
