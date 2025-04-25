@@ -3,6 +3,8 @@ package com.itwray.iw.bookkeeping.model.dto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 记账支出分类统计 DTO
  *
@@ -17,4 +19,9 @@ public class BookkeepingConsumeCategoryStatisticsDto extends BookkeepingConsumeM
      * 是否查询上个月的数据
      */
     private Boolean isQueryLastMonth;
+
+    /**
+     * 记账分类
+     */
+    private List<Integer> recordTypeList;
 }

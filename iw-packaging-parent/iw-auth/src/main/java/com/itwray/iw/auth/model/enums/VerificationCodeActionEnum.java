@@ -30,16 +30,4 @@ public enum VerificationCodeActionEnum implements ConstantEnum {
         this.name = name;
         this.keyManager = keyManager;
     }
-
-    public static VerificationCodeActionEnum of(Integer action) {
-        if (action == null) {
-            return null;
-        }
-        for (VerificationCodeActionEnum actionEnum : VerificationCodeActionEnum.values()) {
-            if (actionEnum.getCode().equals(action)) {
-                return actionEnum;
-            }
-        }
-        return null;
-    }
 }

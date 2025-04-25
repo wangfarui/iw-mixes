@@ -51,3 +51,17 @@ values
 
 alter table bookkeeping_records
 add column record_icon varchar(255) default '' not null comment '记录图标' after record_source;
+
+drop table if exists bookkeeping_budget;
+create table bookkeeping_budget (
+    id int unsigned auto_increment not null comment 'id',
+    budget_type tinyint not null comment '预算类型',
+    record_type tinyint default 0 not null comment '记录分类',
+    budget_amount decimal(8, 2) not null comment '预算金额',
+    deleted tinyint(1) default 0 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
+    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id int unsigned default 0 not null comment '用户id',
+    primary key (id),
+    key idx_user_id (user_id)
+) comment '记账预算表';
