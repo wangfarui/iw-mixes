@@ -136,7 +136,7 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
             vo.setId(budgetEntity.getId());
             vo.setRecordType(budgetEntity.getRecordType());
             vo.setBudgetAmount(budgetEntity.getBudgetAmount());
-            vo.setUsedAmount(recordTypeMap.get(budgetEntity.getRecordType()));
+            vo.setUsedAmount(recordTypeMap.getOrDefault(budgetEntity.getRecordType(), BigDecimal.ZERO));
             vo.setRemainingAmount(budgetEntity.getBudgetAmount().subtract(vo.getUsedAmount()));
             vo.setUsedRatio(vo.getRemainingAmount().compareTo(BigDecimal.ZERO) <= 0
                     ? new BigDecimal("100")
