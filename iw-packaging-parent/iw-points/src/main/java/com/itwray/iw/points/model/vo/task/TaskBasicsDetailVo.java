@@ -3,12 +3,14 @@ package com.itwray.iw.points.model.vo.task;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.DetailVo;
+import com.itwray.iw.web.model.vo.FileVo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * 任务基础表 详情VO
@@ -68,4 +70,7 @@ public class TaskBasicsDetailVo implements DetailVo {
 
     @Schema(title = "处罚积分")
     private Integer punishPoints;
+
+    @Schema(title = "任务附件")
+    private List<FileVo> fileList;
 }

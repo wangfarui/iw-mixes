@@ -12,6 +12,7 @@ import lombok.Getter;
 public enum BusinessFileTypeEnum implements BusinessConstantEnum {
 
     BOOKKEEPING_RECORDS(1, "记账记录附件"),
+    POINTS_TASK_BASICS(20, "任务详情附件"),
     ;
 
     private final Integer code;

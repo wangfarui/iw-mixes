@@ -34,18 +34,31 @@ public class BaseBusinessFileDao extends BaseDao<BaseBusinessFileMapper, BaseBus
         // 首先删除历史关联信息
         this.removeBusinessFile(businessId, businessFileTypeEnum);
         // 新增关联信息
-        if (CollUtil.isNotEmpty(fileList)) {
-            List<BaseBusinessFileEntity> entityList = fileList.stream()
-                    .map(t -> {
-                        BaseBusinessFileEntity entity = new BaseBusinessFileEntity();
-                        entity.setBusinessId(businessId);
-                        entity.setBusinessType(businessFileTypeEnum);
-                        entity.setFileName(t.getFileName());
-                        entity.setFileUrl(t.getFileUrl());
-                        return entity;
-                    }).toList();
-            this.saveBatch(entityList);
+        this.addBusinessFile(businessId, businessFileTypeEnum, fileList);
+    }
+
+    /**
+     * 新增业务文件关联信息
+     *
+     * @param businessId           业务id
+     * @param businessFileTypeEnum 业务文件类型
+     * @param fileList             新保存的文件列表
+     */
+    public void addBusinessFile(Integer businessId, BusinessFileTypeEnum businessFileTypeEnum, List<FileDto> fileList) {
+        if (CollUtil.isEmpty(fileList)) {
+            return;
         }
+        // 新增关联信息
+        List<BaseBusinessFileEntity> entityList = fileList.stream()
+                .map(t -> {
+                    BaseBusinessFileEntity entity = new BaseBusinessFileEntity();
+                    entity.setBusinessId(businessId);
+                    entity.setBusinessType(businessFileTypeEnum);
+                    entity.setFileName(t.getFileName());
+                    entity.setFileUrl(t.getFileUrl());
+                    return entity;
+                }).toList();
+        this.saveBatch(entityList);
     }
 
     /**
@@ -56,8 +69,23 @@ public class BaseBusinessFileDao extends BaseDao<BaseBusinessFileMapper, BaseBus
      */
     public void removeBusinessFile(Integer businessId, BusinessFileTypeEnum businessFileTypeEnum) {
         this.lambdaUpdate()
-                .eq(BaseBusinessFileEntity::getBusinessType, businessFileTypeEnum)
                 .eq(BaseBusinessFileEntity::getBusinessId, businessId)
+                .eq(BaseBusinessFileEntity::getBusinessType, businessFileTypeEnum)
+                .remove();
+    }
+
+    /**
+     * 根据文件url匹配, 删除业务文件关联信息
+     *
+     * @param businessId           业务id
+     * @param businessFileTypeEnum 业务文件类型
+     * @param fileUrl              文件url
+     */
+    public void removeBusinessFile(Integer businessId, BusinessFileTypeEnum businessFileTypeEnum, String fileUrl) {
+        this.lambdaUpdate()
+                .eq(BaseBusinessFileEntity::getBusinessId, businessId)
+                .eq(BaseBusinessFileEntity::getBusinessType, businessFileTypeEnum)
+                .eq(BaseBusinessFileEntity::getFileUrl, fileUrl)
                 .remove();
     }
 
