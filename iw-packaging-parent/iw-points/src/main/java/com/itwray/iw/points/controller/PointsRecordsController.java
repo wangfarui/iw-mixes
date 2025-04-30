@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2024/9/26
  */
 @RestController
-@RequestMapping("/pointsRecords")
+@RequestMapping("/points/records")
 @Validated
 @Tag(name = "积分记录接口")
 public class PointsRecordsController extends WebController<PointsRecordsService, PointsRecordsAddDto,
