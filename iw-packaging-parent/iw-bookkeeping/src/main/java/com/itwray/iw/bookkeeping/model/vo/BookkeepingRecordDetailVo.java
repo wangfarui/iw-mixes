@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.DetailVo;
+import com.itwray.iw.web.model.vo.FileVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -86,4 +87,9 @@ public class BookkeepingRecordDetailVo implements DetailVo {
      * 记录图标
      */
     private String recordIcon;
+
+    /**
+     * 记账附件
+     */
+    private List<FileVo> fileList;
 }

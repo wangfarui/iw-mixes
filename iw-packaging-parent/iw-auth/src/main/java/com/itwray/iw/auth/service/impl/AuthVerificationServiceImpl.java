@@ -9,6 +9,7 @@ import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.starter.redis.RedisKeyManager;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.redis.lock.DistributedLock;
+import com.itwray.iw.web.config.IwAliyunProperties;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.utils.IpUtils;
 import com.itwray.iw.web.utils.SpringWebHolder;
@@ -30,23 +31,18 @@ public class AuthVerificationServiceImpl implements AuthVerificationService {
 
     private SmsClient smsClient;
 
-    /**
-     * 签名名称
-     */
-    @Value("${aliyun.sms.sign-name}")
-    private String signName;
-
-    /**
-     * 模板CODE
-     */
-    @Value("${aliyun.sms.template-code}")
-    private String templateCode;
+    private IwAliyunProperties iwAliyunProperties;
 
     // SmsClient 统一由 web 模块扫描注册为Bean对象
     @SuppressWarnings("all")
     @Autowired
     public void setSmsClient(SmsClient smsClient) {
         this.smsClient = smsClient;
+    }
+
+    @Autowired
+    public void setIwAliyunProperties(IwAliyunProperties iwAliyunProperties) {
+        this.iwAliyunProperties = iwAliyunProperties;
     }
 
     @Override
@@ -78,8 +74,8 @@ public class AuthVerificationServiceImpl implements AuthVerificationService {
         // 构建发送短信验证码对象
         SmsSendVerificationCodeDto dto = new SmsSendVerificationCodeDto();
         dto.setPhoneNumber(phoneNumber);
-        dto.setSignName(this.signName);
-        dto.setTemplateCode(this.templateCode);
+        dto.setSignName(this.iwAliyunProperties.getSms().getSignName());
+        dto.setTemplateCode(this.iwAliyunProperties.getSms().getTemplateCode());
         dto.setTemplateParam("{\"code\":\"" + verificationCode + "\"}");
         // 同步调用发送验证码
         smsClient.sendVerificationCode(dto);

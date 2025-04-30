@@ -20,11 +20,14 @@ import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
 import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
+import com.itwray.iw.web.dao.BaseBusinessFileDao;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.model.enums.BusinessFileTypeEnum;
 import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
 import com.itwray.iw.web.model.enums.OrderNoEnum;
 import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
+import com.itwray.iw.web.model.vo.FileVo;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.OrderNoUtils;
@@ -58,14 +61,18 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private final InternalApiClient internalApiClient;
 
+    private final BaseBusinessFileDao baseBusinessFileDao;
+
     @SuppressWarnings("all")
     @Autowired
     public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao,
                                          BaseDictBusinessRelationDao baseDictBusinessRelationDao,
-                                         InternalApiClient internalApiClient) {
+                                         InternalApiClient internalApiClient,
+                                         BaseBusinessFileDao baseBusinessFileDao) {
         super(baseDao);
         this.baseDictBusinessRelationDao = baseDictBusinessRelationDao;
         this.internalApiClient = internalApiClient;
+        this.baseBusinessFileDao = baseBusinessFileDao;
     }
 
     @Override
@@ -103,6 +110,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 保存标签
         baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, bookkeepingRecords.getId(), dto.getRecordTags());
 
+        // 保存记账附件
+        baseBusinessFileDao.saveBusinessFile(bookkeepingRecords.getId(), BusinessFileTypeEnum.BOOKKEEPING_RECORDS, dto.getFileList());
+
         // 记录为激励收入时，积分+1
         if (RecordCategoryEnum.INCOME.equals(dto.getRecordCategory())
                 && BoolEnum.TRUE.getCode().equals(dto.getIsExcitationRecord())) {
@@ -123,6 +133,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 修改标签
         baseDictBusinessRelationDao.saveRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, dto.getId(), dto.getRecordTags());
 
+        // 保存记账附件
+        baseBusinessFileDao.saveBusinessFile(dto.getId(), BusinessFileTypeEnum.BOOKKEEPING_RECORDS, dto.getFileList());
+
         // 记账记录类型为收入类型时
         if (RecordCategoryEnum.INCOME.equals(dto.getRecordCategory())) {
             // 如果修改了激励记录状态, 则同步积分数据
@@ -142,8 +155,13 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     public void delete(Integer id) {
         BookkeepingRecordsEntity bookkeepingRecordsEntity = getBaseDao().queryById(id);
         super.delete(id);
+
         // 删除标签
         baseDictBusinessRelationDao.removeRelation(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, id);
+
+        // 删除记账附件
+        baseBusinessFileDao.removeBusinessFile(id, BusinessFileTypeEnum.BOOKKEEPING_RECORDS);
+
         // 同步积分数据
         if (RecordCategoryEnum.INCOME.equals(bookkeepingRecordsEntity.getRecordCategory())
                 && BoolEnum.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
@@ -158,6 +176,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 查询标签
         List<Integer> tagIdList = baseDictBusinessRelationDao.queryDictIdList(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, id);
         vo.setRecordTags(tagIdList);
+
+        // 查询记账附件
+        List<FileVo> fileVoList = baseBusinessFileDao.getBusinessFile(id, BusinessFileTypeEnum.BOOKKEEPING_RECORDS);
+        vo.setFileList(fileVoList);
 
         return vo;
     }

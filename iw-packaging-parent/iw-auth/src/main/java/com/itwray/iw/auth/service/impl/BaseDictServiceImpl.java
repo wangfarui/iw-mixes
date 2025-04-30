@@ -12,6 +12,7 @@ import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
 import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.constants.EnableEnum;
+import com.itwray.iw.common.utils.ConstantEnumUtil;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
@@ -117,6 +118,8 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     @Override
     @Transactional
     public Integer add(DictAddDto dto) {
+        this.checkSaveParam(dto);
+
         // 如果新增时没有指定sort值
         if (NumberUtils.isNullOrZero(dto.getSort())) {
             // 根据字典类型查询当前最大sort值
@@ -136,6 +139,8 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     @Override
     @Transactional
     public void update(DictUpdateDto dto) {
+        this.checkSaveParam(dto);
+
         // 根据id查询字典类型
         BaseDictEntity baseDictEntity = this.checkDataSecurity(dto.getId(), dto.getDictStatus());
 
@@ -205,6 +210,34 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
         }
 
         return dictEntity;
+    }
+
+    /**
+     * 检测保存时的参数合法性
+     */
+    private void checkSaveParam(DictAddDto dto) {
+        DictTypeEnum dictTypeEnum = ConstantEnumUtil.findByType(DictTypeEnum.class, dto.getDictType());
+        if (dictTypeEnum == null) {
+            throw new BusinessException("字典类型错误");
+        }
+        if (dictTypeEnum.getDataType().equals(DictTypeEnum.DataType.CODE)) {
+            if (dto.getDictCode() == null) {
+                throw new BusinessException("CODE类型的字典项, 其字典code不能为空");
+            }
+            Integer oldDictId = null;
+            if (dto instanceof DictUpdateDto updateDto) {
+                oldDictId = updateDto.getId();
+            }
+            // 检测字典code是否重复
+            Long count = getBaseDao().lambdaQuery()
+                    .eq(BaseDictEntity::getDictType, dto.getDictType())
+                    .eq(BaseDictEntity::getDictCode, dto.getDictCode())
+                    .ne(oldDictId != null, BaseDictEntity::getId, oldDictId)
+                    .count();
+            if (count > 0) {
+                throw new BusinessException("CODE类型的字典项, 其字典code不能重复");
+            }
+        }
     }
 
     /**

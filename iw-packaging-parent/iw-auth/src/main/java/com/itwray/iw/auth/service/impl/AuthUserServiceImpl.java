@@ -13,6 +13,7 @@ import com.itwray.iw.auth.model.enums.VerificationCodeActionEnum;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.auth.service.AuthVerificationService;
+import com.itwray.iw.common.utils.ConstantEnumUtil;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.exception.AuthorizedException;
@@ -224,7 +225,7 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Override
     public void getVerificationCodeByAction(Integer action) {
-        VerificationCodeActionEnum actionEnum = VerificationCodeActionEnum.of(action);
+        VerificationCodeActionEnum actionEnum = ConstantEnumUtil.findByType(VerificationCodeActionEnum.class, action);
         String phoneNumber = null;
         switch (actionEnum) {
             case EDIT_PASSWORD, APPLICATION_ACCOUNT_REFRESH_PASSWORD -> {

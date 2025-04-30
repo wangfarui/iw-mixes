@@ -7,10 +7,7 @@ import com.itwray.iw.points.dao.PointsTaskGroupDao;
 import com.itwray.iw.points.dao.PointsTaskRelationDao;
 import com.itwray.iw.points.mapper.PointsTaskBasicsMapper;
 import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
-import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
-import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
-import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
-import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateStatusDto;
+import com.itwray.iw.points.model.dto.task.*;
 import com.itwray.iw.points.model.entity.PointsTaskBasicsEntity;
 import com.itwray.iw.points.model.entity.PointsTaskRelationEntity;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
@@ -21,8 +18,12 @@ import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.WebCommonConstants;
+import com.itwray.iw.web.dao.BaseBusinessFileDao;
+import com.itwray.iw.web.model.enums.BusinessFileTypeEnum;
 import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
+import com.itwray.iw.web.model.vo.FileVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,10 +47,18 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
 
     private final PointsTaskRelationDao pointsTaskRelationDao;
 
+    private BaseBusinessFileDao baseBusinessFileDao;
+
+    @Autowired
     public PointsTaskBasicsServiceImpl(PointsTaskBasicsDao baseDao, PointsTaskGroupDao pointsTaskGroupDao, PointsTaskRelationDao pointsTaskRelationDao) {
         super(baseDao);
         this.pointsTaskGroupDao = pointsTaskGroupDao;
         this.pointsTaskRelationDao = pointsTaskRelationDao;
+    }
+
+    @Autowired
+    public void setBaseBusinessFileDao(BaseBusinessFileDao baseBusinessFileDao) {
+        this.baseBusinessFileDao = baseBusinessFileDao;
     }
 
     @Override
@@ -74,6 +83,7 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
     }
 
     @Override
+    @Transactional
     public void updateTaskStatus(TaskBasicsUpdateStatusDto dto) {
         PointsTaskBasicsEntity taskBasicsEntity = getBaseDao().queryById(dto.getId());
         getBaseDao().lambdaUpdate()
@@ -127,6 +137,7 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
     }
 
     @Override
+    @Transactional
     public List<TaskBasicsListVo> deletedList(Boolean more) {
         List<PointsTaskBasicsEntity> entityList = getBaseDao().lambdaQuery()
                 .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.DELETED)
@@ -139,6 +150,7 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
     }
 
     @Override
+    @Transactional
     public void clearDeletedList() {
         getBaseDao().lambdaUpdate()
                 .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.DELETED)
@@ -146,13 +158,28 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
     }
 
     @Override
-    public TaskBasicsDetailVo detail(Integer integer) {
-        TaskBasicsDetailVo vo = super.detail(integer);
+    @Transactional
+    public void addTaskFile(TaskBasicsAddFileDto addFileDto) {
+        getBaseDao().queryById(addFileDto.getTaskId());
+        baseBusinessFileDao.addBusinessFile(addFileDto.getTaskId(), BusinessFileTypeEnum.POINTS_TASK_BASICS, Collections.singletonList(addFileDto));
+    }
+
+    @Override
+    public void deleteTaskFile(TaskBasicsDeleteFileDto deleteFileDto) {
+        getBaseDao().queryById(deleteFileDto.getTaskId());
+        baseBusinessFileDao.removeBusinessFile(deleteFileDto.getTaskId(), BusinessFileTypeEnum.POINTS_TASK_BASICS, deleteFileDto.getFileUrl());
+    }
+
+    @Override
+    public TaskBasicsDetailVo detail(Integer id) {
+        TaskBasicsDetailVo vo = super.detail(id);
         PointsTaskRelationEntity taskRelationEntity = pointsTaskRelationDao.getByTaskId(vo.getId());
         if (taskRelationEntity != null) {
             vo.setRewardPoints(taskRelationEntity.getRewardPoints());
             vo.setPunishPoints(taskRelationEntity.getPunishPoints());
         }
+        List<FileVo> fileVoList = baseBusinessFileDao.getBusinessFile(vo.getId(), BusinessFileTypeEnum.POINTS_TASK_BASICS);
+        vo.setFileList(fileVoList);
         return vo;
     }
 

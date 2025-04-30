@@ -6,11 +6,12 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.itwray.iw.common.utils.DateUtils;
+import com.itwray.iw.web.config.IwAliyunProperties;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.vo.FileRecordVo;
 import com.itwray.iw.web.service.FileService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,37 +30,26 @@ import java.util.UUID;
 @Slf4j
 public class FileServiceImpl implements FileService {
 
-    @Value("${aliyun.oss.base-url}")
-    private String ossBaseUrl;
+    private IwAliyunProperties iwAliyunProperties;
 
-    @Value("${aliyun.oss.endpoint}")
-    private String ossEndpoint;
-
-    @Value("${aliyun.oss.bucket-name}")
-    private String bucketName;
-
-    @Value("${aliyun.oss.upload.parent-dir}")
-    private String uploadParentDir;
-
-    @Value("${aliyun.oss.access-key-id}")
-    private String accessKeyId;
-
-    @Value("${aliyun.oss.access-key-secret}")
-    private String accessKeySecret;
+    @Autowired
+    public void setIwAliyunProperties(IwAliyunProperties iwAliyunProperties) {
+        this.iwAliyunProperties = iwAliyunProperties;
+    }
 
     @Override
     public FileRecordVo upload(MultipartFile file) {
         OSS ossClient = null;
         try {
             // 创建OSSClient实例。
-            ossClient = new OSSClientBuilder().build(this.ossEndpoint, this.accessKeyId, this.accessKeySecret);
+            ossClient = new OSSClientBuilder().build(this.getOSS().getEndpoint(), this.getOSS().getAccessKeyId(), this.getOSS().getAccessKeySecret());
             // 填写Object完整路径，完整路径中不能包含Bucket名称，例如exampledir/exampleobject.txt。
             String uuid = UUID.randomUUID().toString();
             String fileSuffix = FileNameUtil.getSuffix(file.getOriginalFilename());
             String mainName = FileNameUtil.mainName(file.getOriginalFilename());
-            String objectName = this.uploadParentDir + "/" + getNowDateDir() + "/" + mainName + "_" + uuid + "." + fileSuffix;
+            String objectName = this.getOSS().getUploadParentDir() + "/" + getNowDateDir() + "/" + mainName + "_" + uuid + "." + fileSuffix;
             // 创建PutObjectRequest对象。
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, file.getInputStream());
+            PutObjectRequest putObjectRequest = new PutObjectRequest(this.getOSS().getBucketName(), objectName, file.getInputStream());
             // 发起PutObject请求。
             ossClient.putObject(putObjectRequest);
 
@@ -67,7 +57,7 @@ public class FileServiceImpl implements FileService {
             FileRecordVo fileRecordVo = new FileRecordVo();
             fileRecordVo.setFileName(file.getOriginalFilename());
             fileRecordVo.setFileUri("/" + objectName);
-            fileRecordVo.setFilePrefix(this.ossBaseUrl);
+            fileRecordVo.setFilePrefix(this.getOSS().getBaseUrl());
             fileRecordVo.setFileSuffix(fileSuffix);
             fileRecordVo.setFileUrl(fileRecordVo.getFilePrefix() + fileRecordVo.getFileUri());
             return fileRecordVo;
@@ -82,6 +72,10 @@ public class FileServiceImpl implements FileService {
                 ossClient.shutdown();
             }
         }
+    }
+
+    protected IwAliyunProperties.OSS getOSS() {
+        return iwAliyunProperties.getOss();
     }
 
     /**

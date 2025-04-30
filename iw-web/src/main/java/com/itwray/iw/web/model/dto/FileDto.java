@@ -17,7 +17,7 @@ public class FileDto {
     private String fileName;
 
     /**
-     * 文件完整路径
+     * 文件路径
      */
     private String fileUrl;
 }
