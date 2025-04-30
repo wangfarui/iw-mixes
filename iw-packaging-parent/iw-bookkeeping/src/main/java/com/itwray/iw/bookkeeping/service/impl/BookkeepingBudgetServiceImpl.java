@@ -122,8 +122,8 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
 
         BookkeepingConsumeCategoryStatisticsDto dto = new BookkeepingConsumeCategoryStatisticsDto();
         dto.setRecordCategory(RecordCategoryEnum.CONSUME);
-        dto.setCurrentStartMonth(budgetType.equals(BudgetTypeEnum.MONTH) ? DateUtils.startDateOfNowMonth() : DateUtils.startDateOfNowYear());
-        dto.setCurrentEndMonth(budgetType.equals(BudgetTypeEnum.MONTH) ? DateUtils.endDateOfNowMonth() : DateUtils.endDateOfNowYear());
+        dto.setCurrentStartMonth(budgetType.equals(BudgetTypeEnum.MONTH_CATEGORY) ? DateUtils.startDateOfNowMonth() : DateUtils.startDateOfNowYear());
+        dto.setCurrentEndMonth(budgetType.equals(BudgetTypeEnum.MONTH_CATEGORY) ? DateUtils.endDateOfNowMonth() : DateUtils.endDateOfNowYear());
         dto.setRecordTypeList(budgetEntityList.stream().map(BookkeepingBudgetEntity::getRecordType).toList());
         Map<Integer, BigDecimal> recordTypeMap = bookkeepingRecordsDao.getBaseMapper().categoryStatistics(dto)
                 .stream()

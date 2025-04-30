@@ -1,5 +1,6 @@
 package com.itwray.iw.external.controller;
 
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.service.ExternalApiService;
 import com.itwray.iw.web.annotation.SkipWrapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +41,12 @@ public class ExternalApiController {
     @Operation(summary = "查询天气")
     public Map<Object, Object> getWeather() {
         return externalApiService.getWeather();
+    }
+
+    @GetMapping("/system/getWeather")
+    @Operation(summary = "系统查询天气")
+    public GeneralResponse<Map<Object, Object>> getWeatherBySystem() {
+        return GeneralResponse.success(externalApiService.getWeather());
     }
 
     @PostMapping("/getMonitors")

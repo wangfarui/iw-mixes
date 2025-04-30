@@ -96,7 +96,7 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
         // 如果是完成任务操作
         if (TaskStatusEnum.DONE.equals(dto.getTaskStatus())) {
             PointsTaskRelationEntity taskRelationEntity = pointsTaskRelationDao.getByTaskId(taskBasicsEntity.getId());
-            if (taskRelationEntity != null && !LocalDate.now().isAfter(taskBasicsEntity.getDeadlineDate())) {
+            if (taskRelationEntity != null && (taskBasicsEntity.getDeadlineDate() == null || !LocalDate.now().isAfter(taskBasicsEntity.getDeadlineDate()))) {
                 this.syncPoints(taskBasicsEntity, taskRelationEntity.getRewardPoints(), true);
             }
         } else {

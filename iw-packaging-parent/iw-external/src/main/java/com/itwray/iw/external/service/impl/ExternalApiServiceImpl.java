@@ -91,6 +91,14 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         paramMap.put("ip", clientIp);
         String res = HttpUtil.get("https://restapi.amap.com/v3/ip", paramMap);
         Map<Object, Object> resMap = (Map<Object, Object>) JSONUtil.toBean(res, Map.class);
+        Object adcode = resMap.get("adcode");
+        if (adcode instanceof List<?> list) {
+            if (list.size() == 0) {
+                resMap.put("adcode", "");
+            } else {
+                resMap.put("adcode", list.get(0));
+            }
+        }
         // 缓存请求ip的地址信息
         ExternalRedisKeyEnum.IP_ADDRESS_KEY.setStringValue(resMap, clientIp);
         return resMap;
@@ -102,11 +110,20 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         // 查询请求ip
         Map<Object, Object> ipAddress = getIpAddress();
         // 获取ip的城市编码
-        String adcode = (String) ipAddress.get("adcode");
+        String adcode = String.valueOf(ipAddress.get("adcode"));
         if (StringUtils.isBlank(adcode)) {
-            throw new IwWebException("获取城市信息失败");
+            adcode = "110000";
         }
 
+        Map<Object, Object> resMap = this.getWeather(adcode);
+        Object info = resMap.get("info");
+        if (!"OK".equals(info)) {
+            return getWeather("110000");
+        }
+        return resMap;
+    }
+
+    public Map<Object, Object> getWeather(String adcode) {
         Map<Object, Object> adcodeCache = (Map<Object, Object>) RedisUtil.get(ExternalRedisKeyEnum.CITY_WEATHER_KEY.getKey(adcode));
         if (adcodeCache != null) {
             return adcodeCache;
