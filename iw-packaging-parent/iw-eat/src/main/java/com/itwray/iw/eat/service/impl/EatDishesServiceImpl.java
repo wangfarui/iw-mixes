@@ -21,6 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 菜品表 服务实现类
  *
@@ -89,6 +92,27 @@ public class EatDishesServiceImpl implements EatDishesService {
         vo.setDishesMaterialList(eatDishesMaterialDao.getListByDishesId(id));
         vo.setDishesCreationMethodList(eatDishesCreationMethodDao.getListByDishesId(id));
         return vo;
+    }
+
+    @Override
+    public List<DishesPageVo> recommendDishes() {
+        EatDishesEntity entity1 = eatDishesDao.getBaseMapper().randDishes(1);
+        EatDishesEntity entity2 = eatDishesDao.getBaseMapper().randDishes(2);
+        EatDishesEntity entity3 = eatDishesDao.getBaseMapper().randDishes(3);
+        DishesPageVo vo1 = BeanUtil.copyProperties(entity1, DishesPageVo.class);
+        DishesPageVo vo2 = BeanUtil.copyProperties(entity2, DishesPageVo.class);
+        DishesPageVo vo3 = BeanUtil.copyProperties(entity3, DishesPageVo.class);
+        List<DishesPageVo> result = new ArrayList<>();
+        if (vo1 != null) {
+            result.add(vo1);
+        }
+        if (vo2 != null) {
+            result.add(vo2);
+        }
+        if (vo3 != null) {
+            result.add(vo3);
+        }
+        return result;
     }
 
     private void saveDishesDetail(Integer dishesId, DishesAddDto dto) {
