@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -126,8 +127,15 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
     }
 
     private void fillMonthStatisticsDto(BookkeepingConsumeMonthStatisticsDto dto) {
-        dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
-        dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+        if (dto.getCurrentStartMonth() == null) {
+            dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
+        }
+        if (dto.getCurrentEndMonth() == null) {
+            dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+        }
+        if (dto.getCurrentMonth() == null) {
+            dto.setCurrentMonth(LocalDate.now());
+        }
         dto.setRecordCategory(RecordCategoryEnum.CONSUME);
     }
 }
