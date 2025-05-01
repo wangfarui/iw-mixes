@@ -95,6 +95,12 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
         dto.setCurrentStartMonth(budgetType.equals(BudgetTypeEnum.MONTH) ? DateUtils.startDateOfNowMonth() : DateUtils.startDateOfNowYear());
         dto.setCurrentEndMonth(budgetType.equals(BudgetTypeEnum.MONTH) ? DateUtils.endDateOfNowMonth() : DateUtils.endDateOfNowYear());
         BookkeepingConsumeStatisticsTotalVo statisticsTotalVo = bookkeepingRecordsDao.getBaseMapper().totalStatistics(dto);
+        if (statisticsTotalVo == null) {
+            statisticsTotalVo = new BookkeepingConsumeStatisticsTotalVo();
+        }
+        if (statisticsTotalVo.getTotalAmount() == null) {
+            statisticsTotalVo.setTotalAmount(BigDecimal.ZERO);
+        }
 
         vo.setUsedAmount(statisticsTotalVo.getTotalAmount());
         vo.setRemainingAmount(budgetEntity.getBudgetAmount().subtract(statisticsTotalVo.getTotalAmount()));
