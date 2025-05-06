@@ -1,18 +1,1 @@
 # 存放多用户多端开发后需要同步的脚本
-
-nacos的配置变更   aliyun.oss.upload-parent-dir: iw-web
-
-drop table if exists base_business_file;
-create table base_business_file (
-    id int unsigned auto_increment not null comment 'id',
-    business_type smallint not null comment '业务类型',
-    business_id int unsigned not null comment '业务id',
-    file_name varchar(128) not null comment '文件名称(带后缀)',
-    file_url varchar(255) not null comment '文件路径',
-    deleted tinyint(1) default 0 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
-    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time datetime default CURRENT_TIMESTAMP not null comment '更新时间',
-    user_id int unsigned default 0 not null comment '用户id',
-    primary key (id),
-    key idx_user_id (user_id)
-) comment '业务文件关联表';
