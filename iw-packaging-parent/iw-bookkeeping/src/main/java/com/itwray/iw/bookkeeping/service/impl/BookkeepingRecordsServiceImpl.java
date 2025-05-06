@@ -78,31 +78,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     @Transactional
     public Integer add(BookkeepingRecordAddDto dto) {
-        BookkeepingRecordsEntity bookkeepingRecords = BeanUtil.copyProperties(dto, BookkeepingRecordsEntity.class);
-        // 记录日期为空是默认取当前时间
-        if (bookkeepingRecords.getRecordDate() == null) {
-            bookkeepingRecords.setRecordDate(LocalDate.now());
-            bookkeepingRecords.setRecordTime(LocalDateTime.now());
-        } else {
-            // 日期取指定日期，时间取当前时间
-            bookkeepingRecords.setRecordTime(bookkeepingRecords.getRecordDate().atTime(LocalTime.now()));
-        }
+        BookkeepingRecordsEntity bookkeepingRecords = this.buildBookkeepingRecordAddDto(dto);
+
         // 生成订单号
         bookkeepingRecords.setOrderNo(OrderNoUtils.getAndIncrement(OrderNoEnum.BOOKKEEPING_RECORDS));
-        // 如果货币类型不为空，则转换货币
-        if (StringUtils.isNotBlank(dto.getFromCurrency())) {
-            GetExchangeRateDto exchangeRateDto = new GetExchangeRateDto();
-            exchangeRateDto.setFromCurrency(dto.getFromCurrency());
-            exchangeRateDto.setToCurrency("CNY");
-            exchangeRateDto.setQueryDate(dto.getRecordDate());
-            exchangeRateDto.setFromAmount(dto.getAmount());
-            Object exchangeRateVo = internalApiClient.getExchangeRate(exchangeRateDto);
-            if (exchangeRateVo != null) {
-                if (exchangeRateVo instanceof Map map) {
-                    bookkeepingRecords.setAmount(new BigDecimal(map.get("toAmount").toString()).setScale(2, RoundingMode.HALF_UP));
-                }
-            }
-        }
 
         // 保存记账记录
         getBaseDao().save(bookkeepingRecords);
@@ -147,7 +126,39 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 }
             }
         }
-        super.update(dto);
+
+        BookkeepingRecordsEntity recordsEntity = this.buildBookkeepingRecordAddDto(dto);
+        getBaseDao().updateById(recordsEntity);
+    }
+
+    private BookkeepingRecordsEntity buildBookkeepingRecordAddDto(BookkeepingRecordAddDto dto) {
+        BookkeepingRecordsEntity bookkeepingRecords = BeanUtil.copyProperties(dto, BookkeepingRecordsEntity.class);
+
+        // 记录日期为空是默认取当前时间
+        if (bookkeepingRecords.getRecordDate() == null) {
+            bookkeepingRecords.setRecordDate(LocalDate.now());
+            bookkeepingRecords.setRecordTime(LocalDateTime.now());
+        } else {
+            // 日期取指定日期，时间取当前时间
+            bookkeepingRecords.setRecordTime(bookkeepingRecords.getRecordDate().atTime(LocalTime.now()));
+        }
+
+        // 如果货币类型不为空，则转换货币
+        if (StringUtils.isNotBlank(dto.getFromCurrency())) {
+            GetExchangeRateDto exchangeRateDto = new GetExchangeRateDto();
+            exchangeRateDto.setFromCurrency(dto.getFromCurrency());
+            exchangeRateDto.setToCurrency("CNY");
+            exchangeRateDto.setQueryDate(dto.getRecordDate());
+            exchangeRateDto.setFromAmount(dto.getAmount());
+            Object exchangeRateVo = internalApiClient.getExchangeRate(exchangeRateDto);
+            if (exchangeRateVo != null) {
+                if (exchangeRateVo instanceof Map map) {
+                    bookkeepingRecords.setAmount(new BigDecimal(map.get("toAmount").toString()).setScale(2, RoundingMode.HALF_UP));
+                }
+            }
+        }
+
+        return bookkeepingRecords;
     }
 
     @Override
@@ -193,7 +204,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         getBaseDao().getBaseMapper().page(pageVo, dto);
 
         LocalDate now = LocalDate.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+        int nowYear = now.getYear();
+        DateTimeFormatter oldYearFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter nowYearFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         pageVo.getRecords().forEach(t -> {
             // 格式化记账日期
@@ -202,8 +215,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 t.setRecordTimeStr("今天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
             } else if (now.equals(localDate.plusDays(1))) {
                 t.setRecordTimeStr("昨天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
+            } else if (nowYear == localDate.getYear()){
+                t.setRecordTimeStr(t.getRecordTime().format(nowYearFormatter));
             } else {
-                t.setRecordTimeStr(t.getRecordTime().format(dateTimeFormatter));
+                t.setRecordTimeStr(t.getRecordTime().format(oldYearFormatter));
             }
         });
 

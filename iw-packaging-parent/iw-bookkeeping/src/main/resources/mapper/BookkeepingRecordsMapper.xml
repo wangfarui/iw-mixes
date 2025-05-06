@@ -7,7 +7,14 @@
         <include refid="fromForPageList" />
         <include refid="whereForPageList" />
         GROUP BY br.id
-        ORDER BY br.id DESC
+        <choose>
+            <when test="dto.sortType == null">
+                ORDER BY br.id <choose><when test="dto.sortWay != null and dto.sortWay == 1">ASC</when><otherwise>DESC</otherwise></choose>
+            </when>
+            <otherwise>
+                ORDER BY br.${dto.sortType.name} <choose><when test="dto.sortWay != null and dto.sortWay == 1">ASC</when><otherwise>DESC</otherwise></choose>
+            </otherwise>
+        </choose>
     </select>
     <select id="statistics" resultType="com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo">
         SELECT t.record_category AS recordCategory, SUM(t.amount) AS totalAmount
@@ -35,6 +42,9 @@
         </if>
         <if test="dto.recordType != null">
             AND br.record_type = #{dto.recordType}
+        </if>
+        <if test="dto.recordCategory != null">
+            AND br.record_category = #{dto.recordCategory}
         </if>
         <if test="dto.isSearchAll != null and dto.isSearchAll == 0">
             AND br.is_statistics = 1

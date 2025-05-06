@@ -2,6 +2,7 @@ package com.itwray.iw.bookkeeping.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
+import com.itwray.iw.common.utils.DateUtils;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public class BookkeepingRecordPageVo {
     /**
      * 记录时间
      */
-    @JsonFormat(pattern = "MM-dd HH:mm")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
     private LocalDateTime recordTime;
 
     /**
