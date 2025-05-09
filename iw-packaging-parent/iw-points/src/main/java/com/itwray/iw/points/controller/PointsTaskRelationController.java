@@ -1,8 +1,8 @@
 package com.itwray.iw.points.controller;
 
-import com.itwray.iw.points.model.dto.PointsTaskRelationAddDto;
-import com.itwray.iw.points.model.dto.PointsTaskRelationUpdateDto;
-import com.itwray.iw.points.model.vo.PointsTaskRelationDetailVo;
+import com.itwray.iw.points.model.dto.task.PointsTaskRelationAddDto;
+import com.itwray.iw.points.model.dto.task.PointsTaskRelationUpdateDto;
+import com.itwray.iw.points.model.vo.task.PointsTaskRelationDetailVo;
 import com.itwray.iw.points.service.PointsTaskRelationService;
 import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.exception.IwWebException;

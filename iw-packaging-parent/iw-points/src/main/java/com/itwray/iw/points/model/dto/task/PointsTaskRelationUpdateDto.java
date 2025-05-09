@@ -1,4 +1,4 @@
-package com.itwray.iw.points.model.dto;
+package com.itwray.iw.points.model.dto.task;
 
 import com.itwray.iw.web.model.dto.UpdateDto;
 import io.swagger.v3.oas.annotations.media.Schema;

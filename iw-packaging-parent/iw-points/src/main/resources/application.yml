@@ -6,10 +6,9 @@ iw:
       enable-table-names:
         - points_total
         - points_records
-        - points_task_base
-        - points_task_records
         - points_task_group
         - points_task_basics
+        - points_task_plan
 
 # 服务器配置
 server:

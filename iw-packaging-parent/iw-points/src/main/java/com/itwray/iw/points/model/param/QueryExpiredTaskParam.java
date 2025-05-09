@@ -2,6 +2,7 @@ package com.itwray.iw.points.model.param;
 
 import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
@@ -12,6 +13,7 @@ import java.time.LocalDate;
  * @since 2025/4/21
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class QueryExpiredTaskParam extends PageDto {
 
     /**

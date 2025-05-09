@@ -11,6 +11,7 @@ iw:
         - points_records
         - points_task_basics
         - points_task_group
+        - points_task_plan
         - eat_meal
 
 # 服务器配置

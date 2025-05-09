@@ -1,23 +1,24 @@
-package com.itwray.iw.points.model.dto;
+package com.itwray.iw.points.model.vo.task;
 
-import com.itwray.iw.web.model.dto.AddDto;
+import com.itwray.iw.web.model.vo.DetailVo;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 
 /**
- * 任务关联表 新增DTO
+ * 任务关联表 详情VO
  *
  * @author wray
  * @since 2025-04-17
  */
 @Data
-@Schema(name = "任务关联表 新增DTO")
-public class PointsTaskRelationAddDto implements AddDto {
+@Schema(name = "任务关联表 详情VO")
+public class PointsTaskRelationDetailVo implements DetailVo {
+
+    @Schema(title = "id")
+    private Integer id;
 
     @Schema(title = "任务id")
-    @NotNull(message = "任务id不能为空")
     private Integer taskId;
 
     @Schema(title = "奖励积分")
