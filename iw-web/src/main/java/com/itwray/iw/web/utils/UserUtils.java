@@ -15,7 +15,16 @@ import org.springframework.lang.Nullable;
  */
 public abstract class UserUtils {
 
+    /**
+     * 当前线程的用户id
+     */
     private static final ThreadLocal<Integer> USER_ID = new ThreadLocal<>();
+
+    /**
+     * 当前线程是否开启用户数据权限
+     * <p>默认为 null 时表示开启</p>
+     */
+    private static final ThreadLocal<Boolean> USER_DATA_PERMISSION = new ThreadLocal<>();
 
     private static volatile AuthenticationClient authenticationClient;
 
@@ -75,6 +84,28 @@ public abstract class UserUtils {
      */
     public static void removeUserId() {
         USER_ID.remove();
+    }
+
+    /**
+     * 获取当前线程是否开启数据权限
+     */
+    public static boolean getUserDataPermission() {
+        Boolean bool = USER_DATA_PERMISSION.get();
+        return bool == null || bool;
+    }
+
+    /**
+     * 设置用户数据权限
+     */
+    public static void setUserDataPermission(Boolean dataPermission) {
+        USER_DATA_PERMISSION.set(dataPermission);
+    }
+
+    /**
+     * 清除线程的用户数据权限
+     */
+    public static void removeUserDataPermission() {
+        USER_DATA_PERMISSION.remove();
     }
 
     private static AuthenticationClient getAuthClient() {

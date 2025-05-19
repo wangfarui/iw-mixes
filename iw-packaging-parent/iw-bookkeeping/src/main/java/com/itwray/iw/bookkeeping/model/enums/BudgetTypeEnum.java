@@ -33,4 +33,11 @@ public enum BudgetTypeEnum implements BusinessConstantEnum {
     public boolean isTotalBudgetType() {
         return this.getCode().equals(MONTH.getCode()) || this.getCode().equals(YEAR.getCode());
     }
+
+    /**
+     * 是否为月度预算类型
+     */
+    public boolean isMonthBudgetType() {
+        return this.getCode().equals(MONTH.getCode()) || this.getCode().equals(MONTH_CATEGORY.getCode());
+    }
 }

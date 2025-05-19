@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * 记账预算表 新增DTO
@@ -31,4 +32,9 @@ public class BookkeepingBudgetAddDto implements AddDto {
     @Min(value = 0, message = "预算金额不能小于0")
     private BigDecimal budgetAmount;
 
+    @Schema(title = "预算月份")
+    private LocalDate budgetMonth;
+
+    @Schema(title = "预算年份")
+    private Integer budgetYear;
 }

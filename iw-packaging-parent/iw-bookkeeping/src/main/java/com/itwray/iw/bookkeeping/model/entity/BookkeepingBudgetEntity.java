@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * 记账预算表
@@ -42,4 +43,14 @@ public class BookkeepingBudgetEntity extends UserEntity<Integer> {
      * 预算金额
      */
     private BigDecimal budgetAmount;
+
+    /**
+     * 预算月份
+     */
+    private LocalDate budgetMonth;
+
+    /**
+     * 预算年份
+     */
+    private Integer budgetYear;
 }

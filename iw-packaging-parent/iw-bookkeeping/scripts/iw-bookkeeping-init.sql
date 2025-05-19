@@ -65,3 +65,7 @@ create table bookkeeping_budget (
     primary key (id),
     key idx_user_id (user_id)
 ) comment '记账预算表';
+
+alter table bookkeeping_budget
+add column budget_month date null comment '预算月份',
+add column budget_year smallint unsigned null comment '预算年份';

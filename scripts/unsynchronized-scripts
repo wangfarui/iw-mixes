@@ -1,1 +1,11 @@
 # 存放多用户多端开发后需要同步的脚本
+
+alter table bookkeeping_budget
+add column budget_month date null comment '预算月份',
+add column budget_year smallint unsigned null comment '预算年份';
+
+update bookkeeping_budget set budget_month = '2025-05-01'
+where budget_type in (1, 11);
+
+update bookkeeping_budget set budget_year = '2025'
+where budget_type in (2, 21);

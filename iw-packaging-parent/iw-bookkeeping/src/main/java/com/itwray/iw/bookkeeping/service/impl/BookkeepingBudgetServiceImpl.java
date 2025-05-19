@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,14 +57,22 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
             throw new BusinessException("分类预算的记录分类不能为空");
         }
 
+        boolean isMonthBudgetType = dto.getBudgetType().isMonthBudgetType();
+
         // 新增前先查询用户是否已经添加过相同类型的预算
         Long count = getBaseDao().lambdaQuery()
                 .eq(BookkeepingBudgetEntity::getBudgetType, dto.getBudgetType())
+                .eq(isMonthBudgetType, BookkeepingBudgetEntity::getBudgetMonth, DateUtils.startDateOfNowMonth())
+                .eq(!isMonthBudgetType, BookkeepingBudgetEntity::getBudgetYear, LocalDate.now().getYear())
                 .eq(!isTotalBudgetType, BookkeepingBudgetEntity::getRecordType, dto.getRecordType())
                 .count();
         if (count > 0) {
             throw new BusinessException("已经存在相同类型的预算, 请勿重复添加");
         }
+
+        // 初始化预算年份和月份
+        dto.setBudgetYear(!isMonthBudgetType ? LocalDate.now().getYear() : null);
+        dto.setBudgetMonth(isMonthBudgetType ? null : DateUtils.startDateOfNowMonth());
 
         return super.add(dto);
     }
@@ -73,10 +82,14 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
         if (!budgetType.isTotalBudgetType()) {
             throw new BusinessException("查询类型不是总预算类型");
         }
+        boolean isMonthBudgetType = budgetType.isMonthBudgetType();
+
         BookkeepingBudgetStatisticsVo vo = new BookkeepingBudgetStatisticsVo();
 
         BookkeepingBudgetEntity budgetEntity = getBaseDao().lambdaQuery()
                 .eq(BookkeepingBudgetEntity::getBudgetType, budgetType)
+                .eq(!isMonthBudgetType, BookkeepingBudgetEntity::getBudgetYear, LocalDate.now().getYear())
+                .eq(isMonthBudgetType, BookkeepingBudgetEntity::getBudgetMonth, DateUtils.startDateOfNowMonth())
                 .last(WebCommonConstants.LIMIT_ONE)
                 .one();
         if (budgetEntity == null) {
@@ -117,9 +130,12 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
         if (budgetType.isTotalBudgetType()) {
             throw new BusinessException("查询类型不是分类预算类型");
         }
+        boolean isMonthBudgetType = budgetType.isMonthBudgetType();
 
         List<BookkeepingBudgetEntity> budgetEntityList = getBaseDao().lambdaQuery()
                 .eq(BookkeepingBudgetEntity::getBudgetType, budgetType)
+                .eq(isMonthBudgetType, BookkeepingBudgetEntity::getBudgetMonth, DateUtils.startDateOfNowMonth())
+                .eq(!isMonthBudgetType, BookkeepingBudgetEntity::getBudgetYear, LocalDate.now().getYear())
                 .list();
 
         if (CollUtil.isEmpty(budgetEntityList)) {
