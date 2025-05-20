@@ -69,6 +69,7 @@ public class PointsTaskPlanServiceImpl extends WebServiceImpl<PointsTaskPlanDao,
         LambdaQueryWrapper<PointsTaskPlanEntity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.isNotBlank(dto.getTaskName()), PointsTaskPlanEntity::getTaskName, dto.getTaskName())
                 .eq(dto.getStatus() != null, PointsTaskPlanEntity::getStatus, dto.getStatus())
+                .orderByAsc(PointsTaskPlanEntity::getNextPlanDate)
                 .orderByDesc(PointsTaskPlanEntity::getId);
         return getBaseDao().page(dto, queryWrapper, PointsTaskPlanPageVo.class);
     }
