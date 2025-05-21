@@ -72,5 +72,10 @@ public class PointsTaskBasicsController extends WebController<PointsTaskBasicsSe
         getWebService().deleteTaskFile(deleteFileDto);
     }
 
-
+    @PutMapping("/updateTaskParam")
+    @Operation(summary = "更新任务参数")
+    public void updateTaskParam(@RequestBody TaskBasicsUpdateDto dto) {
+        // 只更新不为null的数据, 主要用于更新个别参数
+        getWebService().update(dto);
+    }
 }
