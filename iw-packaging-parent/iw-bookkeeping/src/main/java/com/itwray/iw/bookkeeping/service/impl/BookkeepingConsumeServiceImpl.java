@@ -127,15 +127,11 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
     }
 
     private void fillMonthStatisticsDto(BookkeepingConsumeMonthStatisticsDto dto) {
-        if (dto.getCurrentStartMonth() == null) {
-            dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
-        }
-        if (dto.getCurrentEndMonth() == null) {
-            dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
-        }
         if (dto.getCurrentMonth() == null) {
             dto.setCurrentMonth(LocalDate.now());
         }
+        dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
+        dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
         dto.setRecordCategory(RecordCategoryEnum.CONSUME);
     }
 }
