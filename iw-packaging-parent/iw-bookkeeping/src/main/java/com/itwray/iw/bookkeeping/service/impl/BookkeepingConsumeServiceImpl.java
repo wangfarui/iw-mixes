@@ -83,6 +83,8 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
         // 是否查询上个月的统计数据
         if (Boolean.TRUE.equals(dto.getIsQueryLastMonth())) {
             dto.setCurrentMonth(dto.getCurrentMonth().minusMonths(1L));
+            dto.setCurrentStartMonth(null);
+            dto.setCurrentEndMonth(null);
             this.fillMonthStatisticsDto(dto);
             // 查询上个月度的分类支出统计数据
             List<BookkeepingConsumeStatisticsCategoryVo> lastMonthCategoryVoList = bookkeepingRecordsDao.getBaseMapper().categoryStatistics(dto);
@@ -130,8 +132,12 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
         if (dto.getCurrentMonth() == null) {
             dto.setCurrentMonth(LocalDate.now());
         }
-        dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
-        dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+        if (dto.getCurrentStartMonth() == null) {
+            dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
+        }
+        if (dto.getCurrentEndMonth() == null) {
+            dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+        }
         dto.setRecordCategory(RecordCategoryEnum.CONSUME);
     }
 }
