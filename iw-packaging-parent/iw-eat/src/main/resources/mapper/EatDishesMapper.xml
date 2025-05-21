@@ -6,7 +6,7 @@
     <select id="randDishes" resultType="com.itwray.iw.eat.model.entity.EatDishesEntity">
         select *
         from eat_dishes
-        where dishes_type = #{dishesType}
+        where deleted = 0 and status = 1 and dishes_type = #{dishesType}
         ORDER BY RAND()
         LIMIT 1
     </select>
