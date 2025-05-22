@@ -7,6 +7,7 @@ import com.itwray.iw.points.mapper.PointsTaskPlanMapper;
 import com.itwray.iw.points.model.dto.plan.PointsTaskPlanAddDto;
 import com.itwray.iw.points.model.dto.plan.PointsTaskPlanPageDto;
 import com.itwray.iw.points.model.dto.plan.PointsTaskPlanUpdateDto;
+import com.itwray.iw.points.model.dto.plan.PointsTaskPlanUpdateStatusDto;
 import com.itwray.iw.points.model.entity.PointsTaskPlanEntity;
 import com.itwray.iw.points.model.enums.TaskPlanCycleEnum;
 import com.itwray.iw.points.model.vo.plan.PointsTaskPlanDetailVo;
@@ -72,6 +73,16 @@ public class PointsTaskPlanServiceImpl extends WebServiceImpl<PointsTaskPlanDao,
                 .orderByAsc(PointsTaskPlanEntity::getNextPlanDate)
                 .orderByDesc(PointsTaskPlanEntity::getId);
         return getBaseDao().page(dto, queryWrapper, PointsTaskPlanPageVo.class);
+    }
+
+    @Override
+    @Transactional
+    public void updatePlanStatus(PointsTaskPlanUpdateStatusDto dto) {
+        getBaseDao().queryById(dto.getId());
+        getBaseDao().lambdaUpdate()
+                .eq(PointsTaskPlanEntity::getId, dto.getId())
+                .set(PointsTaskPlanEntity::getStatus, dto.getStatus())
+                .update();
     }
 
     private LocalDate computeNextPlanDate(PointsTaskPlanAddDto dto) {
