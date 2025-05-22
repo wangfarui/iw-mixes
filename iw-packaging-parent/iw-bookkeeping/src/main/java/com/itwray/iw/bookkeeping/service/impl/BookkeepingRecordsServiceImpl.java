@@ -26,6 +26,7 @@ import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.enums.BusinessFileTypeEnum;
 import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
 import com.itwray.iw.web.model.enums.OrderNoEnum;
+import com.itwray.iw.web.model.enums.mq.BookkeepingRecordsTopicEnum;
 import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
 import com.itwray.iw.web.model.vo.FileVo;
 import com.itwray.iw.web.model.vo.PageVo;
@@ -98,6 +99,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             this.addPointsRecordsByExcitation(bookkeepingRecords.getOrderNo());
         }
 
+        // 同步用户钱包余额
+        this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount());
+
         return bookkeepingRecords.getId();
     }
 
@@ -129,6 +133,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
         BookkeepingRecordsEntity recordsEntity = this.buildBookkeepingRecordAddDto(dto);
         getBaseDao().updateById(recordsEntity);
+
+        // 同步用户钱包余额(更新操作时,先将历史数据的金额还原,再重新更新余额)
+        this.syncWalletBalance(bookkeepingRecordsEntity.getRecordCategory(), bookkeepingRecordsEntity.getAmount().negate());
+        this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount());
     }
 
     private BookkeepingRecordsEntity buildBookkeepingRecordAddDto(BookkeepingRecordAddDto dto) {
@@ -178,6 +186,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 && BoolEnum.TRUE.getCode().equals(bookkeepingRecordsEntity.getIsExcitationRecord())) {
             this.deductPointsRecordsByExcitation(bookkeepingRecordsEntity.getOrderNo());
         }
+
+        // 同步用户钱包余额
+        this.syncWalletBalance(bookkeepingRecordsEntity.getRecordCategory(), bookkeepingRecordsEntity.getAmount().negate());
     }
 
     @Override
@@ -283,5 +294,12 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
         pointsRecordsAddDto.setUserId(UserUtils.getUserId());
         MQProducerHelper.send(PointsRecordsTopicEnum.EXCITATION_BOOKKEEPING, pointsRecordsAddDto);
+    }
+
+    private void syncWalletBalance(RecordCategoryEnum recordCategory, BigDecimal amount) {
+        BookkeepingRecordsWalletBalanceDto dto = new BookkeepingRecordsWalletBalanceDto();
+        dto.setAmount(RecordCategoryEnum.CONSUME.equals(recordCategory) ? amount.negate() : amount);
+        dto.setUserId(UserUtils.getUserId());
+        MQProducerHelper.send(BookkeepingRecordsTopicEnum.WALLET_BALANCE, dto);
     }
 }

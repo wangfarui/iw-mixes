@@ -7,6 +7,7 @@ iw:
         - bookkeeping_records
         - bookkeeping_actions
         - bookkeeping_budget
+        - bookkeeping_wallet
         - points_total
         - points_records
         - points_task_basics

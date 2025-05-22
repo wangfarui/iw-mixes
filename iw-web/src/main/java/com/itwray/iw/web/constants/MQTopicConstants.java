@@ -22,4 +22,9 @@ public abstract class MQTopicConstants {
      * 发送短信验证码
      */
     public static final String SEND_VERIFICATION_CODE = "send_verification_code";
+
+    /**
+     * 记账记录
+     */
+    public static final String BOOKKEEPING_RECORDS = "bookkeeping_records";
 }
