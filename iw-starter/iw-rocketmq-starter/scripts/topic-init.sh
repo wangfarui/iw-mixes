@@ -1,3 +1,5 @@
+# 远程在87机器执行如下命令
+sh bin/mqadmin updatetopic -n 172.22.61.86:9876 -t bookkeeping_records -c DefaultCluster
 
 # 创建"积分记录"topic
 sh bin/mqadmin updatetopic -n localhost:9876 -t points-records -c DefaultCluster
