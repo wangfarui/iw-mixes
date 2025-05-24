@@ -2,6 +2,7 @@ package com.itwray.iw.bookkeeping.service.impl;
 
 import com.itwray.iw.bookkeeping.dao.BookkeepingWalletDao;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordsWalletBalanceDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingWalletBalanceUpdateDto;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingWalletEntity;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletBalanceVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingWalletService;
@@ -71,5 +72,24 @@ public class BookkeepingWalletServiceImpl implements BookkeepingWalletService, R
             vo.setWalletBalance(BigDecimal.ZERO);
         }
         return vo;
+    }
+
+    @Override
+    public void updateBalance(BookkeepingWalletBalanceUpdateDto dto) {
+        String lockKey = BookkeepingRecordsTopicEnum.WALLET_BALANCE.getDestination() + ":" +UserUtils.getUserId();
+        RedisLockUtil.lock(lockKey);
+        try {
+            boolean bool = bookkeepingWalletDao.lambdaUpdate()
+                    .eq(BookkeepingWalletEntity::getUserId, UserUtils.getUserId())
+                    .set(BookkeepingWalletEntity::getWalletBalance, dto.getWalletBalance())
+                    .update();
+            if (!bool) {
+                BookkeepingWalletEntity entity = new BookkeepingWalletEntity();
+                entity.setWalletBalance(dto.getWalletBalance());
+                bookkeepingWalletDao.save(entity);
+            }
+        } finally {
+            RedisLockUtil.unlock(lockKey);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.itwray.iw.bookkeeping.service;
 
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingWalletBalanceUpdateDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletBalanceVo;
 
 /**
@@ -11,4 +12,6 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletBalanceVo;
 public interface BookkeepingWalletService {
 
     BookkeepingWalletBalanceVo getWalletBalance();
+
+    void updateBalance(BookkeepingWalletBalanceUpdateDto dto);
 }
