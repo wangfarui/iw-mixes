@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2025-03-06
  */
 @RestController
-@RequestMapping("/applicationAccount")
+@RequestMapping("/application/account")
 @Validated
 @Tag(name = "应用账号信息接口")
 public class BaseApplicationAccountController extends WebController<BaseApplicationAccountService,
