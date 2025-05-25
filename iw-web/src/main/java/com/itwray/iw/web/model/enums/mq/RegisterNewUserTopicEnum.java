@@ -1,6 +1,5 @@
 package com.itwray.iw.web.model.enums.mq;
 
-import com.itwray.iw.web.constants.MQTopicConstants;
 import lombok.Getter;
 
 /**
@@ -20,6 +19,8 @@ public enum RegisterNewUserTopicEnum implements MQDestination {
 
     private final String name;
 
+    public static final String TOPIC = "register_new_user";
+
     RegisterNewUserTopicEnum(String tag, String name) {
         this.tag = tag;
         this.name = name;
@@ -27,11 +28,11 @@ public enum RegisterNewUserTopicEnum implements MQDestination {
 
     @Override
     public String getTopic() {
-        return MQTopicConstants.REGISTER_NEW_USER;
+        return TOPIC;
     }
 
     @Override
     public String getDestination() {
-        return MQTopicConstants.REGISTER_NEW_USER + ":" + getTag();
+        return TOPIC + ":" + getTag();
     }
 }

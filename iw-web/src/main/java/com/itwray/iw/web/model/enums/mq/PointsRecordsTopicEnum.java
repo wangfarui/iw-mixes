@@ -1,6 +1,5 @@
 package com.itwray.iw.web.model.enums.mq;
 
-import com.itwray.iw.web.constants.MQTopicConstants;
 import lombok.Getter;
 
 /**
@@ -20,6 +19,8 @@ public enum PointsRecordsTopicEnum implements MQDestination {
 
     private final String name;
 
+    public static final String TOPIC = "points-records";
+
     PointsRecordsTopicEnum(String tag, String name) {
         this.tag = tag;
         this.name = name;
@@ -28,11 +29,11 @@ public enum PointsRecordsTopicEnum implements MQDestination {
 
     @Override
     public String getTopic() {
-        return MQTopicConstants.POINTS_RECORDS;
+        return TOPIC;
     }
 
     @Override
     public String getDestination() {
-        return MQTopicConstants.POINTS_RECORDS + ":" + getTag();
+        return TOPIC + ":" + getTag();
     }
 }

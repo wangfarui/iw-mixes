@@ -9,7 +9,6 @@ import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
-import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDao;
 import com.itwray.iw.web.exception.BusinessException;

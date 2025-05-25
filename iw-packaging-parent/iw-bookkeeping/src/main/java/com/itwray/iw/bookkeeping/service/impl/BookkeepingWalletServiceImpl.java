@@ -6,11 +6,8 @@ import com.itwray.iw.bookkeeping.model.dto.BookkeepingWalletBalanceUpdateDto;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingWalletEntity;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletBalanceVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingWalletService;
-import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
-import com.itwray.iw.starter.redis.lock.DistributedLock;
 import com.itwray.iw.starter.redis.lock.RedisLockUtil;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
-import com.itwray.iw.web.constants.MQTopicConstants;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.model.enums.mq.BookkeepingRecordsTopicEnum;
 import com.itwray.iw.web.utils.UserUtils;
@@ -27,7 +24,7 @@ import java.math.BigDecimal;
  * @since 2025-05-22
  */
 @Service
-@RocketMQMessageListener(consumerGroup = "bookkeeping-records-service", topic = MQTopicConstants.BOOKKEEPING_RECORDS, tag = "wallet_balance")
+@RocketMQMessageListener(consumerGroup = "bookkeeping-records-service", topic = BookkeepingRecordsTopicEnum.TOPIC, tag = "wallet_balance")
 public class BookkeepingWalletServiceImpl implements BookkeepingWalletService, RocketMQClientListener<BookkeepingRecordsWalletBalanceDto> {
 
     private final BookkeepingWalletDao bookkeepingWalletDao;
