@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2024-04-23
  */
 @RestController
-@RequestMapping("/dishes")
+@RequestMapping("/eat/dishes")
 @Validated
 @Tag(name = "菜品接口")
 public class EatDishesController {

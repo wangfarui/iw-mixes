@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2024-04-23
  */
 @RestController
-@RequestMapping("/meal")
+@RequestMapping("/eat/meal")
 @Validated
 @Tag(name = "用餐接口")
 public class EatMealController {
