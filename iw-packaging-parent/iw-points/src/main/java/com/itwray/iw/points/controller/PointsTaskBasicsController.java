@@ -19,7 +19,7 @@ import java.util.List;
  * @since 2025-03-19
  */
 @RestController
-@RequestMapping("/task/basics")
+@RequestMapping("/points/task/basics")
 @Validated
 @Tag(name = "任务基础表接口")
 public class PointsTaskBasicsController extends WebController<PointsTaskBasicsService,
