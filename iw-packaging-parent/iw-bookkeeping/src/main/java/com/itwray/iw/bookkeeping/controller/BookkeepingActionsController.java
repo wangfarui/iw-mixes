@@ -23,7 +23,7 @@ import java.util.List;
  * @since 2025-04-08
  */
 @RestController
-@RequestMapping("/actions")
+@RequestMapping("/bookkeeping/actions")
 @Validated
 @Tag(name = "记账行为表接口")
 public class BookkeepingActionsController extends WebController<BookkeepingActionsService,

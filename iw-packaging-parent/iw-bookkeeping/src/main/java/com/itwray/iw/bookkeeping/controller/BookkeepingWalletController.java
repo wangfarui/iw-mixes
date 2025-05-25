@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2025-05-22
  */
 @RestController
-@RequestMapping("/wallet")
+@RequestMapping("/bookkeeping/wallet")
 @Validated
 @Tag(name = "用户钱包表接口")
 public class BookkeepingWalletController {

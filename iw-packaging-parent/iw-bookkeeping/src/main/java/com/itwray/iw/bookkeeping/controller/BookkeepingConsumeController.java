@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2024/10/15
  */
 @RestController
-@RequestMapping("/consume")
+@RequestMapping("/bookkeeping/consume")
 @Validated
 @Tag(name = "记账支出接口")
 public class BookkeepingConsumeController {
