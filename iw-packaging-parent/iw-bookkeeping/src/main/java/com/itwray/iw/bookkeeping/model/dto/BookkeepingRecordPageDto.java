@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.bookkeeping.model.enums.RecordsSortTypeEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
@@ -43,6 +44,11 @@ public class BookkeepingRecordPageDto extends PageDto {
     private Integer recordType;
 
     /**
+     * 记录类型
+     */
+    private Integer recordCategory;
+
+    /**
      * 是否查询全部账单
      * <p>默认为null, 表示查询所有</p>
      * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#FALSE} , 表示只查询 is_statistics = 1 的数据</p>
@@ -68,4 +74,14 @@ public class BookkeepingRecordPageDto extends PageDto {
      * 标签业务类型
      */
     private Integer tagBusinessType;
+
+    /**
+     * 记录排序类型
+     */
+    private RecordsSortTypeEnum sortType;
+
+    /**
+     * 排序方式 1=升序, 其他值=降序
+     */
+    private Integer sortWay;
 }

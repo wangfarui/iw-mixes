@@ -18,7 +18,7 @@ import com.itwray.iw.points.model.vo.PointsRecordsPageVo;
 import com.itwray.iw.points.model.vo.PointsRecordsStatisticsVo;
 import com.itwray.iw.points.service.PointsRecordsService;
 import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
-import com.itwray.iw.web.constants.MQTopicConstants;
+import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * @since 2024/9/26
  */
 @Service
-@RocketMQMessageListener(consumerGroup = "points-records-service", topic = MQTopicConstants.POINTS_RECORDS, tag = "*")
+@RocketMQMessageListener(consumerGroup = "points-records-service", topic = PointsRecordsTopicEnum.TOPIC, tag = "*")
 public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsDao, PointsRecordsMapper, PointsRecordsEntity,
         PointsRecordsAddDto, PointsRecordsUpdateDto, PointsRecordsDetailVo, Integer>
         implements PointsRecordsService, RocketMQClientListener<PointsRecordsAddDto> {

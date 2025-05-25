@@ -20,7 +20,6 @@ public class BookkeepingConsumeMonthStatisticsDto {
     /**
      * 当前查询的月度
      */
-    @NotNull(message = "选择月份不能为空")
     @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate currentMonth;
 
@@ -29,8 +28,10 @@ public class BookkeepingConsumeMonthStatisticsDto {
      */
     private RecordCategoryEnum recordCategory;
 
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate currentStartMonth;
 
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate currentEndMonth;
 
     /**

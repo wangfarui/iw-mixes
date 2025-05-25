@@ -80,3 +80,28 @@ create table points_task_relation
 
 alter table points_task_basics
 add column done_time datetime null comment '任务完成时间' after sort;
+
+alter table points_task_relation
+add column punish_status tinyint(1) default 0 not null comment '惩罚状态 0-未惩罚 1-已惩罚';
+
+drop table if exists points_task_plan;
+create table points_task_plan (
+    id int unsigned auto_increment not null comment 'id',
+    task_name varchar(128) NOT NULL DEFAULT '' COMMENT '任务名称',
+  	task_remark text COMMENT '任务备注',
+    plan_cycle tinyint not null comment '计划周期(1:每日, 2:每周, 3:每月, 4:每年, 5:自定义)',
+    plan_date date not null comment '计划日期(开始日期)',
+    cycle_days smallint unsigned default 0 not null comment '计划天数',
+    next_plan_date date not null comment '下一次计划生成时间',
+    remind_days smallint unsigned default 0 not null comment '提前提醒天数',
+    deadline_days smallint unsigned default 0 not null comment '截止天数',
+    reward_points tinyint NOT NULL DEFAULT 0 COMMENT '奖励积分',
+  	punish_points tinyint NOT NULL DEFAULT 0 COMMENT '处罚积分',
+    status tinyint default 1 not null comment '状态(0禁用 1启用)',
+    deleted tinyint(1) default 0 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
+    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id int unsigned default 0 not null comment '用户id',
+    primary key (id),
+    key idx_user_id (user_id)
+) comment '任务计划表';

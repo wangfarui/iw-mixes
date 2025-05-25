@@ -20,14 +20,6 @@ import java.util.Collections;
  */
 public class CodeGenerator {
 
-    public static void main(String[] args) {
-        GlobalConfig config = GlobalConfig.builder()
-                .dbPassword("root")
-                .build();
-
-        CodeGenerator.generate(config, "auth_user", "base_file_record");
-    }
-
     public static void generate(GlobalConfig config, String... tableNames) {
         if (tableNames == null || tableNames.length == 0) {
             System.out.println("数据表为空，跳过生成");
@@ -64,31 +56,31 @@ public class CodeGenerator {
                                 // 设置mapperXml生成路径
                                 .pathInfo(Collections.singletonMap(OutputFile.xml, config.getMapperDir()))
                 )
-                .strategyConfig(builder ->
-                        builder.addInclude(tableNames) // 设置需要生成的表名
-                                // Entity配置
-                                .entityBuilder()
-                                .enableFileOverride() // 覆盖Entity已有文件
-                                .enableLombok() // 开启Lombok注解
-                                .disableSerialVersionUID() // 禁用SerialVersionUID
-                                .superClass(IdEntity.class) // 默认继承IdEntity
-                                .formatFileName("%sEntity")
-
-                                // Mapper配置
-                                .mapperBuilder()
-                                .enableFileOverride() // 覆盖mapper已有文件
-                                .mapperAnnotation(Mapper.class)
-
-                                // Service 配置
-                                .serviceBuilder()
-                                .enableFileOverride()
-                                .convertServiceFileName((entityName -> entityName + ConstVal.SERVICE)) // Service接口类命名
-
-                                // Controller 配置
-                                .controllerBuilder()
-                                .enableFileOverride()
-                                .enableRestStyle() // 开启生成@RestController控制器
-                )
+                .strategyConfig(builder -> {
+                    builder.addInclude(tableNames) // 设置需要生成的表名
+                            // Entity配置
+                            .entityBuilder()
+                            .enableLombok() // 开启Lombok注解
+                            .disableSerialVersionUID() // 禁用SerialVersionUID
+                            .superClass(IdEntity.class) // 默认继承IdEntity
+                            .formatFileName("%sEntity")
+                            // Mapper配置
+                            .mapperBuilder()
+                            .mapperAnnotation(Mapper.class)
+                            // Service 配置
+                            .serviceBuilder()
+                            .convertServiceFileName((entityName -> entityName + ConstVal.SERVICE)) // Service接口类命名
+                            // Controller 配置
+                            .controllerBuilder()
+                            .enableRestStyle(); // 开启生成@RestController控制器
+                    // 是否开启文件覆盖操作
+                    if (config.isEnableFileOverride()) {
+                        builder.entityBuilder().enableFileOverride()
+                                .mapperBuilder().enableFileOverride()
+                                .serviceBuilder().enableFileOverride()
+                                .controllerBuilder().enableFileOverride();
+                    }
+                })
                 .templateConfig(builder ->
                         builder.disable()
                                 .entity("/templates/entity.java")
@@ -98,66 +90,68 @@ public class CodeGenerator {
                                 .serviceImpl("/templates/serviceImpl.java")
                                 .controller("/templates/controller.java")
                 )
-                .injectionConfig(builder ->
-                        builder.beforeOutputFile((tableInfo, stringObjectMap) -> {
-                                    // 是否启用WebModule
-                                    stringObjectMap.put("enabledWebModule", config.isEnabledWebModule());
-                                    // 实际数据表name（去除服务前缀）
-                                    String tableName = tableInfo.getName();
-                                    String[] names = tableName.split(ConstVal.UNDERLINE);
-                                    String actualTableName;
-                                    if (names.length > 1) {
-                                        actualTableName = tableName.substring(tableName.indexOf("_") + 1);
-                                        actualTableName = toCamelCase(actualTableName);
-                                    } else {
-                                        actualTableName = tableName;
-                                    }
-                                    stringObjectMap.put("actualTableName", actualTableName);
-                                    // 实际EntityName和DaoName
-                                    String actualEntityName = formatEntityName(tableInfo.getEntityName());
-                                    stringObjectMap.put("actualEntityName", actualEntityName);
-                                    stringObjectMap.put("daoName", actualEntityName + "Dao");
-                                    stringObjectMap.put("addDtoName", actualEntityName + "AddDto");
-                                    stringObjectMap.put("updateDtoName", actualEntityName + "UpdateDto");
-                                    stringObjectMap.put("detailVoName", actualEntityName + "DetailVo");
-                                })
-                                .customFile(new CustomFile.Builder()
-                                        .fileName("Dao.java")
-                                        .enableFileOverride()
-                                        .templatePath("/templates/dao.java.ftl")
-                                        .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
-                                        .packageName("dao")
-                                        .build()
-                                )
-                                .customFile(new CustomFile.Builder()
-                                        .fileName("AddDto.java")
-                                        .enableFileOverride()
-                                        .templatePath("/templates/addDto.java.ftl")
-                                        .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
-                                        .packageName("model.dto")
-                                        .build()
-                                )
-                                .customFile(new CustomFile.Builder()
-                                        .fileName("UpdateDto.java")
-                                        .enableFileOverride()
-                                        .templatePath("/templates/updateDto.java.ftl")
-                                        .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
-                                        .packageName("model.dto")
-                                        .build()
-                                )
-                                .customFile(new CustomFile.Builder()
-                                        .fileName("DetailVo.java")
-                                        .enableFileOverride()
-                                        .templatePath("/templates/detailVo.java.ftl")
-                                        .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
-                                        .packageName("model.vo")
-                                        .build()
-                                )
-                )
+                .injectionConfig(builder -> {
+                    builder.beforeOutputFile((tableInfo, stringObjectMap) -> {
+                        // 是否启用WebModule
+                        stringObjectMap.put("enabledWebModule", config.isEnabledWebModule());
+                        // 实际数据表name（去除服务前缀）
+                        String tableName = tableInfo.getName();
+                        String[] names = tableName.split(ConstVal.UNDERLINE);
+                        String actualTableName;
+                        if (names.length > 1) {
+                            actualTableName = tableName.substring(tableName.indexOf("_") + 1);
+                            actualTableName = toCamelCase(actualTableName);
+                        } else {
+                            actualTableName = tableName;
+                        }
+                        stringObjectMap.put("actualTableName", actualTableName);
+                        // 实际EntityName和DaoName
+                        String actualEntityName = formatEntityName(tableInfo.getEntityName());
+                        stringObjectMap.put("actualEntityName", actualEntityName);
+                        stringObjectMap.put("daoName", actualEntityName + "Dao");
+                        stringObjectMap.put("addDtoName", actualEntityName + "AddDto");
+                        stringObjectMap.put("updateDtoName", actualEntityName + "UpdateDto");
+                        stringObjectMap.put("detailVoName", actualEntityName + "DetailVo");
+                    });
+                    CustomFile.Builder daoBuilder = new CustomFile.Builder()
+                            .fileName("Dao.java")
+                            .templatePath("/templates/dao.java.ftl")
+                            .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
+                            .packageName("dao");
+                    if (config.isEnableFileOverride()) {
+                        daoBuilder.enableFileOverride();
+                    }
+                    builder.customFile(daoBuilder.build());
+                    if (config.isEnabledWebModule()) {
+                        CustomFile.Builder addDtoBuilder = new CustomFile.Builder()
+                                .fileName("AddDto.java")
+                                .templatePath("/templates/addDto.java.ftl")
+                                .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
+                                .packageName("model.dto");
+                        CustomFile.Builder updateDtoBuilder = new CustomFile.Builder()
+                                .fileName("UpdateDto.java")
+                                .templatePath("/templates/updateDto.java.ftl")
+                                .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
+                                .packageName("model.dto");
+                        CustomFile.Builder detailVoBuilder = new CustomFile.Builder()
+                                .fileName("DetailVo.java")
+                                .templatePath("/templates/detailVo.java.ftl")
+                                .formatNameFunction(tableInfo -> formatEntityName(tableInfo.getEntityName()))
+                                .packageName("model.vo");
+                        if (config.isEnableFileOverride()) {
+                            addDtoBuilder.enableFileOverride();
+                            updateDtoBuilder.enableFileOverride();
+                            detailVoBuilder.enableFileOverride();
+                        }
+                        builder.customFile(addDtoBuilder.build())
+                                .customFile(updateDtoBuilder.build())
+                                .customFile(detailVoBuilder.build());
+                    }
+                })
                 .templateEngine(new FreemarkerTemplateEngine()) // 使用Freemarker引擎模板，默认的是Velocity引擎模板
                 .execute();
 
-        System.out.println("生成文件完成!");
+        System.out.println("所有文件生成完成!");
     }
 
     private static String formatEntityName(String entityName) {

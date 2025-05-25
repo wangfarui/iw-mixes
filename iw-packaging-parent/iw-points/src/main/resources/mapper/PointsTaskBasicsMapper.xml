@@ -12,4 +12,12 @@
         </if>
         group by task_group_id
     </select>
+
+    <select id="queryExpiredTask" resultType="com.itwray.iw.points.model.bo.ExpiredTaskBo">
+        select ptb.id taskId, ptb.task_name, ptb.user_id, ptr.id relationId, ptr.punish_points
+        from points_task_basics ptb
+        inner join points_task_relation ptr on ptr.task_id = ptb.id and ptr.punish_status = #{punishStatus}
+        where ptb.deleted = 0 and task_status = #{taskStatus} and deadline_date <![CDATA[<]]> #{deadlineDate}
+        limit #{pageStart}, #{pageSize}
+    </select>
 </mapper>

@@ -86,8 +86,10 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
     @Override
     @Transactional
     public void update(ApplicationAccountUpdateDto dto) {
-        String encryptHex = this.encrypt(dto.getPassword());
-        dto.setPassword(encryptHex);
+        if (Boolean.TRUE.equals(dto.getUpdatePassword())) {
+            String encryptHex = this.encrypt(dto.getPassword());
+            dto.setPassword(encryptHex);
+        }
         super.update(dto);
     }
 

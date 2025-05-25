@@ -24,15 +24,17 @@ public class DefaultMetaObjectHandler implements MetaObjectHandler {
             this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
             this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, now);
         }
-        if (originalObject instanceof UserEntity) {
-            this.strictInsertFill(metaObject, "userId", Integer.class, UserUtils.getUserId());
+        if (originalObject instanceof UserEntity<?> userEntity) {
+            if (userEntity.getUserId() == null) {
+                this.strictInsertFill(metaObject, "userId", Integer.class, UserUtils.getUserId());
+            }
         }
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
         if (metaObject.getOriginalObject() instanceof BaseEntity) {
-            this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+            this.setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
         }
     }
 }

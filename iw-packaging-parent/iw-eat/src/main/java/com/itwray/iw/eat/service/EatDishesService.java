@@ -7,6 +7,8 @@ import com.itwray.iw.eat.model.vo.DishesDetailVo;
 import com.itwray.iw.eat.model.vo.DishesPageVo;
 import com.itwray.iw.web.model.vo.PageVo;
 
+import java.util.List;
+
 /**
  * 菜品表 服务类
  *
@@ -53,4 +55,8 @@ public interface EatDishesService {
      */
     DishesDetailVo detail(Integer id);
 
+    /**
+     * 查询推荐菜品
+     */
+    List<DishesPageVo> recommendDishes();
 }

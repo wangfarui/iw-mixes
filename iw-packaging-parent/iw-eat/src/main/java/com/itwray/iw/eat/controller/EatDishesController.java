@@ -15,6 +15,8 @@ import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 菜品表 前端控制器
  *
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2024-04-23
  */
 @RestController
-@RequestMapping("/dishes")
+@RequestMapping("/eat/dishes")
 @Validated
 @Tag(name = "菜品接口")
 public class EatDishesController {
@@ -58,5 +60,11 @@ public class EatDishesController {
     @Operation(summary = "查询菜品详情")
     public DishesDetailVo detail(@RequestParam("id") Integer id) {
         return eatDishesService.detail(id);
+    }
+
+    @GetMapping("/recommendDishes")
+    @Operation(summary = "获取推荐菜品")
+    public List<DishesPageVo> recommendDishes() {
+        return eatDishesService.recommendDishes();
     }
 }

@@ -102,11 +102,11 @@ public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupDa
     public FixedGroupTaskNumVo statisticsLatestTaskNum() {
         LocalDate nowDate = LocalDate.now();
         Long todayNum = pointsTaskBasicsDao.lambdaQuery()
-                .eq(PointsTaskBasicsEntity::getDeadlineDate, nowDate)
+                .le(PointsTaskBasicsEntity::getDeadlineDate, nowDate)
                 .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT.getCode())
                 .count();
         Long weekNum = pointsTaskBasicsDao.lambdaQuery()
-                .between(PointsTaskBasicsEntity::getDeadlineDate, nowDate, nowDate.plusDays(7L))
+                .le(PointsTaskBasicsEntity::getDeadlineDate, nowDate.plusDays(7L))
                 .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT.getCode())
                 .count();
         Long noGroupNum = pointsTaskBasicsDao.lambdaQuery()

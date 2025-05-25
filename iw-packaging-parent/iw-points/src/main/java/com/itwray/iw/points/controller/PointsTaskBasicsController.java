@@ -1,10 +1,6 @@
 package com.itwray.iw.points.controller;
 
-import com.itwray.iw.points.model.dto.task.TaskBasicsAddDto;
-import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
-import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateDto;
-import com.itwray.iw.points.model.dto.task.TaskBasicsUpdateStatusDto;
-import com.itwray.iw.points.model.vo.task.FixedGroupTaskNumVo;
+import com.itwray.iw.points.model.dto.task.*;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
@@ -23,7 +19,7 @@ import java.util.List;
  * @since 2025-03-19
  */
 @RestController
-@RequestMapping("/task/basics")
+@RequestMapping("/points/task/basics")
 @Validated
 @Tag(name = "任务基础表接口")
 public class PointsTaskBasicsController extends WebController<PointsTaskBasicsService,
@@ -64,4 +60,22 @@ public class PointsTaskBasicsController extends WebController<PointsTaskBasicsSe
         getWebService().clearDeletedList();
     }
 
+    @PostMapping("/addFile")
+    @Operation(summary = "任务添加附件")
+    public void addTaskFile(@RequestBody TaskBasicsAddFileDto addFileDto) {
+        getWebService().addTaskFile(addFileDto);
+    }
+
+    @PostMapping("/deleteFile")
+    @Operation(summary = "任务删除附件")
+    public void deleteTaskFile(@RequestBody TaskBasicsDeleteFileDto deleteFileDto) {
+        getWebService().deleteTaskFile(deleteFileDto);
+    }
+
+    @PutMapping("/updateTaskParam")
+    @Operation(summary = "更新任务参数")
+    public void updateTaskParam(@RequestBody TaskBasicsUpdateDto dto) {
+        // 只更新不为null的数据, 主要用于更新个别参数
+        getWebService().update(dto);
+    }
 }

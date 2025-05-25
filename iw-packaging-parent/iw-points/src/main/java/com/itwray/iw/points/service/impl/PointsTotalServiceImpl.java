@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 @Service
 @Slf4j
-@RocketMQMessageListener(consumerGroup = "points-total-service", topic = RegisterNewUserTopicEnum.TOPIC_NAME, tag = "init")
+@RocketMQMessageListener(consumerGroup = "points-total-service", topic = RegisterNewUserTopicEnum.TOPIC, tag = "init")
 public class PointsTotalServiceImpl implements PointsTotalService, RocketMQClientListener<UserAddBo> {
 
     private final PointsTotalDao pointsTotalDao;

@@ -20,4 +20,7 @@ public class ApplicationAccountUpdateDto extends ApplicationAccountAddDto implem
     @Schema(title = "id")
     @NotNull(message = "id不能为空")
     private Integer id;
+
+    @Schema(title = "是否更新密码")
+    private Boolean updatePassword;
 }

@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Import;
  * @since 2024/4/3
  */
 @AutoConfiguration
-@EnableConfigurationProperties({IwWebProperties.class, IwDaoProperties.class})
+@EnableConfigurationProperties({IwWebProperties.class, IwDaoProperties.class, IwAliyunProperties.class})
 @Import({IwWebMvcConfiguration.class, MybatisPlusConfiguration.class, FeignConfiguration.class, DingTalkConfiguration.class})
 @ComponentScan(basePackages = "com.itwray.iw.web.service.impl")
 public class IwWebAutoConfiguration {

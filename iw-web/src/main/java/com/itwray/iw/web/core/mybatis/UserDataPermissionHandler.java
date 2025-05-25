@@ -36,6 +36,10 @@ public class UserDataPermissionHandler implements MultiDataPermissionHandler {
             // 表示不追加任何条件
             return null;
         }
+        // 当前线程关闭了用户数据权限
+        if (!UserUtils.getUserDataPermission()) {
+            return null;
+        }
         if (ignoreUserDataPermissionMethods.contains(mappedStatementId)) {
             return null;
         }

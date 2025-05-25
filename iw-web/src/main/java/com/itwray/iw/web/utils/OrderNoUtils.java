@@ -39,16 +39,16 @@ public abstract class OrderNoUtils {
      * @return 订单编号
      */
     public static String getAndIncrement(OrderNoEnum orderNoEnum, LocalDate currentDate) {
-        String dateStr = currentDate.toString().replace("-", "");
+        String dateStr = currentDate.toString().replace("-", "").substring(2);
         Long no = RedisUtil.incrementOne(CommonRedisKeyEnum.ORDER_NO_KEY.getKey(orderNoEnum.getCode(), dateStr));
         CommonRedisKeyEnum.ORDER_NO_KEY.setExpire(orderNoEnum.getCode(), dateStr);
         Pair<String, String> pair = generateRandomNumbers();
-        return dateStr + pair.getKey() + orderNoEnum.getCode() + String.format("%04d", no) + pair.getValue();
+        return dateStr + pair.getKey() + UserUtils.getUserId() + orderNoEnum.getCode() + pair.getValue() + String.format("%03d", no);
     }
 
     private static Pair<String, String> generateRandomNumbers() {
-        String left = RandomUtil.randomNumbers(6);
-        String right = RandomUtil.randomNumbers(8);
+        String left = RandomUtil.randomNumbers(4);
+        String right = RandomUtil.randomNumbers(4);
         return Pair.of(left, right);
     }
 }

@@ -52,10 +52,24 @@ public abstract class DateUtils {
     }
 
     /**
+     * 返回当前年的开始日期
+     */
+    public static LocalDate startDateOfNowYear() {
+        return startDateOfYear(LocalDate.now());
+    }
+
+    /**
      * 返回指定月的开始日期
      */
     public static LocalDate startDateOfMonth(LocalDate date) {
         return date.withDayOfMonth(1);
+    }
+
+    /**
+     * 返回指定年的开始日期
+     */
+    public static LocalDate startDateOfYear(LocalDate date) {
+        return date.withDayOfYear(1);
     }
 
     /**
@@ -66,11 +80,29 @@ public abstract class DateUtils {
     }
 
     /**
+     * 返回当前年的结束日期
+     */
+    public static LocalDate endDateOfNowYear() {
+        return endDateOfYear(LocalDate.now());
+    }
+
+    /**
      * 返回指定月的结束日期
      */
     public static LocalDate endDateOfMonth(LocalDate date) {
         // 使用 YearMonth 获取当前年的当前月
         YearMonth yearMonth = YearMonth.of(date.getYear(), date.getMonth());
+
+        // 获取当前月的最后一天
+        return yearMonth.atEndOfMonth();
+    }
+
+    /**
+     * 返回指定年的结束日期
+     */
+    public static LocalDate endDateOfYear(LocalDate date) {
+        // 使用 YearMonth 获取当前年的当前月
+        YearMonth yearMonth = YearMonth.of(date.getYear(), 12);
 
         // 获取当前月的最后一天
         return yearMonth.atEndOfMonth();

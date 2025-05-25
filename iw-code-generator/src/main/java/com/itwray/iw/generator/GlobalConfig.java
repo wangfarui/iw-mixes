@@ -58,6 +58,11 @@ public class GlobalConfig {
      */
     private boolean enabledWebModule;
 
+    /**
+     * 是否允许覆盖文件
+     */
+    private boolean enableFileOverride;
+
     public String getDbUrl() {
         return getIfAbsent(dbUrl, () -> "jdbc:mysql://localhost:3306/iw_mixes?serverTimezone=Asia/Shanghai");
     }

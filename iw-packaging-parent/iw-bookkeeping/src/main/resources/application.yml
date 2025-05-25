@@ -5,10 +5,14 @@ iw:
       enabled: true
       enable-table-names:
         - bookkeeping_records
+        - bookkeeping_actions
+        - bookkeeping_budget
+        - bookkeeping_wallet
         - points_total
         - points_records
-        - points_task_base
-        - points_task_records
+        - points_task_basics
+        - points_task_group
+        - points_task_plan
         - eat_meal
 
 # 服务器配置

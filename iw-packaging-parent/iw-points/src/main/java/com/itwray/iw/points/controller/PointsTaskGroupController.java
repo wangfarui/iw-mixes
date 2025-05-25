@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2025-03-19
  */
 @RestController
-@RequestMapping("/task/group")
+@RequestMapping("/points/task/group")
 @Validated
 @Tag(name = "任务分组表接口")
 public class PointsTaskGroupController extends WebController<PointsTaskGroupService,

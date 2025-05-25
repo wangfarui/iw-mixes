@@ -19,7 +19,7 @@ public enum RegisterNewUserTopicEnum implements MQDestination {
 
     private final String name;
 
-    public static final String TOPIC_NAME = "register_new_user";
+    public static final String TOPIC = "register_new_user";
 
     RegisterNewUserTopicEnum(String tag, String name) {
         this.tag = tag;
@@ -28,11 +28,11 @@ public enum RegisterNewUserTopicEnum implements MQDestination {
 
     @Override
     public String getTopic() {
-        return TOPIC_NAME;
+        return TOPIC;
     }
 
     @Override
     public String getDestination() {
-        return TOPIC_NAME + ":" + getTag();
+        return TOPIC + ":" + getTag();
     }
 }
