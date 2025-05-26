@@ -33,4 +33,9 @@ public class BookkeepingWalletEntity extends UserEntity<Integer> {
      */
     private BigDecimal walletBalance;
 
+    /**
+     * 资产
+     */
+    private BigDecimal walletAssets;
+
 }

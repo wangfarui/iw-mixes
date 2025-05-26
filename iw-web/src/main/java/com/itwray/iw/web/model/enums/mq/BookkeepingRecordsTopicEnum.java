@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter
 public enum BookkeepingRecordsTopicEnum implements MQDestination {
 
-    WALLET_BALANCE("wallet_balance", "钱包余额")
+    WALLET_AMOUNT("wallet_amount", "钱包金额")
     ;
 
     private final String tag;

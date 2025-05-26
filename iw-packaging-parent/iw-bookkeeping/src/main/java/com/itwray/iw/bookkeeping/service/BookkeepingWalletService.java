@@ -1,7 +1,7 @@
 package com.itwray.iw.bookkeeping.service;
 
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingWalletBalanceUpdateDto;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletBalanceVo;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingWalletAmountUpdateDto;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletDetailVo;
 
 /**
  * 用户钱包表 服务接口
@@ -11,7 +11,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletBalanceVo;
  */
 public interface BookkeepingWalletService {
 
-    BookkeepingWalletBalanceVo getWalletBalance();
+    BookkeepingWalletDetailVo getUserWalletDetail();
 
-    void updateBalance(BookkeepingWalletBalanceUpdateDto dto);
+    void updateAmount(BookkeepingWalletAmountUpdateDto dto);
 }

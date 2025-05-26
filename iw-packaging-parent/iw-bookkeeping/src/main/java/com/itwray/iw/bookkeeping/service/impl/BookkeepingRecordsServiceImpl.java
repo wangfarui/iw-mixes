@@ -300,6 +300,6 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         BookkeepingRecordsWalletBalanceDto dto = new BookkeepingRecordsWalletBalanceDto();
         dto.setAmount(RecordCategoryEnum.CONSUME.equals(recordCategory) ? amount.negate() : amount);
         dto.setUserId(UserUtils.getUserId());
-        MQProducerHelper.send(BookkeepingRecordsTopicEnum.WALLET_BALANCE, dto);
+        MQProducerHelper.send(BookkeepingRecordsTopicEnum.WALLET_AMOUNT, dto);
     }
 }
