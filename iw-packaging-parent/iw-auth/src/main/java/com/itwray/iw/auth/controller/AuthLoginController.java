@@ -49,7 +49,7 @@ public class AuthLoginController {
 //        CaptchaJakartaUtil.out(this.captchaWidth, this.captchaHeight, this.captchaLen, Captcha.TYPE_ONLY_NUMBER, request, response);
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     @Operation(summary = "退出登录")
     public void logout() {
         authUserService.logout();

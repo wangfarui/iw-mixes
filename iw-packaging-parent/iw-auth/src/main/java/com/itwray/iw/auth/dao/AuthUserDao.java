@@ -75,6 +75,9 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
         bo.setUserId(addUser.getId());
         MQProducerHelper.send(RegisterNewUserTopicEnum.INIT, bo);
 
+        // 标记当前用户为新注册的用户
+        addUser.setNewUser(true);
+
         return addUser;
     }
 
@@ -129,6 +132,7 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
         }
         userInfoVo.setTokenName(TOKEN_HEADER);
         userInfoVo.setTokenValue(token);
+        userInfoVo.setNewUser(authUserEntity.isNewUser());
 
         return userInfoVo;
     }
