@@ -34,4 +34,7 @@ public class TaskBasicsListDto {
     @Schema(title = "截止日期-结束时间")
     @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate endDeadlineDate;
+
+    @Schema(title = "是否根据截止日期升序")
+    private Boolean sortDeadline;
 }
