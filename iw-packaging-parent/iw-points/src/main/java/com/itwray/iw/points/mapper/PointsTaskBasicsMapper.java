@@ -1,9 +1,10 @@
 package com.itwray.iw.points.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.itwray.iw.points.model.bo.ExpiredTaskBo;
 import com.itwray.iw.points.model.bo.QueryTaskNumBo;
+import com.itwray.iw.points.model.dto.task.TaskBasicsListDto;
 import com.itwray.iw.points.model.entity.PointsTaskBasicsEntity;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.itwray.iw.points.model.param.QueryExpiredTaskParam;
 import com.itwray.iw.points.model.param.QueryGroupTaskNumParam;
 import com.itwray.iw.web.annotation.IgnorePermission;
@@ -19,6 +20,8 @@ import java.util.List;
  */
 @Mapper
 public interface PointsTaskBasicsMapper extends BaseMapper<PointsTaskBasicsEntity> {
+
+    List<PointsTaskBasicsEntity> queryList(TaskBasicsListDto dto);
 
     List<QueryTaskNumBo> queryTaskNum(QueryGroupTaskNumParam param);
 

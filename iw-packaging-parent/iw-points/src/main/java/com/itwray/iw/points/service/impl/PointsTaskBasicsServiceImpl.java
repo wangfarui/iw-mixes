@@ -70,16 +70,7 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
 
     @Override
     public List<TaskBasicsListVo> queryList(TaskBasicsListDto dto) {
-        List<PointsTaskBasicsEntity> entityList = getBaseDao().lambdaQuery()
-                .eq(dto.getTaskGroupId() != null, PointsTaskBasicsEntity::getTaskGroupId, dto.getTaskGroupId())
-                .eq(dto.getParentId() != null, PointsTaskBasicsEntity::getParentId, dto.getParentId())
-                .ge(dto.getStartDeadlineDate() != null, PointsTaskBasicsEntity::getDeadlineDate, dto.getStartDeadlineDate())
-                .le(dto.getEndDeadlineDate() != null, PointsTaskBasicsEntity::getDeadlineDate, dto.getEndDeadlineDate())
-                .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT)
-                .orderByAsc(Boolean.TRUE.equals(dto.getSortDeadline()), PointsTaskBasicsEntity::getDeadlineDate)
-                .orderByDesc(PointsTaskBasicsEntity::getSort)
-                .orderByDesc(PointsTaskBasicsEntity::getId)
-                .list();
+        List<PointsTaskBasicsEntity> entityList = getBaseDao().getBaseMapper().queryList(dto);
         return this.buildListVo(entityList);
     }
 

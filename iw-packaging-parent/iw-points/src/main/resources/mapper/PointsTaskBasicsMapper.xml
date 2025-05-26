@@ -20,4 +20,26 @@
         where ptb.deleted = 0 and task_status = #{taskStatus} and deadline_date <![CDATA[<]]> #{deadlineDate}
         limit #{pageStart}, #{pageSize}
     </select>
+    <select id="queryList" resultType="com.itwray.iw.points.model.entity.PointsTaskBasicsEntity">
+        select *
+        from points_task_basics
+        where deleted = 0 and task_status = 0
+        <if test="taskGroupId != null">
+            and task_group_id = #{taskGroupId}
+        </if>
+        <if test="parentId != null">
+            and parent_id = #{parentId}
+        </if>
+        <if test="startDeadlineDate != null">
+            and deadline_date <![CDATA[>=]]> #{startDeadlineDate}
+        </if>
+        <if test="endDeadlineDate != null">
+            and deadline_date <![CDATA[<=]]> #{endDeadlineDate}
+        </if>
+        order by
+        <if test="sortDeadline != null and sortDeadline == true">
+            deadline_date is null, deadline_date asc,
+        </if>
+        sort desc, id desc
+    </select>
 </mapper>
