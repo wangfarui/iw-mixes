@@ -7,13 +7,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * 记账支出统计排行数据 VO
+ * 记账(支出/收入)统计排行数据 VO
  *
  * @author wray
  * @since 2024/10/15
  */
 @Data
-public class BookkeepingConsumeStatisticsRankVo {
+public class BookkeepingStatisticsRankVo {
 
     private Integer id;
 

@@ -5,13 +5,13 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 /**
- * 记账支出统计总数据 VO
+ * 记账(支出/收入)统计总数据 VO
  *
  * @author wray
  * @since 2024/10/15
  */
 @Data
-public class BookkeepingConsumeStatisticsTotalVo {
+public class BookkeepingStatisticsTotalVo {
 
     /**
      * 总金额
@@ -19,7 +19,7 @@ public class BookkeepingConsumeStatisticsTotalVo {
     private BigDecimal totalAmount;
 
     /**
-     * 消费记录总数
+     * 记账记录总数
      */
     private Integer totalRecordNum;
 }

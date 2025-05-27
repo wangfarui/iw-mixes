@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class BookkeepingConsumeCategoryStatisticsDto extends BookkeepingConsumeMonthStatisticsDto {
+public class BookkeepingConsumeCategoryStatisticsDto extends BookkeepingConsumeStatisticsDto {
 
     /**
      * 是否查询上个月的数据

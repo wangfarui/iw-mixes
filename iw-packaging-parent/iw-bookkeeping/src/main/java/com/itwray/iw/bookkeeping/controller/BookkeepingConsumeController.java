@@ -1,10 +1,10 @@
 package com.itwray.iw.bookkeeping.controller;
 
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeCategoryStatisticsDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeMonthStatisticsDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeStatisticsDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsRankVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingConsumeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -39,19 +40,25 @@ public class BookkeepingConsumeController {
 
     @PostMapping("/totalStatistics")
     @Operation(summary = "支出总统计")
-    public BookkeepingConsumeStatisticsTotalVo totalStatistics(@RequestBody @Valid BookkeepingConsumeMonthStatisticsDto dto) {
+    public BookkeepingStatisticsTotalVo totalStatistics(@RequestBody @Valid BookkeepingConsumeStatisticsDto dto) {
         return bookkeepingConsumeService.totalStatistics(dto);
     }
 
     @PostMapping("/rankStatistics")
     @Operation(summary = "支出排行统计")
-    public List<BookkeepingConsumeStatisticsRankVo> rankStatistics(@RequestBody @Valid BookkeepingConsumeMonthStatisticsDto dto) {
+    public List<BookkeepingStatisticsRankVo> rankStatistics(@RequestBody @Valid BookkeepingConsumeStatisticsDto dto) {
         return bookkeepingConsumeService.rankStatistics(dto);
     }
 
-    @PostMapping("/categoryStatistics")
-    @Operation(summary = "支出分类统计")
-    public List<BookkeepingConsumeStatisticsCategoryVo> categoryStatistics(@RequestBody @Valid BookkeepingConsumeCategoryStatisticsDto dto) {
-        return bookkeepingConsumeService.categoryStatistics(dto);
+    @PostMapping("/pieChartStatistics")
+    @Operation(summary = "支出饼图图表统计")
+    public List<BookkeepingConsumeStatisticsCategoryVo> pieChartStatistics(@RequestBody @Valid BookkeepingConsumeCategoryStatisticsDto dto) {
+        return bookkeepingConsumeService.pieChartStatistics(dto);
+    }
+
+    @PostMapping("/barChartStatistics")
+    @Operation(summary = "支出柱状图图表统计")
+    public List<BigDecimal> barChartStatistics(@RequestBody @Valid BookkeepingConsumeStatisticsDto dto) {
+        return bookkeepingConsumeService.barChartStatistics(dto);
     }
 }

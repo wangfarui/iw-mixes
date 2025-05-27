@@ -2,26 +2,26 @@ package com.itwray.iw.bookkeeping.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
+import com.itwray.iw.bookkeeping.model.bo.BookkeepingBarChartStatisticsBo;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeCategoryStatisticsDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeMonthStatisticsDto;
-import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeStatisticsDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingStatisticsDto;
+import com.itwray.iw.bookkeeping.model.enums.BookkeepingStatisticsTypeEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsRankVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingConsumeService;
-import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.constants.WebCommonConstants;
+import com.itwray.iw.web.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,32 +41,20 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
     }
 
     @Override
-    public BookkeepingConsumeStatisticsTotalVo totalStatistics(BookkeepingConsumeMonthStatisticsDto dto) {
-        this.fillMonthStatisticsDto(dto);
-        return bookkeepingRecordsDao.getBaseMapper().totalStatistics(dto);
+    public BookkeepingStatisticsTotalVo totalStatistics(BookkeepingConsumeStatisticsDto dto) {
+        BookkeepingStatisticsDto statisticsDto = this.buildStatisticsDto(dto);
+        return bookkeepingRecordsDao.getBaseMapper().totalStatistics(statisticsDto);
     }
 
     @Override
-    public List<BookkeepingConsumeStatisticsRankVo> rankStatistics(BookkeepingConsumeMonthStatisticsDto dto) {
-        this.fillMonthStatisticsDto(dto);
-        return bookkeepingRecordsDao.lambdaQuery()
-                .eq(BookkeepingRecordsEntity::getRecordCategory, dto.getRecordCategory())
-                // 如果不查询所有,则只查询计入统计的数据
-                .eq(BoolEnum.FALSE.getCode().equals(dto.getIsSearchAll()), BookkeepingRecordsEntity::getIsStatistics, BoolEnum.TRUE.getCode())
-                .between(BookkeepingRecordsEntity::getRecordDate, dto.getCurrentStartMonth(), dto.getCurrentEndMonth())
-                .select(BookkeepingRecordsEntity::getId, BookkeepingRecordsEntity::getRecordSource,
-                        BookkeepingRecordsEntity::getRecordTime, BookkeepingRecordsEntity::getAmount)
-                .orderByDesc(BookkeepingRecordsEntity::getAmount)
-                .last(WebCommonConstants.standardLimit(dto.getLimit()))
-                .list()
-                .stream()
-                .map(t -> BeanUtil.copyProperties(t, BookkeepingConsumeStatisticsRankVo.class))
-                .collect(Collectors.toList());
+    public List<BookkeepingStatisticsRankVo> rankStatistics(BookkeepingConsumeStatisticsDto dto) {
+        BookkeepingStatisticsDto statisticsDto = this.buildStatisticsDto(dto);
+        return bookkeepingRecordsDao.getBaseMapper().rankStatistics(statisticsDto);
     }
 
     @Override
-    public List<BookkeepingConsumeStatisticsCategoryVo> categoryStatistics(BookkeepingConsumeCategoryStatisticsDto dto) {
-        this.fillMonthStatisticsDto(dto);
+    public List<BookkeepingConsumeStatisticsCategoryVo> pieChartStatistics(BookkeepingConsumeCategoryStatisticsDto dto) {
+        this.buildStatisticsDto(dto);
         // 查询当前月度的分类支出统计数据
         List<BookkeepingConsumeStatisticsCategoryVo> currentMonthCategoryVoList = bookkeepingRecordsDao.getBaseMapper().categoryStatistics(dto);
         // 计算总支出
@@ -85,7 +73,7 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
             dto.setCurrentMonth(dto.getCurrentMonth().minusMonths(1L));
             dto.setCurrentStartMonth(null);
             dto.setCurrentEndMonth(null);
-            this.fillMonthStatisticsDto(dto);
+            this.buildStatisticsDto(dto);
             // 查询上个月度的分类支出统计数据
             List<BookkeepingConsumeStatisticsCategoryVo> lastMonthCategoryVoList = bookkeepingRecordsDao.getBaseMapper().categoryStatistics(dto);
             // key -> recordType, value -> amount
@@ -128,16 +116,44 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
         return currentMonthCategoryVoList;
     }
 
-    private void fillMonthStatisticsDto(BookkeepingConsumeMonthStatisticsDto dto) {
+    @Override
+    public List<BigDecimal> barChartStatistics(BookkeepingConsumeStatisticsDto dto) {
+        if (!BookkeepingStatisticsTypeEnum.YEAR.equals(dto.getStatisticsType())) {
+            throw new BusinessException("支出统计目前只支持年度统计");
+        }
+        BookkeepingStatisticsDto statisticsDto = this.buildStatisticsDto(dto);
+        List<BookkeepingBarChartStatisticsBo> list = bookkeepingRecordsDao.getBaseMapper().barChartStatistics(statisticsDto);
+        if (list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, BigDecimal> recordDateMap = list.stream().collect(Collectors.toMap(
+                BookkeepingBarChartStatisticsBo::getRecordDate, BookkeepingBarChartStatisticsBo::getAmount
+        ));
+        List<BigDecimal> result = new ArrayList<>();
+        int year = statisticsDto.getCurrentStartMonth().getYear();
+        for (int i = 1; i <= 12; i++) {
+            String recordDate = year + "-" + (i < 10 ? "0" + i : i);
+            result.add(Optional.ofNullable(recordDateMap.get(recordDate)).orElse(BigDecimal.ZERO));
+        }
+        return result;
+    }
+
+    private BookkeepingStatisticsDto buildStatisticsDto(BookkeepingConsumeStatisticsDto dto) {
         if (dto.getCurrentMonth() == null) {
             dto.setCurrentMonth(LocalDate.now());
         }
-        if (dto.getCurrentStartMonth() == null) {
-            dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
-        }
-        if (dto.getCurrentEndMonth() == null) {
-            dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+        switch (dto.getStatisticsType()) {
+            case MONTH -> {
+                dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
+                dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+            }
+            case YEAR -> {
+                dto.setCurrentStartMonth(DateUtils.startDateOfYear(dto.getCurrentMonth()));
+                dto.setCurrentEndMonth(DateUtils.endDateOfYear(dto.getCurrentMonth()));
+            }
+            default -> throw new BusinessException("无效的统计类型");
         }
         dto.setRecordCategory(RecordCategoryEnum.CONSUME);
+        return BeanUtil.copyProperties(dto, BookkeepingStatisticsDto.class);
     }
 }

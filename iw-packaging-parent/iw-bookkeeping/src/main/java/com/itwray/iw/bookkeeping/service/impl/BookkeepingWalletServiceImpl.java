@@ -28,7 +28,7 @@ import java.math.BigDecimal;
  * @since 2025-05-22
  */
 @Service
-@RocketMQMessageListener(consumerGroup = "bookkeeping-records-service", topic = BookkeepingRecordsTopicEnum.TOPIC, tag = "wallet_balance")
+@RocketMQMessageListener(consumerGroup = "bookkeeping-records-service", topic = BookkeepingRecordsTopicEnum.TOPIC, tag = "wallet_amount")
 public class BookkeepingWalletServiceImpl implements BookkeepingWalletService, RocketMQClientListener<BookkeepingRecordsWalletBalanceDto> {
 
     private final BookkeepingWalletDao bookkeepingWalletDao;
