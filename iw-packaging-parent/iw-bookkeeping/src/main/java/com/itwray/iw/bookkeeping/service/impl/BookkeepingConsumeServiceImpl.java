@@ -142,16 +142,18 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
         if (dto.getCurrentMonth() == null) {
             dto.setCurrentMonth(LocalDate.now());
         }
-        switch (dto.getStatisticsType()) {
-            case MONTH -> {
-                dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
-                dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+        if (dto.getStatisticsType() != null) {
+            switch (dto.getStatisticsType()) {
+                case MONTH -> {
+                    dto.setCurrentStartMonth(DateUtils.startDateOfMonth(dto.getCurrentMonth()));
+                    dto.setCurrentEndMonth(DateUtils.endDateOfMonth(dto.getCurrentMonth()));
+                }
+                case YEAR -> {
+                    dto.setCurrentStartMonth(DateUtils.startDateOfYear(dto.getCurrentMonth()));
+                    dto.setCurrentEndMonth(DateUtils.endDateOfYear(dto.getCurrentMonth()));
+                }
+                default -> throw new BusinessException("无效的统计类型");
             }
-            case YEAR -> {
-                dto.setCurrentStartMonth(DateUtils.startDateOfYear(dto.getCurrentMonth()));
-                dto.setCurrentEndMonth(DateUtils.endDateOfYear(dto.getCurrentMonth()));
-            }
-            default -> throw new BusinessException("无效的统计类型");
         }
         dto.setRecordCategory(RecordCategoryEnum.CONSUME);
         return BeanUtil.copyProperties(dto, BookkeepingStatisticsDto.class);
