@@ -134,9 +134,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         BookkeepingRecordsEntity recordsEntity = this.buildBookkeepingRecordAddDto(dto);
         getBaseDao().updateById(recordsEntity);
 
-        // 同步用户钱包余额(更新操作时,先将历史数据的金额还原,再重新更新余额)
-        this.syncWalletBalance(bookkeepingRecordsEntity.getRecordCategory(), bookkeepingRecordsEntity.getAmount().negate());
-        this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount());
+        // 同步用户钱包余额
+        if (bookkeepingRecordsEntity.getAmount().compareTo(dto.getAmount()) != 0) {
+            this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount().subtract(bookkeepingRecordsEntity.getAmount()));
+        }
     }
 
     private BookkeepingRecordsEntity buildBookkeepingRecordAddDto(BookkeepingRecordAddDto dto) {
@@ -226,7 +227,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 t.setRecordTimeStr("今天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
             } else if (now.equals(localDate.plusDays(1))) {
                 t.setRecordTimeStr("昨天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
-            } else if (nowYear == localDate.getYear()){
+            } else if (nowYear == localDate.getYear()) {
                 t.setRecordTimeStr(t.getRecordTime().format(nowYearFormatter));
             } else {
                 t.setRecordTimeStr(t.getRecordTime().format(oldYearFormatter));
