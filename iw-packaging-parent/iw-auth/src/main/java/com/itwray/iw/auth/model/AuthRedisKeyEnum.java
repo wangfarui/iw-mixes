@@ -40,7 +40,12 @@ public enum AuthRedisKeyEnum implements RedisKeyManager {
     /**
      * 电话号码登录/注册时的授权验证码:[phoneNumber]
      */
-    USER_LOGIN_VERIFY_KEY("auth:user:login:verify:%s", 5 * 60L),
+    USER_LOGIN_PHONE_VERIFY_KEY("auth:user:login:phone:verify:%s", 5 * 60L),
+
+    /**
+     * 邮箱登录/注册时的授权验证码:[email]
+     */
+    USER_LOGIN_EMAIL_VERIFY_KEY("auth:user:login:email:verify:%s", 5 * 60L),
 
     /**
      * 电话号码获取验证码时，指定ip获取验证码的次数:[ipAddress]

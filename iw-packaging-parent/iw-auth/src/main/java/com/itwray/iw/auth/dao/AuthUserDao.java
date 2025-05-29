@@ -6,8 +6,10 @@ import com.itwray.iw.auth.mapper.AuthUserMapper;
 import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
+import com.itwray.iw.auth.model.enums.UserLoginWayEnum;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.starter.redis.RedisUtil;
+import com.itwray.iw.starter.redis.lock.DistributedLock;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseDao;
@@ -44,13 +46,14 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
      * @return 用户实体
      */
     @Transactional
+    @DistributedLock(lockName = "'user:save:unique:key'") // 在修改保存用户的唯一值的操作上,必须加上分布式锁,以确保不出现重复数据
     public AuthUserEntity addNewUser(UserAddBo bo) {
-        if (StringUtils.isBlank(bo.getPhoneNumber())) {
-            throw new IwWebException("电话号码不能为空");
+        if (StringUtils.isBlank(bo.getPhoneNumber()) && StringUtils.isBlank(bo.getEmailAddress()) && StringUtils.isBlank(bo.getUsername())) {
+            throw new IwWebException("账号信息不能为空");
         }
 
         // 校验用户唯一性
-        this.checkUserUnique(bo.getPhoneNumber(), bo.getUsername());
+        this.checkUserUnique(bo.getPhoneNumber(), bo.getUsername(), bo.getEmailAddress());
 
         // 如果密码为空，则生成随机密码
         if (StringUtils.isBlank(bo.getPassword())) {
@@ -58,7 +61,7 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
         }
         // 填充用户名和姓名
         if (StringUtils.isBlank(bo.getUsername())) {
-            bo.setUsername(bo.getPhoneNumber());
+            bo.setUsername(StringUtils.isNotBlank(bo.getPhoneNumber()) ? bo.getPhoneNumber() : bo.getEmailAddress());
         }
         if (StringUtils.isBlank(bo.getName())) {
             bo.setName(bo.getUsername());
@@ -170,6 +173,39 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
     }
 
     /**
+     * 根据邮箱地址查询唯一的用户
+     *
+     * @param emailAddress 邮箱地址
+     * @return 用户实体
+     */
+    public @Nullable AuthUserEntity queryOneByEmailAddress(String emailAddress) {
+        if (StringUtils.isBlank(emailAddress)) {
+            throw new BusinessException("邮箱地址不能为空");
+        }
+        return this.lambdaQuery()
+                .eq(AuthUserEntity::getEmailAddress, emailAddress)
+                .last(WebCommonConstants.LIMIT_ONE)
+                .one();
+    }
+
+    /**
+     * 根据登录方式查询唯一用户
+     *
+     * @param account  用户登录账号
+     * @param loginWay 登录方式
+     * @return 用户实体
+     */
+    public @Nullable AuthUserEntity queryOneByLoginWay(String account, UserLoginWayEnum loginWay) {
+        AuthUserEntity authUserEntity;
+        switch (loginWay) {
+            case PHONE -> authUserEntity = this.queryOneByPhoneNumber(account);
+            case EMAIL -> authUserEntity = this.queryOneByEmailAddress(account);
+            default -> authUserEntity = null;
+        }
+        return authUserEntity;
+    }
+
+    /**
      * 根据用户名修改用户密码
      *
      * @param username        用户名
@@ -200,10 +236,11 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
     /**
      * 校验用户是否唯一
      *
-     * @param phoneNumber 唯一电话号码
-     * @param username    唯一用户名
+     * @param phoneNumber  唯一电话号码
+     * @param username     唯一用户名
+     * @param emailAddress 唯一邮箱地址
      */
-    public void checkUserUnique(@Nullable String phoneNumber, @Nullable String username) {
+    public void checkUserUnique(@Nullable String phoneNumber, @Nullable String username, @Nullable String emailAddress) {
         // 获取客户端ip
         String clientIp;
         if (SpringWebHolder.isWeb()) {
@@ -226,6 +263,16 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
         // 校验用户名是否已注册
         if (StringUtils.isNotBlank(username)) {
             AuthUserEntity authUserEntity = this.queryOneByUsername(username);
+            if (authUserEntity != null) {
+                // 为防止用户恶意猜测用户名，增加注册次数限制
+                this.incrementClientIpLockCount(clientIp);
+                throw new BusinessException("用户已存在");
+            }
+        }
+
+        // 校验邮箱地址是否已注册
+        if (StringUtils.isNotBlank(emailAddress)) {
+            AuthUserEntity authUserEntity = this.queryOneByEmailAddress(emailAddress);
             if (authUserEntity != null) {
                 // 为防止用户恶意猜测用户名，增加注册次数限制
                 this.incrementClientIpLockCount(clientIp);

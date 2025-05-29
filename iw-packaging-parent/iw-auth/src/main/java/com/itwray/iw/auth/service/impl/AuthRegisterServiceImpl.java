@@ -55,9 +55,9 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         }
 
         // 获取电话号码验证码
-        String phoneVerifyCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
+        String phoneVerifyCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_PHONE_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
         if (phoneVerifyCode == null) {
-            throw new BusinessException("验证码已失效，请重新获取");
+            throw new BusinessException("验证码失效，请重新获取");
         }
         // 比对验证码是否正确
         if (!dto.getVerificationCode().equals(phoneVerifyCode)) {
@@ -81,8 +81,18 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
      * @param phoneNumber 电话号码
      */
     @Override
-    public void getVerificationCode(String phoneNumber) {
-        authVerificationService.getVerificationCode(phoneNumber, AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY);
+    public void getPhoneVerificationCode(String phoneNumber) {
+        authVerificationService.getPhoneVerificationCode(phoneNumber, AuthRedisKeyEnum.USER_LOGIN_PHONE_VERIFY_KEY);
+    }
+
+    /**
+     * 用户登录/注册时获取邮箱验证码
+     *
+     * @param emailAddress 邮箱地址
+     */
+    @Override
+    public void getEmailVerificationCode(String emailAddress) {
+        authVerificationService.getEmailVerificationCode(emailAddress, AuthRedisKeyEnum.USER_LOGIN_EMAIL_VERIFY_KEY);
     }
 
     /**

@@ -9,11 +9,13 @@ import com.google.gson.Gson;
 import com.itwray.iw.external.model.dto.SendEmailDto;
 import com.itwray.iw.external.service.EmailService;
 import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.model.enums.RuntimeEnvironmentEnum;
 import com.itwray.iw.web.utils.EnvironmentHolder;
 import darabonba.core.client.ClientOverrideConfiguration;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
@@ -32,8 +34,19 @@ public class EmailServiceImpl implements EmailService, ApplicationRunner {
 
     private AsyncClient client;
 
+    /**
+     * 运行环境
+     */
+    @Value("${iw.web.env:dev}")
+    private RuntimeEnvironmentEnum env;
+
     @Override
     public void sendSingleEmail(SendEmailDto dto) {
+        if (!RuntimeEnvironmentEnum.PROD.name().equals(env.name())) {
+            log.info("非生产环境, 已跳过邮件发送流程");
+            return;
+        }
+
         SingleSendMailRequest.Builder builder = SingleSendMailRequest.builder()
                 .accountName(dto.getAccountName())
                 .addressType(1)

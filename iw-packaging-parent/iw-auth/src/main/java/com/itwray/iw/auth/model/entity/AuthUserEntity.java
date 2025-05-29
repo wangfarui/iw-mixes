@@ -84,6 +84,11 @@ public class AuthUserEntity extends IdEntity<Integer> {
     private LocalDateTime lastLoginTime;
 
     /**
+     * 邮箱地址
+     */
+    private String emailAddress;
+
+    /**
      * 新用户
      */
     @TableField(exist = false)

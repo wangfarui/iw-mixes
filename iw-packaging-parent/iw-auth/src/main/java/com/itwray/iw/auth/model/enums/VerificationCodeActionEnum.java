@@ -16,7 +16,7 @@ public enum VerificationCodeActionEnum implements ConstantEnum {
 
     EDIT_PASSWORD(1, "修改密码", AuthRedisKeyEnum.EDIT_PASSWORD_KEY),
     APPLICATION_ACCOUNT_REFRESH_PASSWORD(2, "应用账号刷新密码操作", AuthRedisKeyEnum.APPLICATION_ACCOUNT_REFRESH_KEY),
-    USER_LOGIN_REGISTER(3, "用户登录/注册", AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY),
+    USER_LOGIN_REGISTER(3, "用户登录/注册", AuthRedisKeyEnum.USER_LOGIN_PHONE_VERIFY_KEY),
     ;
 
     private final Integer code;

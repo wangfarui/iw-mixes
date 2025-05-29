@@ -17,3 +17,8 @@ alter table auth_user
     add column phone_number char(11) null comment '电话号码' after id,
     add index idx_phone_number (phone_number),
     add index idx_username (username);
+
+alter table auth_user
+add column email_address varchar(64) not null default '' comment '邮箱地址';
+alter table auth_user
+add index idx_email_address (email_address);
