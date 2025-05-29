@@ -38,6 +38,12 @@
             <artifactId>dysmsapi20170525</artifactId>
             <version>3.1.0</version>
         </dependency>
+        <!-- 阿里云邮件服务依赖 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>alibabacloud-dm20151123</artifactId>
+            <version>1.0.19</version>
+        </dependency>
     </dependencies>
 
     <build>

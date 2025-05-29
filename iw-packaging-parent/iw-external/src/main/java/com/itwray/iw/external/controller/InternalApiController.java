@@ -2,8 +2,12 @@ package com.itwray.iw.external.controller;
 
 import com.itwray.iw.external.model.ExternalClientConstants;
 import com.itwray.iw.external.model.dto.GetExchangeRateDto;
+import com.itwray.iw.external.model.dto.SendEmailDto;
+import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 import com.itwray.iw.external.model.vo.GetExchangeRateVo;
+import com.itwray.iw.external.service.EmailService;
 import com.itwray.iw.external.service.InternalApiService;
+import com.itwray.iw.external.service.SmsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,19 +23,39 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2025/4/12
  */
 @RestController
-@RequestMapping(ExternalClientConstants.INTERNAL_PATH_PREFIX + "/api")
+@RequestMapping(ExternalClientConstants.INTERNAL_PATH_PREFIX)
 @Tag(name = "内部API接口（内部服务使用）")
 public class InternalApiController {
 
     private final InternalApiService internalApiService;
 
-    public InternalApiController(InternalApiService internalApiService) {
+    private final SmsService smsService;
+
+    private final EmailService emailService;
+
+    public InternalApiController(InternalApiService internalApiService,
+                                 SmsService smsService,
+                                 EmailService emailService) {
         this.internalApiService = internalApiService;
+        this.smsService = smsService;
+        this.emailService = emailService;
     }
 
-    @PostMapping("/getExchangeRate")
+    @PostMapping("/api/getExchangeRate")
     @Operation(summary = "查询汇率")
     public GetExchangeRateVo getExchangeRate(@RequestBody @Valid GetExchangeRateDto dto) {
         return internalApiService.getExchangeRate(dto);
+    }
+
+    @PostMapping("/sms/sendVerificationCode")
+    @Operation(summary = "发送验证码")
+    public void sendVerificationCode(@RequestBody @Valid SmsSendVerificationCodeDto dto) {
+        smsService.sendVerificationCode(dto);
+    }
+
+    @PostMapping("/email/sendSingleEmail")
+    @Operation(summary = "发送单个邮件")
+    public void sendSingleEmail(@RequestBody @Valid SendEmailDto dto) {
+        emailService.sendSingleEmail(dto);
     }
 }
