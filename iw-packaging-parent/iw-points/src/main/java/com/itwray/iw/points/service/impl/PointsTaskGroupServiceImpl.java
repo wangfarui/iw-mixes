@@ -113,7 +113,11 @@ public class PointsTaskGroupServiceImpl extends WebServiceImpl<PointsTaskGroupDa
                 .eq(PointsTaskBasicsEntity::getTaskGroupId, WebCommonConstants.DATABASE_DEFAULT_INT_VALUE)
                 .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT.getCode())
                 .count();
-        return new FixedGroupTaskNumVo(todayNum, weekNum, noGroupNum);
+        Long withDeadlineNum = pointsTaskBasicsDao.lambdaQuery()
+                .isNotNull(PointsTaskBasicsEntity::getDeadlineDate)
+                .eq(PointsTaskBasicsEntity::getTaskStatus, TaskStatusEnum.WAIT.getCode())
+                .count();
+        return new FixedGroupTaskNumVo(todayNum, weekNum, noGroupNum, withDeadlineNum);
     }
 
     @Override

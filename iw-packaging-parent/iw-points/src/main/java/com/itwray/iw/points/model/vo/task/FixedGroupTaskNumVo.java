@@ -29,4 +29,9 @@ public class FixedGroupTaskNumVo {
      * 无分组(收集箱)的任务数量
      */
     private Long noGroupNum;
+
+    /**
+     * 带有截止日期的任务数量
+     */
+    private Long withDeadlineNum;
 }

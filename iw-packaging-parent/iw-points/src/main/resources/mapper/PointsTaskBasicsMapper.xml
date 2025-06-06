@@ -36,6 +36,9 @@
         <if test="endDeadlineDate != null">
             and deadline_date <![CDATA[<=]]> #{endDeadlineDate}
         </if>
+        <if test="statisticsDeadline != null and statisticsDeadline == true">
+            and deadline_date is not null
+        </if>
         order by
         <if test="sortDeadline != null and sortDeadline == true">
             deadline_date is null, deadline_date asc,
