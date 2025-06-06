@@ -14,6 +14,7 @@ iw:
         - points_task_basics
         - points_task_group
         - points_task_plan
+        - points_task_fixed
         - eat_meal
 
 # 服务器配置

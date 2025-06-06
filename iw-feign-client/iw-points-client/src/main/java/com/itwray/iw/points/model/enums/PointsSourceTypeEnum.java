@@ -16,6 +16,7 @@ public enum PointsSourceTypeEnum implements ConstantEnum {
     BOOKKEEPING(1, "记账服务"),
     POINTS_TASK_MANUAL(2, "积分任务-手动触发"),
     POINTS_TASK_TIMING(3, "积分任务-定时触发"),
+    FIXED_TASK(4, "常用固定任务"),
     ;
 
     private final Integer code;

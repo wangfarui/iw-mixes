@@ -45,5 +45,6 @@ public class PointsRecordsAddDto implements AddDto, UserDto {
     /**
      * 用户id
      */
+    @NotNull
     private Integer userId;
 }
