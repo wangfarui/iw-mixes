@@ -6,6 +6,8 @@ import com.aliyun.sdk.service.dm20151123.AsyncClient;
 import com.aliyun.sdk.service.dm20151123.models.SingleSendMailRequest;
 import com.aliyun.sdk.service.dm20151123.models.SingleSendMailResponse;
 import com.google.gson.Gson;
+import com.itwray.iw.common.GeneralResponse;
+import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.external.model.dto.SendEmailDto;
 import com.itwray.iw.external.service.EmailService;
 import com.itwray.iw.web.exception.IwWebException;
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Service
 @Slf4j
+@RefreshScope
 public class EmailServiceImpl implements EmailService, ApplicationRunner {
 
     private AsyncClient client;
@@ -41,10 +45,10 @@ public class EmailServiceImpl implements EmailService, ApplicationRunner {
     private RuntimeEnvironmentEnum env;
 
     @Override
-    public void sendSingleEmail(SendEmailDto dto) {
-        if (!RuntimeEnvironmentEnum.PROD.name().equals(env.name())) {
+    public GeneralResponse<Void> sendSingleEmail(SendEmailDto dto) {
+        if (!RuntimeEnvironmentEnum.PROD.equals(env)) {
             log.info("非生产环境, 已跳过邮件发送流程");
-            return;
+            return GeneralResponse.success();
         }
 
         SingleSendMailRequest.Builder builder = SingleSendMailRequest.builder()
@@ -61,14 +65,18 @@ public class EmailServiceImpl implements EmailService, ApplicationRunner {
         }
         SingleSendMailRequest singleSendMailRequest = builder.build();
 
-        CompletableFuture<SingleSendMailResponse> response = client.singleSendMail(singleSendMailRequest);
         try {
+            CompletableFuture<SingleSendMailResponse> response = client.singleSendMail(singleSendMailRequest);
             SingleSendMailResponse resp = response.get();
+            if (!resp.getStatusCode().equals(GeneralApiCode.SUCCESS.getCode())) {
+                return GeneralResponse.fail("邮件发送失败，请重试");
+            }
             log.info("sendEmail success: " + new Gson().toJson(resp));
         } catch (Exception e) {
             log.error("sendEmail error", e);
             throw new IwWebException("发送邮件异常");
         }
+        return GeneralResponse.success();
     }
 
     @Override

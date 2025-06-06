@@ -1,5 +1,6 @@
 package com.itwray.iw.external.controller;
 
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.model.ExternalClientConstants;
 import com.itwray.iw.external.model.dto.GetExchangeRateDto;
 import com.itwray.iw.external.model.dto.SendEmailDto;
@@ -49,13 +50,13 @@ public class InternalApiController {
 
     @PostMapping("/sms/sendVerificationCode")
     @Operation(summary = "发送验证码")
-    public void sendVerificationCode(@RequestBody @Valid SmsSendVerificationCodeDto dto) {
-        smsService.sendVerificationCode(dto);
+    public GeneralResponse<Void> sendVerificationCode(@RequestBody @Valid SmsSendVerificationCodeDto dto) {
+        return smsService.sendVerificationCode(dto);
     }
 
     @PostMapping("/email/sendSingleEmail")
     @Operation(summary = "发送单个邮件")
-    public void sendSingleEmail(@RequestBody @Valid SendEmailDto dto) {
-        emailService.sendSingleEmail(dto);
+    public GeneralResponse<Void> sendSingleEmail(@RequestBody @Valid SendEmailDto dto) {
+        return emailService.sendSingleEmail(dto);
     }
 }

@@ -3,6 +3,7 @@ package com.itwray.iw.auth.service.impl;
 import cn.hutool.core.util.NumberUtil;
 import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.service.AuthVerificationService;
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.external.client.InternalApiClient;
 import com.itwray.iw.external.model.dto.SendEmailDto;
@@ -61,7 +62,10 @@ public class AuthVerificationServiceImpl implements AuthVerificationService {
             dto.setTemplateCode(this.iwAliyunProperties.getSms().getTemplateCode());
             dto.setTemplateParam("{\"code\":\"" + verificationCode + "\"}");
             // 同步调用发送验证码
-            internalApiClient.sendVerificationCode(dto);
+            GeneralResponse<Void> response = internalApiClient.sendVerificationCode(dto);
+            if (!response.isSuccess()) {
+                throw new BusinessException("短信发送失败");
+            }
         });
     }
 
@@ -103,7 +107,10 @@ public class AuthVerificationServiceImpl implements AuthVerificationService {
             dto.setSubject("登录验证码");
             dto.setTextBody("您的验证码是: " + verificationCode + ", 有效期5分钟. 请勿泄露.");
             // 同步调用发送验证码
-            internalApiClient.sendSingleEmail(dto);
+            GeneralResponse<Void> response = internalApiClient.sendSingleEmail(dto);
+            if (!response.isSuccess()) {
+                throw new BusinessException("邮件发送失败");
+            }
         });
     }
 

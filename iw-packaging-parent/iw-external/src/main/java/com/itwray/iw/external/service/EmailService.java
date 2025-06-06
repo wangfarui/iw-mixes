@@ -1,5 +1,6 @@
 package com.itwray.iw.external.service;
 
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.model.dto.SendEmailDto;
 
 /**
@@ -13,5 +14,5 @@ public interface EmailService {
     /**
      * 发送单条邮件
      */
-    void sendSingleEmail(SendEmailDto dto);
+    GeneralResponse<Void> sendSingleEmail(SendEmailDto dto);
 }

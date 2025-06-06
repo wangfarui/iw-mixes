@@ -1,5 +1,6 @@
 package com.itwray.iw.external.client;
 
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.core.InternalFeignConfig;
 import com.itwray.iw.external.model.ExternalClientConstants;
 import com.itwray.iw.external.model.dto.GetExchangeRateDto;
@@ -28,9 +29,9 @@ public interface InternalApiClient {
 
     @PostMapping("/sms/sendVerificationCode")
     @Operation(summary = "发送验证码")
-    void sendVerificationCode(@RequestBody @Valid SmsSendVerificationCodeDto dto);
+    GeneralResponse<Void> sendVerificationCode(@RequestBody @Valid SmsSendVerificationCodeDto dto);
 
     @PostMapping("/email/sendSingleEmail")
     @Operation(summary = "发送单个邮件")
-    void sendSingleEmail(@RequestBody @Valid SendEmailDto dto);
+    GeneralResponse<Void> sendSingleEmail(@RequestBody @Valid SendEmailDto dto);
 }
