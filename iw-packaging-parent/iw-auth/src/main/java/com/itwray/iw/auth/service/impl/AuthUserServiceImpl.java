@@ -215,14 +215,24 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 获取当前用户实体
         AuthUserEntity authUserEntity = getCurrentUser();
 
-        // 验证码不为空的情况下, 优先使用验证码校验
+        // 手机验证码不为空的情况下, 优先使用手机验证码校验
         if (StringUtils.isNotBlank(dto.getVerificationCode())) {
-            // 校验电话号码验证码的正确性, 通过后表示登录成功
+            // 校验电话号码验证码的正确性
             String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_PHONE_VERIFY_KEY.getKey(authUserEntity.getPhoneNumber()), String.class);
             if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
                 throw this.accountVerifyException(authUserEntity.getUsername(), "验证码错误");
             }
-        } else if (StringUtils.isNotBlank(dto.getOldPassword())) {
+        }
+        // 邮箱验证码不为空的情况下, 使用邮箱验证码校验
+        else if (StringUtils.isNotBlank(dto.getEmailVerificationCode())) {
+            // 校验邮箱验证码的正确性
+            String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_EMAIL_VERIFY_KEY.getKey(authUserEntity.getEmailAddress()), String.class);
+            if (verificationCode == null || !verificationCode.equals(dto.getEmailVerificationCode())) {
+                throw this.accountVerifyException(authUserEntity.getUsername(), "验证码错误");
+            }
+        }
+        // 使用原密码校验
+        else if (StringUtils.isNotBlank(dto.getOldPassword())) {
             this.verifyPassword(authUserEntity.getUsername(), dto.getOldPassword(), authUserEntity.getPassword());
         } else {
             throw new BusinessException("无法识别的操作");
@@ -247,22 +257,26 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     public void getVerificationCodeByAction(Integer action) {
         VerificationCodeActionEnum actionEnum = ConstantEnumUtil.findByType(VerificationCodeActionEnum.class, action);
-        String phoneNumber = null;
+        Integer userId = UserUtils.getUserId();
+        AuthUserEntity authUserEntity = authUserDao.getById(userId);
+        if (authUserEntity == null) {
+            throw new BusinessException("用户不存在，请刷新重试");
+        }
         switch (actionEnum) {
-            case EDIT_PASSWORD, APPLICATION_ACCOUNT_REFRESH_PASSWORD -> {
-                Integer userId = UserUtils.getUserId();
-                AuthUserEntity authUserEntity = authUserDao.getById(userId);
-                if (authUserEntity == null) {
-                    throw new BusinessException("用户不存在，请刷新重试");
+            case PHONE_EDIT_PASSWORD, APPLICATION_ACCOUNT_REFRESH_PASSWORD -> {
+                if (StringUtils.isBlank(authUserEntity.getPhoneNumber())) {
+                    throw new BusinessException("未绑定手机号");
                 }
-                phoneNumber = authUserEntity.getPhoneNumber();
+                authVerificationService.getPhoneVerificationCode(authUserEntity.getPhoneNumber(), actionEnum.getKeyManager());
             }
-            default -> log.info("忽略其他操作");
+            case EMAIL_EDIT_PASSWORD -> {
+                if (StringUtils.isBlank(authUserEntity.getEmailAddress())) {
+                    throw new BusinessException("未绑定邮箱");
+                }
+                authVerificationService.getEmailVerificationCode(authUserEntity.getEmailAddress(), actionEnum.getKeyManager());
+            }
+            default -> throw new BusinessException("不支持的操作");
         }
-        if (StringUtils.isBlank(phoneNumber)) {
-            log.warn("getVerificationCodeByAction 获取电话号码为空, action: {}", action);
-        }
-        authVerificationService.getPhoneVerificationCode(phoneNumber, actionEnum.getKeyManager());
     }
 
     @Override

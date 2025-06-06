@@ -15,9 +15,13 @@ import org.hibernate.validator.constraints.Length;
 @Schema(name = "用户信息 修改密码DTO")
 public class UserPasswordEditDto {
 
-    @Schema(title = "验证码")
+    @Schema(title = "手机验证码")
     @Length(min = 6, max = 6, message = "验证码固定为6位数字")
     private String verificationCode;
+
+    @Schema(title = "邮箱验证码")
+    @Length(min = 6, max = 6, message = "验证码固定为6位数字")
+    private String emailVerificationCode;
 
     @Schema(title = "旧密码")
     private String oldPassword;
