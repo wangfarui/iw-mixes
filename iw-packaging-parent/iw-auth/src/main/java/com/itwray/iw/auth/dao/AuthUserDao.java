@@ -108,10 +108,11 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
     /**
      * 登录成功之后的操作
      *
-     * @param authUserEntity 用户实体
+     * @param userId 用户id
      * @return 用户登录信息
      */
-    public UserInfoVo loginSuccessAfter(AuthUserEntity authUserEntity) {
+    public UserInfoVo loginSuccessAfter(Integer userId) {
+        AuthUserEntity authUserEntity = this.queryById(userId);
         // 更新用户最后登录时间
         this.lambdaUpdate()
                 .eq(AuthUserEntity::getId, authUserEntity.getId())
@@ -129,10 +130,7 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
 
         // 构建响应对象
         UserInfoVo userInfoVo = new UserInfoVo();
-        userInfoVo.setName(authUserEntity.getName());
-        if (authUserEntity.getAvatar() != null) {
-            userInfoVo.setAvatar(authUserEntity.getAvatar());
-        }
+        BeanUtils.copyProperties(authUserEntity, userInfoVo);
         userInfoVo.setTokenName(TOKEN_HEADER);
         userInfoVo.setTokenValue(token);
         userInfoVo.setNewUser(authUserEntity.isNewUser());

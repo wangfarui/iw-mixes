@@ -71,7 +71,7 @@ public class AuthRegisterServiceImpl implements AuthRegisterService {
         BeanUtils.copyProperties(dto, userAddBo);
         AuthUserEntity authUserEntity = authUserDao.addNewUser(userAddBo);
 
-        return authUserDao.loginSuccessAfter(authUserEntity);
+        return authUserDao.loginSuccessAfter(authUserEntity.getId());
     }
 
     /**

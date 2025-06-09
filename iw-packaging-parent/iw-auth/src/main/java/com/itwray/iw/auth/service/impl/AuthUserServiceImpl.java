@@ -86,7 +86,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 校验密码正确性, 通过后表示登录成功
         this.verifyPassword(dto.getAccount(), dto.getPassword(), authUserEntity.getPassword());
 
-        return authUserDao.loginSuccessAfter(authUserEntity);
+        return authUserDao.loginSuccessAfter(authUserEntity.getId());
     }
 
     @Override
@@ -133,7 +133,7 @@ public class AuthUserServiceImpl implements AuthUserService {
             authUserEntity = authUserDao.addNewUser(userAddBo);
         }
 
-        return authUserDao.loginSuccessAfter(authUserEntity);
+        return authUserDao.loginSuccessAfter(authUserEntity.getId());
     }
 
     @Override
