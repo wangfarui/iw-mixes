@@ -16,6 +16,7 @@ import com.itwray.iw.eat.service.EatDishesService;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.vo.PageVo;
+import com.itwray.iw.web.utils.UserUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,8 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Override
     @Transactional
     public void update(DishesUpdateDto dto) {
-        eatDishesDao.queryById(dto.getId());
+        EatDishesEntity eatDishesEntity = eatDishesDao.queryById(dto.getId());
+        this.validOperatorPermission(eatDishesEntity.getUserId());
         this.validDishesNameRepeat(dto.getDishesName(), dto.getId());
         eatDishesDao.lambdaUpdate()
                 .eq(EatDishesEntity::getId, dto.getId())
@@ -72,6 +74,8 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Override
     @Transactional
     public void delete(Integer id) {
+        EatDishesEntity eatDishesEntity = eatDishesDao.queryById(id);
+        this.validOperatorPermission(eatDishesEntity.getUserId());
         eatDishesDao.removeById(id);
     }
 
@@ -135,6 +139,18 @@ public class EatDishesServiceImpl implements EatDishesService {
                 .one();
         if (entity != null) {
             throw new IwWebException("保存失败，菜品名称已存在");
+        }
+    }
+
+    /**
+     * 校验操作人权限
+     *
+     * @param hasPermissionUserId 具有操作权限的用户id
+     */
+    private void validOperatorPermission(Integer hasPermissionUserId) {
+        Integer userId = UserUtils.getUserId();
+        if (!userId.equals(hasPermissionUserId)) {
+            throw new IwWebException("没有权限操作");
         }
     }
 }

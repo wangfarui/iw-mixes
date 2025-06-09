@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.web.model.entity.BaseEntity;
+import com.itwray.iw.web.model.entity.UserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * 菜品表
+ * <p>手动控制用户权限</p>
  *
  * @author wray
  * @since 2024-04-23
@@ -16,7 +18,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("eat_dishes")
-public class EatDishesEntity extends BaseEntity<Integer> {
+public class EatDishesEntity extends UserEntity<Integer> {
 
     /**
      * id
