@@ -1,6 +1,12 @@
 # 存放多用户多端开发后需要同步的脚本
 
-alter table eat_dishes
-    add column user_id int unsigned not null comment '用户id';
+insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
+values
+       (4002, 6, '其他', 6, 0)
+;
 
-update eat_dishes set user_id = '' where 1=1;
+insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
+select '4002', '6', '其他', '6', id
+from auth_user
+where 1=1
+;

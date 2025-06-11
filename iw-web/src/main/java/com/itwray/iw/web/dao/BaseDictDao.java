@@ -4,7 +4,10 @@ import com.itwray.iw.common.constants.EnableEnum;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.mapper.BaseDictMapper;
 import com.itwray.iw.web.model.entity.BaseDictEntity;
+import com.itwray.iw.web.model.enums.DictTypeEnum;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 字典表 DAO
@@ -33,5 +36,12 @@ public class BaseDictDao extends BaseDao<BaseDictMapper, BaseDictEntity> {
         }
         // 没有数据的话，默认返回1
         return 1;
+    }
+
+    public List<BaseDictEntity> queryDictEntityList(DictTypeEnum dictType) {
+        return this.lambdaQuery()
+                .eq(BaseDictEntity::getDictType, dictType.getCode())
+                .eq(BaseDictEntity::getDictStatus, EnableEnum.ENABLE.getCode())
+                .list();
     }
 }

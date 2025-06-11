@@ -50,6 +50,12 @@
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-external-client</artifactId>
         </dependency>
+
+        <!-- excel -->
+        <dependency>
+            <groupId>cn.idev.excel</groupId>
+            <artifactId>fastexcel</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
