@@ -1,12 +1,20 @@
 # 存放多用户多端开发后需要同步的脚本
 
-insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
-values
-       (4002, 6, '其他', 6, 0)
+alter table auth_user
+add column role_type tinyint(4) unsigned not null default 1 comment '角色类型 1普通用户';
+
+
+insert into auth_user (username, password, name, role_type)
+values ('superadmin', '$2a$10$M4rF5xsU9IRWfc0E1Scc1eEB8RQYYz5tURQFQzL3bWiuI0R/IOLFW', '超级管理员', 20)
 ;
 
-insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
-select '4002', '6', '其他', '6', id
-from auth_user
-where 1=1
+insert into base_dict(parent_id, dict_type, dict_code, dict_name, dict_status, sort, user_id)
+select bd.parent_id, bd.dict_type, bd.dict_code, bd.dict_name, bd.dict_status, bd.sort, au.id
+from auth_user au
+join base_dict bd on bd.user_id = 0
+where au.role_type = 20;
+
+# 历史数据中,管理员级别的字典type,从用户维度刷到模板和全用户中
+select * from base_dict
+where dict_type = '3003'
 ;

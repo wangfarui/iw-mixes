@@ -2,4 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itwray.iw.auth.mapper.AuthUserMapper">
 
+    <select id="queryAllUser" resultType="com.itwray.iw.auth.model.entity.AuthUserEntity">
+        select *
+        from auth_user
+        where 1=1
+    </select>
 </mapper>

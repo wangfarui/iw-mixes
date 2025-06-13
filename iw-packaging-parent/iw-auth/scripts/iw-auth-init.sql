@@ -22,3 +22,10 @@ alter table auth_user
 add column email_address varchar(64) not null default '' comment '邮箱地址';
 alter table auth_user
 add index idx_email_address (email_address);
+
+alter table auth_user
+add column role_type tinyint(4) unsigned not null default 1 comment '角色类型 1普通用户';
+
+insert into auth_user (username, password, name, role_type)
+values ('superadmin', '$2a$10$M4rF5xsU9IRWfc0E1Scc1eEB8RQYYz5tURQFQzL3bWiuI0R/IOLFW', '超级管理员', 20)
+;

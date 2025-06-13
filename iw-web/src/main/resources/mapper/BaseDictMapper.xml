@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itwray.iw.web.mapper.BaseDictMapper">
+
+    <update id="updateAllDictByDictName">
+        update base_dict
+        set update_time = NOW()
+        <if test="dto.dictCode != null">
+            , dict_code = #{dto.dictCode}
+        </if>
+        <if test="dto.dictName != null">
+            , dict_name = #{dto.dictName}
+        </if>
+        <if test="dto.dictStatus != null">
+            , dict_status = #{dto.dictStatus}
+        </if>
+        <if test="dto.sort != null">
+            , sort = #{dto.sort}
+        </if>
+        <if test="dto.deleted != null">
+            , deleted = #{dto.deleted}
+        </if>
+        where dict_type = #{dictType} and dict_name = #{dictName}
+    </update>
+</mapper>

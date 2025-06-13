@@ -89,6 +89,11 @@ public class AuthUserEntity extends IdEntity<Integer> {
     private String emailAddress;
 
     /**
+     * 用户角色类型
+     */
+    private Integer roleType;
+
+    /**
      * 新用户
      */
     @TableField(exist = false)

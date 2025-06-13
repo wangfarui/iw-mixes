@@ -3,7 +3,6 @@ package com.itwray.iw.auth.model.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 /**
  * 用户信息 修改密码DTO
@@ -16,11 +15,9 @@ import org.hibernate.validator.constraints.Length;
 public class UserPasswordEditDto {
 
     @Schema(title = "手机验证码")
-    @Length(min = 6, max = 6, message = "验证码固定为6位数字")
     private String verificationCode;
 
     @Schema(title = "邮箱验证码")
-    @Length(min = 6, max = 6, message = "验证码固定为6位数字")
     private String emailVerificationCode;
 
     @Schema(title = "旧密码")
