@@ -12,6 +12,7 @@ import com.itwray.iw.auth.model.dto.DictUpdateDto;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.constants.EnableEnum;
 import com.itwray.iw.common.utils.ConstantEnumUtil;
@@ -158,6 +159,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
                     getBaseDao().save(dictEntity);
                     // 删除其Redis缓存
                     RedisUtil.delete(this.obtainDictRedisKeyByUser(userEntity.getId()));
+                    AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), userEntity.getId());
                 }
                 // 同步所有用户字典后, 返回的字典id默认为0
                 return 0;
@@ -170,6 +172,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
             List<DictAllListVo> dictAllListVos = queryAllDictByType(dto.getDictType());
             RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dto.getDictType(), dictAllListVos);
             RedisUtil.expire(this.obtainDictRedisKeyByUser(), AuthRedisKeyEnum.DICT_KEY.getExpireTime());
+            AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), UserUtils.getUserId());
             return id;
         }
     }
@@ -198,6 +201,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
                 for (AuthUserEntity userEntity : userEntityList) {
                     // 删除其Redis缓存
                     RedisUtil.delete(this.obtainDictRedisKeyByUser(userEntity.getId()));
+                    AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), userEntity.getId());
                 }
             } finally {
                 RedisLockUtil.unlock(OPERATE_ADMIN_DICT_LOCK_KEY);
@@ -207,6 +211,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
             // 更新Redis缓存
             List<DictAllListVo> dictAllListVos = queryAllDictByType(baseDictEntity.getDictType());
             RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), baseDictEntity.getDictType(), dictAllListVos);
+            AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), UserUtils.getUserId());
         }
     }
 
@@ -231,6 +236,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
                 for (AuthUserEntity userEntity : userEntityList) {
                     // 删除其Redis缓存
                     RedisUtil.delete(this.obtainDictRedisKeyByUser(userEntity.getId()));
+                    AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), userEntity.getId());
                 }
             } finally {
                 RedisLockUtil.unlock(OPERATE_ADMIN_DICT_LOCK_KEY);
@@ -240,6 +246,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
             // 更新Redis缓存
             List<DictAllListVo> dictAllListVos = queryAllDictByType(dictEntity.getDictType());
             RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dictEntity.getDictType(), dictAllListVos);
+            AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), UserUtils.getUserId());
         }
     }
 
@@ -258,6 +265,17 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
             queryWrapper.orderByDesc(BaseDictEntity::getId);
         }
         return getBaseDao().page(dto, queryWrapper, DictPageVo.class);
+    }
+
+    @Override
+    public GeneralResponse<Long> getDictVersion() {
+        Long version = AuthRedisKeyEnum.USER_DICT_VERSION.getStringValue(Long.class, UserUtils.getUserId());
+        if (version == null) {
+            long currentVersion = System.currentTimeMillis();
+            AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(currentVersion, UserUtils.getUserId());
+            return GeneralResponse.success(currentVersion);
+        }
+        return GeneralResponse.success(version);
     }
 
     private List<DictAllListVo> queryAllDictByType(Integer dictType) {
