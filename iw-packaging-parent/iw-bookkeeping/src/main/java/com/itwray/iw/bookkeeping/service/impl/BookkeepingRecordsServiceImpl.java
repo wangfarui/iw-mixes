@@ -228,9 +228,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     public PageVo<BookkeepingRecordPageVo> page(BookkeepingRecordPageDto dto) {
-        if (CollUtil.isNotEmpty(dto.getTagIdList())) {
-            dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
-        }
+        this.processBookkeepingRecordPageDto(dto);
+
         PageVo<BookkeepingRecordPageVo> pageVo = new PageVo<>(dto);
         getBaseDao().getBaseMapper().page(pageVo, dto);
 
@@ -271,17 +270,25 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto) {
-        if (dto.getRecordStartDate() == null) {
+    private void processBookkeepingRecordPageDto(BookkeepingRecordPageDto dto) {
+        if (dto.getRecordStartDate() == null && dto.getRecordEndDate() == null) {
             dto.setRecordStartDate(DateUtils.startDateOfNowMonth());
+            dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
+        }
+        if (dto.getRecordStartDate() == null) {
+            dto.setRecordStartDate(dto.getRecordEndDate());
         }
         if (dto.getRecordEndDate() == null) {
-            dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
+            dto.setRecordEndDate(dto.getRecordStartDate());
         }
         if (CollUtil.isNotEmpty(dto.getTagIdList())) {
             dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
         }
+    }
+
+    @Override
+    public BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto) {
+        this.processBookkeepingRecordPageDto(dto);
 
         // 查询记录类型对应的总金额
         Map<Integer, BigDecimal> statisticsMap = getBaseDao().getBaseMapper().statistics(dto)
