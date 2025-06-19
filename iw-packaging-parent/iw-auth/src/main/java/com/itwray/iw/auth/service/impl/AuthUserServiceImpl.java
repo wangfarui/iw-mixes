@@ -15,6 +15,7 @@ import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.auth.service.AuthVerificationService;
 import com.itwray.iw.common.utils.ConstantEnumUtil;
 import com.itwray.iw.common.utils.NumberUtils;
+import com.itwray.iw.external.client.InternalApiClient;
 import com.itwray.iw.starter.redis.RedisKeyManager;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.redis.lock.DistributedLock;
@@ -48,6 +49,8 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     private AuthVerificationService authVerificationService;
 
+    private InternalApiClient internalApiClient;
+
     @Autowired
     public AuthUserServiceImpl(AuthUserDao authUserDao) {
         this.authUserDao = authUserDao;
@@ -56,6 +59,11 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Autowired
     public void setAuthVerificationService(AuthVerificationService authVerificationService) {
         this.authVerificationService = authVerificationService;
+    }
+
+    @Autowired
+    public void setInternalApiClient(InternalApiClient internalApiClient) {
+        this.internalApiClient = internalApiClient;
     }
 
     /**
@@ -300,6 +308,14 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .eq(AuthUserEntity::getUsername, authUserEntity.getUsername())
                 .set(AuthUserEntity::getUsername, dto.getUsername())
                 .update();
+    }
+
+    @Override
+    public String aiAnswer(String content) {
+        if (StringUtils.isBlank(content)) {
+            return "请发送你的问题哦";
+        }
+        return internalApiClient.aiAnswer(content).getData();
     }
 
     /**

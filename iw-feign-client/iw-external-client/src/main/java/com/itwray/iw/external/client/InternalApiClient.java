@@ -10,8 +10,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 内部接口服务 Client
@@ -34,4 +36,7 @@ public interface InternalApiClient {
     @PostMapping("/email/sendSingleEmail")
     @Operation(summary = "发送单个邮件")
     GeneralResponse<Void> sendSingleEmail(@RequestBody @Valid SendEmailDto dto);
+
+    @GetMapping("/ai/answer")
+    GeneralResponse<String> aiAnswer(@RequestParam("t") String content);
 }

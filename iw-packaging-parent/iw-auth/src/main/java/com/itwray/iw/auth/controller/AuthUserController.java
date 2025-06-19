@@ -3,6 +3,7 @@ package com.itwray.iw.auth.controller;
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.dto.UserUsernameEditDto;
 import com.itwray.iw.auth.service.AuthUserService;
+import com.itwray.iw.common.GeneralResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -54,5 +55,10 @@ public class AuthUserController {
     @Operation(summary = "修改用户名")
     public void editUsername(@RequestBody @Valid UserUsernameEditDto dto) {
         authUserService.editUsername(dto);
+    }
+
+    @GetMapping("/answer")
+    public GeneralResponse<String> aiAnswer(@RequestParam("t") String content) {
+        return GeneralResponse.success(authUserService.aiAnswer(content));
     }
 }
