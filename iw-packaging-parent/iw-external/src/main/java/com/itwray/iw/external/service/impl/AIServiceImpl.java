@@ -6,8 +6,8 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.itwray.iw.external.model.bo.AIRequestBody;
 import com.itwray.iw.external.model.bo.AIMessage;
+import com.itwray.iw.external.model.bo.AIRequestBody;
 import com.itwray.iw.external.model.bo.AIResponseBody;
 import com.itwray.iw.external.model.bo.AIResponseFormat;
 import com.itwray.iw.external.service.AIService;
@@ -140,5 +140,32 @@ public class AIServiceImpl implements AIService {
         }
 
         return fullContent.toString();
+    }
+
+    @Override
+    public HttpResponse streamChat(String prompt) {
+        List<AIMessage> messages = new ArrayList<>();
+        messages.add(new AIMessage("你是一个百科助手,针对用户提问,可以精准且简要的回复问题.", "system"));
+        messages.add(new AIMessage(prompt, "user"));
+
+        AIRequestBody requestBody = new AIRequestBody();
+        requestBody.setMessages(messages);
+        requestBody.setModel("deepseek-chat");
+        requestBody.setFrequency_penalty(0);
+        requestBody.setMax_tokens(1024);
+        requestBody.setPresence_penalty(0);
+        requestBody.setResponse_format(new AIResponseFormat("text"));
+        requestBody.setStream(true);
+        requestBody.setTemperature(new BigDecimal("1.3"));
+        requestBody.setTop_p(new BigDecimal("1"));
+        requestBody.setLogprobs(false);
+
+        return HttpUtil.createPost(this.apiUrl)
+                .header("Content-Type", "application/json")
+                .header("Accept", "text/event-stream")
+                .header("Authorization", this.apiKey)
+                .body(JSONUtil.toJsonStr(requestBody))
+                .timeout(60 * 1000)
+                .executeAsync();
     }
 }

@@ -1,5 +1,9 @@
 package com.itwray.iw.external.service;
 
+import cn.hutool.http.HttpResponse;
+
+import java.io.IOException;
+
 /**
  * AI 接口服务
  *
@@ -12,4 +16,5 @@ public interface AIService {
 
     String chat(String content);
 
+    HttpResponse streamChat(String prompt) throws IOException;
 }
