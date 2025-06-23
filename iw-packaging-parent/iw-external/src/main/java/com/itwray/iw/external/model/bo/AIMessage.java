@@ -41,6 +41,11 @@ public class AIMessage {
      */
     private String tool_call_id;
 
+    /**
+     * 内部排序
+     */
+    private Long innerSort;
+
     public AIMessage() {
     }
 

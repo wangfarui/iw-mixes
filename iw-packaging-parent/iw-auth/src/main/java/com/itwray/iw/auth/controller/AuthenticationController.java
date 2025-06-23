@@ -1,7 +1,6 @@
 package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.service.AuthUserService;
-import com.itwray.iw.web.annotation.SkipWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ public class AuthenticationController {
 
     @GetMapping("/validateToken")
     @Operation(summary = "校验Token有效性")
-    @SkipWrapper
     public Boolean validateToken(@RequestParam("token") String token) {
         return authUserService.validateToken(token);
     }

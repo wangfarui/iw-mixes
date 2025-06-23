@@ -28,6 +28,14 @@ public enum ExternalRedisKeyEnum implements RedisKeyManager {
      * 每日热点:[热点渠道code]
      */
     DAILY_HOT_KEY("external:daily-hot:%s", 60 * 30L),
+    /**
+     * AI对话内容排序
+     */
+    AI_CHAT_SORT("external:ai:chat:sort:%s", 60 * 60 * 24L),
+    /**
+     * AI对话内容
+     */
+    AI_CHAT_CONTENT("external:ai:chat:content:%s", 60 * 60 * 24L),
     ;
 
     private final String pattern;

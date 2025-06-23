@@ -3,7 +3,10 @@ package com.itwray.iw.external.handler;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.itwray.iw.common.constants.RequestHeaderConstants;
+import com.itwray.iw.external.model.bo.AIMessage;
+import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
 import com.itwray.iw.external.service.AIService;
+import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.client.AuthenticationClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +32,7 @@ public class DeepSeekWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-        log.info("WebSocket连接建立: {}", session.getUri());
+        log.info("WebSocket连接建立: id: {}, uri: {}", session.getId(), session.getUri());
         // 1. 获取握手信息中的token
         String token = session.getHandshakeHeaders().getFirst(RequestHeaderConstants.TOKEN_HEADER);
 
@@ -37,6 +40,9 @@ public class DeepSeekWebSocketHandler extends TextWebSocketHandler {
         if (!isValidToken(token)) {
             session.close(CloseStatus.POLICY_VIOLATION.withReason("Unauthorized"));
         }
+
+        // 给当前会话 初始化一个内容排序
+        RedisUtil.incrementOne(ExternalRedisKeyEnum.AI_CHAT_SORT.getKey(session.getId()));
     }
 
     @Override
@@ -48,18 +54,26 @@ public class DeepSeekWebSocketHandler extends TextWebSocketHandler {
         }
 
         // 流式读取并转发给WebSocket客户端
-        try (HttpResponse httpResponse = aiService.streamChat(prompt);
+        try (HttpResponse httpResponse = aiService.streamChat(session.getId(), prompt);
              BufferedReader reader = new BufferedReader(new InputStreamReader(httpResponse.bodyStream()))) {
+            StringBuilder fullContent = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null && session.isOpen()) {
                 if (line.startsWith("data:")) {
                     String json = line.substring(5).trim();
-                    String content = extractContent(json);
-                    if (content != null) {
-                        session.sendMessage(new TextMessage(content));
+                    if (!json.startsWith("[DONE]")) {
+                        String content = extractContent(json);
+                        if (StringUtils.isNotBlank(content)) {
+                            fullContent.append(content);
+                            session.sendMessage(new TextMessage(content));
+                        }
                     }
                 }
             }
+            AIMessage assistantMessage = new AIMessage(fullContent.toString(), "assistant");
+            Long sortValue = RedisUtil.incrementOne(ExternalRedisKeyEnum.AI_CHAT_SORT.getKey(session.getId()));
+            assistantMessage.setInnerSort(sortValue);
+            RedisUtil.sSetJson(ExternalRedisKeyEnum.AI_CHAT_CONTENT.getKey(session.getId()), assistantMessage);
         } catch (Exception e) {
             session.sendMessage(new TextMessage("服务调用失败: " + e.getMessage()));
             session.close();
@@ -67,13 +81,14 @@ public class DeepSeekWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        log.info("WebSocket断开建立: id: {}, uri: {}", session.getId(), session.getUri());
+        RedisUtil.delete(ExternalRedisKeyEnum.AI_CHAT_CONTENT.getKey(session.getId()));
+        super.afterConnectionClosed(session, status);
+    }
+
     private String extractContent(String json) {
-        if (json == null) {
-            return null;
-        }
-        if (json.startsWith("[DONE]")) {
-            return null;
-        }
         return JSONUtil.parseObj(json)
                 .getJSONArray("choices")
                 .getJSONObject(0)
@@ -82,8 +97,10 @@ public class DeepSeekWebSocketHandler extends TextWebSocketHandler {
     }
 
     private boolean isValidToken(String token) {
-        // 实现你的token验证逻辑
-        // 示例: 检查token是否有效
-        return token != null && token.startsWith("Bearer ");
+        if (StringUtils.isBlank(token)) {
+            return false;
+        }
+        Boolean res = authenticationClient.validateToken(token);
+        return res != null && res;
     }
 }

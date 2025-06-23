@@ -10,16 +10,17 @@ import com.itwray.iw.external.model.bo.AIMessage;
 import com.itwray.iw.external.model.bo.AIRequestBody;
 import com.itwray.iw.external.model.bo.AIResponseBody;
 import com.itwray.iw.external.model.bo.AIResponseFormat;
+import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
 import com.itwray.iw.external.service.AIService;
+import com.itwray.iw.starter.redis.RedisUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * AI 服务实现层
@@ -132,8 +133,6 @@ public class AIServiceImpl implements AIService {
                     }
                 }
             }
-
-            System.out.println("\n完整内容：\n" + fullContent);
         } catch (Exception e) {
             System.err.println("请求失败: " + e.getMessage());
             e.printStackTrace();
@@ -143,13 +142,34 @@ public class AIServiceImpl implements AIService {
     }
 
     @Override
-    public HttpResponse streamChat(String prompt) {
-        List<AIMessage> messages = new ArrayList<>();
-        messages.add(new AIMessage("你是一个百科助手,针对用户提问,可以精准且简要的回复问题.", "system"));
-        messages.add(new AIMessage(prompt, "user"));
+    public HttpResponse streamChat(@NonNull String chatId, @NonNull String prompt) {
+        List<AIMessage> messageList = new ArrayList<>();
+        // 获取之前的对话内容
+        Set<AIMessage> messageSet = RedisUtil.members(ExternalRedisKeyEnum.AI_CHAT_CONTENT.getKey(chatId), AIMessage.class);
+        if (CollUtil.isEmpty(messageSet)) {
+            AIMessage firstMessage = new AIMessage("你是一个百科助手,针对用户提问,可以精准且简要的回复问题.", "system");
+            Long sortValue = RedisUtil.incrementOne(ExternalRedisKeyEnum.AI_CHAT_SORT.getKey(chatId));
+            firstMessage.setInnerSort(sortValue);
+            // 添加到AI消息体和缓存中
+            messageList.add(firstMessage);
+            RedisUtil.sSetJson(ExternalRedisKeyEnum.AI_CHAT_CONTENT.getKey(chatId), firstMessage);
+        } else {
+            messageList.addAll(messageSet);
+        }
+        // 构建当前对话内容
+        AIMessage userMessage = new AIMessage(prompt, "user");
+        Long sortValue = RedisUtil.incrementOne(ExternalRedisKeyEnum.AI_CHAT_SORT.getKey(chatId));
+        userMessage.setInnerSort(sortValue);
+        // 添加到AI消息体和缓存中
+        messageList.add(userMessage);
+        RedisUtil.sSetJson(ExternalRedisKeyEnum.AI_CHAT_CONTENT.getKey(chatId), userMessage);
+        // 更新对话内容的缓存时间
+        ExternalRedisKeyEnum.AI_CHAT_CONTENT.setExpire(chatId);
+        ExternalRedisKeyEnum.AI_CHAT_SORT.setExpire(chatId);
 
+        // 构建AI请求体
         AIRequestBody requestBody = new AIRequestBody();
-        requestBody.setMessages(messages);
+        requestBody.setMessages(messageList.stream().sorted(Comparator.comparing(AIMessage::getInnerSort)).toList());
         requestBody.setModel("deepseek-chat");
         requestBody.setFrequency_penalty(0);
         requestBody.setMax_tokens(1024);

@@ -70,9 +70,15 @@ public class DefaultGatewayFilter implements GlobalFilter {
                 .get()
                 .uri(getAuthServiceUrl() + token)  // 构建请求URI
                 .retrieve()
-                .bodyToMono(Boolean.class)  // 期望返回Boolean值
+                .bodyToMono(GeneralResponse.class)  // 期望返回Boolean值
                 .flatMap(res -> {
-                    if (Boolean.TRUE.equals(res)) {
+                    if (res == null || !res.isSuccess()) {
+                        // token 验证失败，返回未授权状态
+                        RedisUtil.set(token, Boolean.FALSE, gatewayProperties.getTokenValidTime());
+                        return createUnauthorizedResponse(exchange.getResponse(), "登录状态已失效，请重新登录");
+                    }
+                    Boolean data = (Boolean) res.getData();
+                    if (Boolean.TRUE.equals(data)) {
                         RedisUtil.set(token, Boolean.TRUE, gatewayProperties.getTokenValidTime());
                         // token 验证成功，继续执行链上的其他过滤器
                         return chain.filter(exchange);
