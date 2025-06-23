@@ -13,6 +13,7 @@ import com.itwray.iw.external.model.bo.AIResponseFormat;
 import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
 import com.itwray.iw.external.service.AIService;
 import com.itwray.iw.starter.redis.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -29,6 +30,7 @@ import java.util.*;
  * @since 2025/6/19
  */
 @Service
+@Slf4j
 public class AIServiceImpl implements AIService {
 
     @Value("${iw.ai.api-url:https://api.deepseek.com/chat/completions}")
@@ -143,6 +145,7 @@ public class AIServiceImpl implements AIService {
 
     @Override
     public HttpResponse streamChat(@NonNull String chatId, @NonNull String prompt) {
+        log.info("收到对话: chatId: {}, prompt: {}", chatId, prompt);
         List<AIMessage> messageList = new ArrayList<>();
         // 获取之前的对话内容
         Set<AIMessage> messageSet = RedisUtil.members(ExternalRedisKeyEnum.AI_CHAT_CONTENT.getKey(chatId), AIMessage.class);

@@ -74,6 +74,9 @@ public class DeepSeekWebSocketHandler extends TextWebSocketHandler {
             Long sortValue = RedisUtil.incrementOne(ExternalRedisKeyEnum.AI_CHAT_SORT.getKey(session.getId()));
             assistantMessage.setInnerSort(sortValue);
             RedisUtil.sSetJson(ExternalRedisKeyEnum.AI_CHAT_CONTENT.getKey(session.getId()), assistantMessage);
+            // 更新对话内容的缓存时间
+            ExternalRedisKeyEnum.AI_CHAT_CONTENT.setExpire(session.getId());
+            ExternalRedisKeyEnum.AI_CHAT_SORT.setExpire(session.getId());
         } catch (Exception e) {
             session.sendMessage(new TextMessage("服务调用失败: " + e.getMessage()));
             session.close();
