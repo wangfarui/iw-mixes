@@ -271,10 +271,6 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     }
 
     private void processBookkeepingRecordPageDto(BookkeepingRecordPageDto dto) {
-        if (dto.getRecordStartDate() == null && dto.getRecordEndDate() == null) {
-            dto.setRecordStartDate(DateUtils.startDateOfNowMonth());
-            dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
-        }
         if (dto.getRecordStartDate() == null) {
             dto.setRecordStartDate(dto.getRecordEndDate());
         }
@@ -288,6 +284,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     public BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto) {
+        if (dto.getRecordStartDate() == null && dto.getRecordEndDate() == null) {
+            dto.setRecordStartDate(DateUtils.startDateOfNowMonth());
+            dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
+        }
         this.processBookkeepingRecordPageDto(dto);
 
         // 查询记录类型对应的总金额
