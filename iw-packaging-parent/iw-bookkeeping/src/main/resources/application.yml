@@ -8,11 +8,13 @@ iw:
         - bookkeeping_actions
         - bookkeeping_budget
         - bookkeeping_wallet
+        - bookkeeping_wallet_records
         - points_total
         - points_records
         - points_task_basics
         - points_task_group
         - points_task_plan
+        - points_task_fixed
         - eat_meal
 
 # 服务器配置
@@ -28,6 +30,11 @@ spring:
     url: ${iw.db.url}
     username: ${iw.db.username}
     password: ${iw.db.password}
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   config:
     import:
      - optional:nacos:iw-web

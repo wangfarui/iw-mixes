@@ -15,7 +15,10 @@ import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.auth.service.AuthVerificationService;
 import com.itwray.iw.common.utils.ConstantEnumUtil;
 import com.itwray.iw.common.utils.NumberUtils;
+import com.itwray.iw.external.client.InternalApiClient;
+import com.itwray.iw.starter.redis.RedisKeyManager;
 import com.itwray.iw.starter.redis.RedisUtil;
+import com.itwray.iw.starter.redis.lock.DistributedLock;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.utils.IpUtils;
@@ -46,6 +49,8 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     private AuthVerificationService authVerificationService;
 
+    private InternalApiClient internalApiClient;
+
     @Autowired
     public AuthUserServiceImpl(AuthUserDao authUserDao) {
         this.authUserDao = authUserDao;
@@ -54,6 +59,11 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Autowired
     public void setAuthVerificationService(AuthVerificationService authVerificationService) {
         this.authVerificationService = authVerificationService;
+    }
+
+    @Autowired
+    public void setInternalApiClient(InternalApiClient internalApiClient) {
+        this.internalApiClient = internalApiClient;
     }
 
     /**
@@ -67,11 +77,13 @@ public class AuthUserServiceImpl implements AuthUserService {
         authUserDao.loginBefore(dto.getAccount());
 
         // 查询用户是否存在
-        AuthUserEntity authUserEntity;
-        if (NumberUtils.isValidPhoneNumber(dto.getAccount())) {
-            authUserEntity = authUserDao.queryOneByPhoneNumber(dto.getAccount());
-        } else {
-            authUserEntity = authUserDao.queryOneByUsername(dto.getAccount());
+        AuthUserEntity authUserEntity = authUserDao.queryOneByUsername(dto.getAccount());
+        if (authUserEntity == null) {
+            if (NumberUtils.isValidPhoneNumber(dto.getAccount())) {
+                authUserEntity = authUserDao.queryOneByPhoneNumber(dto.getAccount());
+            } else if (NumberUtils.isValidEmailAddress(dto.getAccount())) {
+                authUserEntity = authUserDao.queryOneByEmailAddress(dto.getAccount());
+            }
         }
 
         // 用户不存在，抛出账号验证异常信息
@@ -82,37 +94,54 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 校验密码正确性, 通过后表示登录成功
         this.verifyPassword(dto.getAccount(), dto.getPassword(), authUserEntity.getPassword());
 
-        return authUserDao.loginSuccessAfter(authUserEntity);
+        return authUserDao.loginSuccessAfter(authUserEntity.getId());
     }
 
     @Override
     public UserInfoVo loginByVerificationCode(LoginVerificationCodeDto dto) {
-        authUserDao.loginBefore(dto.getPhoneNumber());
-
-        // 校验电话号码是否正确
-        if (!NumberUtils.isValidPhoneNumber(dto.getPhoneNumber())) {
-            throw this.accountVerifyException(dto.getPhoneNumber(), "电话号码格式错误");
+        // 用户登录校验使用的账号
+        String account;
+        // 用户登录校验使用的Redis Key
+        RedisKeyManager redisKeyManager;
+        switch (dto.getLoginWay()) {
+            case PHONE -> {
+                account = dto.getPhoneNumber();
+                // 校验电话号码是否正确
+                if (!NumberUtils.isValidPhoneNumber(account)) {
+                    throw this.accountVerifyException(account, "电话号码格式错误");
+                }
+                redisKeyManager = AuthRedisKeyEnum.USER_LOGIN_PHONE_VERIFY_KEY;
+            }
+            case EMAIL -> {
+                account = dto.getEmailAddress();
+                // 校验邮箱是否正确
+                if (!NumberUtils.isValidEmailAddress(account)) {
+                    throw this.accountVerifyException(account, "邮箱格式错误");
+                }
+                redisKeyManager = AuthRedisKeyEnum.USER_LOGIN_EMAIL_VERIFY_KEY;
+            }
+            default -> throw new BusinessException("不支持的业务操作");
         }
+
+        authUserDao.loginBefore(account);
 
         // 校验电话号码验证码的正确性, 通过后表示登录成功
-        String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY.getKey(dto.getPhoneNumber()), String.class);
-        if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
-            throw this.accountVerifyException(dto.getPhoneNumber(), "验证码错误");
-        } else {
-            // 验证码校验成功之后, 删除验证码缓存
-            RedisUtil.delete(AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY.getKey(dto.getPhoneNumber()));
+        boolean compareResult = authVerificationService.compareVerificationCode(dto.getVerificationCode(), account, redisKeyManager);
+        if (!compareResult) {
+            throw this.accountVerifyException(account, "验证码错误");
         }
 
-        // 根据电话号码查询用户
-        AuthUserEntity authUserEntity = authUserDao.queryOneByPhoneNumber(dto.getPhoneNumber());
+        AuthUserEntity authUserEntity = authUserDao.queryOneByLoginWay(account, dto.getLoginWay());
         // 如果用户不存在，则在验证码校验通过的前提下，自动注册新用户
         if (authUserEntity == null) {
-            UserAddBo userAddBo = new UserAddBo(dto.getPhoneNumber());
+            UserAddBo userAddBo = new UserAddBo();
+            userAddBo.setPhoneNumber(dto.getPhoneNumber());
+            userAddBo.setEmailAddress(dto.getEmailAddress());
             userAddBo.setPassword(dto.getPassword());
             authUserEntity = authUserDao.addNewUser(userAddBo);
         }
 
-        return authUserDao.loginSuccessAfter(authUserEntity);
+        return authUserDao.loginSuccessAfter(authUserEntity.getId());
     }
 
     @Override
@@ -194,14 +223,24 @@ public class AuthUserServiceImpl implements AuthUserService {
         // 获取当前用户实体
         AuthUserEntity authUserEntity = getCurrentUser();
 
-        // 验证码不为空的情况下, 优先使用验证码校验
+        // 手机验证码不为空的情况下, 优先使用手机验证码校验
         if (StringUtils.isNotBlank(dto.getVerificationCode())) {
-            // 校验电话号码验证码的正确性, 通过后表示登录成功
-            String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_VERIFY_KEY.getKey(authUserEntity.getPhoneNumber()), String.class);
+            // 校验电话号码验证码的正确性
+            String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_PHONE_VERIFY_KEY.getKey(authUserEntity.getPhoneNumber()), String.class);
             if (verificationCode == null || !verificationCode.equals(dto.getVerificationCode())) {
                 throw this.accountVerifyException(authUserEntity.getUsername(), "验证码错误");
             }
-        } else if (StringUtils.isNotBlank(dto.getOldPassword())) {
+        }
+        // 邮箱验证码不为空的情况下, 使用邮箱验证码校验
+        else if (StringUtils.isNotBlank(dto.getEmailVerificationCode())) {
+            // 校验邮箱验证码的正确性
+            String verificationCode = RedisUtil.get(AuthRedisKeyEnum.USER_LOGIN_EMAIL_VERIFY_KEY.getKey(authUserEntity.getEmailAddress()), String.class);
+            if (verificationCode == null || !verificationCode.equals(dto.getEmailVerificationCode())) {
+                throw this.accountVerifyException(authUserEntity.getUsername(), "验证码错误");
+            }
+        }
+        // 使用原密码校验
+        else if (StringUtils.isNotBlank(dto.getOldPassword())) {
             this.verifyPassword(authUserEntity.getUsername(), dto.getOldPassword(), authUserEntity.getPassword());
         } else {
             throw new BusinessException("无法识别的操作");
@@ -226,26 +265,31 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     public void getVerificationCodeByAction(Integer action) {
         VerificationCodeActionEnum actionEnum = ConstantEnumUtil.findByType(VerificationCodeActionEnum.class, action);
-        String phoneNumber = null;
+        Integer userId = UserUtils.getUserId();
+        AuthUserEntity authUserEntity = authUserDao.getById(userId);
+        if (authUserEntity == null) {
+            throw new BusinessException("用户不存在，请刷新重试");
+        }
         switch (actionEnum) {
-            case EDIT_PASSWORD, APPLICATION_ACCOUNT_REFRESH_PASSWORD -> {
-                Integer userId = UserUtils.getUserId();
-                AuthUserEntity authUserEntity = authUserDao.getById(userId);
-                if (authUserEntity == null) {
-                    throw new BusinessException("用户不存在，请刷新重试");
+            case PHONE_EDIT_PASSWORD, APPLICATION_ACCOUNT_REFRESH_PASSWORD -> {
+                if (StringUtils.isBlank(authUserEntity.getPhoneNumber())) {
+                    throw new BusinessException("未绑定手机号");
                 }
-                phoneNumber = authUserEntity.getPhoneNumber();
+                authVerificationService.getPhoneVerificationCode(authUserEntity.getPhoneNumber(), actionEnum.getKeyManager());
             }
-            default -> log.info("忽略其他操作");
+            case EMAIL_EDIT_PASSWORD -> {
+                if (StringUtils.isBlank(authUserEntity.getEmailAddress())) {
+                    throw new BusinessException("未绑定邮箱");
+                }
+                authVerificationService.getEmailVerificationCode(authUserEntity.getEmailAddress(), actionEnum.getKeyManager());
+            }
+            default -> throw new BusinessException("不支持的操作");
         }
-        if (StringUtils.isBlank(phoneNumber)) {
-            log.warn("getVerificationCodeByAction 获取电话号码为空, action: {}", action);
-        }
-        authVerificationService.getVerificationCode(phoneNumber, actionEnum.getKeyManager());
     }
 
     @Override
     @Transactional
+    @DistributedLock(lockName = "'user:save:unique:key'") // 在修改保存用户的唯一值的操作上,必须加上分布式锁,以确保不出现重复数据
     public void editUsername(UserUsernameEditDto dto) {
         Integer userId = UserUtils.getUserId();
         AuthUserEntity authUserEntity = authUserDao.queryById(userId);
@@ -255,7 +299,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         }
 
         // 校验用户名是否重复
-        authUserDao.checkUserUnique(null, dto.getUsername());
+        authUserDao.checkUserUnique(null, dto.getUsername(), null);
 
         // 更新用户名
         authUserDao.lambdaUpdate()
@@ -264,6 +308,14 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .eq(AuthUserEntity::getUsername, authUserEntity.getUsername())
                 .set(AuthUserEntity::getUsername, dto.getUsername())
                 .update();
+    }
+
+    @Override
+    public String aiAnswer(String content) {
+        if (StringUtils.isBlank(content)) {
+            return "请发送你的问题哦";
+        }
+        return internalApiClient.aiAnswer(content).getData();
     }
 
     /**

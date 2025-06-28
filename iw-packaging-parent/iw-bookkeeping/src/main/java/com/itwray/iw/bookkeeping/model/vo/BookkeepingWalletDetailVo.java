@@ -13,11 +13,14 @@ import java.math.BigDecimal;
  */
 @Data
 @Schema(name = "钱包余额")
-public class BookkeepingWalletBalanceVo {
+public class BookkeepingWalletDetailVo {
 
     @Schema(title = "钱包id")
     private Integer id;
 
     @Schema(title = "钱包余额")
     private BigDecimal walletBalance;
+
+    @Schema(title = "钱包资产")
+    private BigDecimal walletAssets;
 }

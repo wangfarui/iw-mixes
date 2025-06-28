@@ -20,6 +20,5 @@ public class DishesCreationMethodAddDto {
     /**
      * 步骤内容
      */
-    @NotBlank(message = "步骤内容不能为空")
     private String stepContent;
 }

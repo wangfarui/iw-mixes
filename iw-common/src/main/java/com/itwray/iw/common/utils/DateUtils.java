@@ -154,4 +154,25 @@ public abstract class DateUtils {
     public static String formatLocalDateTime(LocalDateTime dateTime) {
         return dateTime.format(DATETIME_FORMATTER);
     }
+
+    /**
+     * 格式化日期
+     *
+     * @param localDate LocalDate
+     * @return yyyy-MM-dd
+     */
+    public static String formatLocalDate(LocalDate localDate) {
+        return localDate.format(DATE_FORMATTER);
+    }
+
+    /**
+     * 格式化日期
+     *
+     * @param localDate LocalDate
+     * @param pattern   日期字符串格式
+     * @return 日期字符串
+     */
+    public static String formatLocalDate(LocalDate localDate, String pattern) {
+        return localDate.format(DateTimeFormatter.ofPattern(pattern));
+    }
 }

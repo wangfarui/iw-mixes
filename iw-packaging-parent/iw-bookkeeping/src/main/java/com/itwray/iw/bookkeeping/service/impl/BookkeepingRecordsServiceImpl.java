@@ -2,11 +2,15 @@ package com.itwray.iw.bookkeeping.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.idev.excel.FastExcel;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
+import com.itwray.iw.bookkeeping.excel.listener.BookkeepingRecordsImportDataListener;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
+import com.itwray.iw.bookkeeping.model.bo.BookkeepingRecordsImportBo;
 import com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo;
 import com.itwray.iw.bookkeeping.model.dto.*;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
+import com.itwray.iw.bookkeeping.model.enums.BookkeepingRecordTypeDefaultEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
@@ -22,9 +26,13 @@ import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.dao.BaseBusinessFileDao;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
+import com.itwray.iw.web.dao.BaseDictDao;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.exception.IwWebException;
+import com.itwray.iw.web.model.entity.BaseDictEntity;
 import com.itwray.iw.web.model.enums.BusinessFileTypeEnum;
 import com.itwray.iw.web.model.enums.DictBusinessTypeEnum;
+import com.itwray.iw.web.model.enums.DictTypeEnum;
 import com.itwray.iw.web.model.enums.OrderNoEnum;
 import com.itwray.iw.web.model.enums.mq.BookkeepingRecordsTopicEnum;
 import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
@@ -33,11 +41,14 @@ import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.OrderNoUtils;
 import com.itwray.iw.web.utils.UserUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -55,6 +66,7 @@ import java.util.stream.Collectors;
  * @since 2024/8/28
  */
 @Service
+@Slf4j
 public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRecordsDao, BookkeepingRecordsMapper, BookkeepingRecordsEntity,
         BookkeepingRecordAddDto, BookkeepingRecordUpdateDto, BookkeepingRecordDetailVo, Integer> implements BookkeepingRecordsService {
 
@@ -63,6 +75,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     private final InternalApiClient internalApiClient;
 
     private final BaseBusinessFileDao baseBusinessFileDao;
+
+    private BaseDictDao baseDictDao;
 
     @SuppressWarnings("all")
     @Autowired
@@ -74,6 +88,11 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         this.baseDictBusinessRelationDao = baseDictBusinessRelationDao;
         this.internalApiClient = internalApiClient;
         this.baseBusinessFileDao = baseBusinessFileDao;
+    }
+
+    @Autowired
+    public void setBaseDictDao(BaseDictDao baseDictDao) {
+        this.baseDictDao = baseDictDao;
     }
 
     @Override
@@ -134,9 +153,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         BookkeepingRecordsEntity recordsEntity = this.buildBookkeepingRecordAddDto(dto);
         getBaseDao().updateById(recordsEntity);
 
-        // 同步用户钱包余额(更新操作时,先将历史数据的金额还原,再重新更新余额)
-        this.syncWalletBalance(bookkeepingRecordsEntity.getRecordCategory(), bookkeepingRecordsEntity.getAmount().negate());
-        this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount());
+        // 同步用户钱包余额
+        if (bookkeepingRecordsEntity.getAmount().compareTo(dto.getAmount()) != 0) {
+            this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount().subtract(bookkeepingRecordsEntity.getAmount()));
+        }
     }
 
     private BookkeepingRecordsEntity buildBookkeepingRecordAddDto(BookkeepingRecordAddDto dto) {
@@ -208,9 +228,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     public PageVo<BookkeepingRecordPageVo> page(BookkeepingRecordPageDto dto) {
-        if (CollUtil.isNotEmpty(dto.getTagIdList())) {
-            dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
-        }
+        this.processBookkeepingRecordPageDto(dto);
+
         PageVo<BookkeepingRecordPageVo> pageVo = new PageVo<>(dto);
         getBaseDao().getBaseMapper().page(pageVo, dto);
 
@@ -226,7 +245,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 t.setRecordTimeStr("今天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
             } else if (now.equals(localDate.plusDays(1))) {
                 t.setRecordTimeStr("昨天 " + t.getRecordTime().toLocalTime().format(timeFormatter));
-            } else if (nowYear == localDate.getYear()){
+            } else if (nowYear == localDate.getYear()) {
                 t.setRecordTimeStr(t.getRecordTime().format(nowYearFormatter));
             } else {
                 t.setRecordTimeStr(t.getRecordTime().format(oldYearFormatter));
@@ -251,17 +270,25 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto) {
+    private void processBookkeepingRecordPageDto(BookkeepingRecordPageDto dto) {
         if (dto.getRecordStartDate() == null) {
-            dto.setRecordStartDate(DateUtils.startDateOfNowMonth());
+            dto.setRecordStartDate(dto.getRecordEndDate());
         }
         if (dto.getRecordEndDate() == null) {
-            dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
+            dto.setRecordEndDate(dto.getRecordStartDate());
         }
         if (CollUtil.isNotEmpty(dto.getTagIdList())) {
             dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
         }
+    }
+
+    @Override
+    public BookkeepingRecordsStatisticsVo statistics(BookkeepingRecordsStatisticsDto dto) {
+        if (dto.getRecordStartDate() == null && dto.getRecordEndDate() == null) {
+            dto.setRecordStartDate(DateUtils.startDateOfNowMonth());
+            dto.setRecordEndDate(DateUtils.endDateOfNowMonth());
+        }
+        this.processBookkeepingRecordPageDto(dto);
 
         // 查询记录类型对应的总金额
         Map<Integer, BigDecimal> statisticsMap = getBaseDao().getBaseMapper().statistics(dto)
@@ -274,6 +301,66 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 收入金额
         statisticsVo.setIncome(statisticsMap.getOrDefault(RecordCategoryEnum.INCOME.getCode(), BigDecimal.ZERO));
         return statisticsVo;
+    }
+
+    @Override
+    @Transactional
+    public void importRecords(MultipartFile file) {
+        // 查询当前用户的记账-记录分类字典项
+        List<BaseDictEntity> dictEntityList = baseDictDao.queryDictEntityList(DictTypeEnum.BOOKKEEPING_RECORD_TYPE);
+        Map<String, Integer> dictNameMap = dictEntityList.stream().collect(Collectors.toMap(BaseDictEntity::getDictName, BaseDictEntity::getDictCode));
+        BookkeepingRecordsImportDataListener listener = new BookkeepingRecordsImportDataListener(UserUtils.getUserId(), dictNameMap);
+        try {
+            FastExcel.read(file.getInputStream(), BookkeepingRecordsImportBo.class, listener)
+                    .sheet()
+                    .doRead();
+        } catch (IOException e) {
+            log.error("importRecords 导入记账记录异常", e);
+            throw new IwWebException(e);
+        }
+    }
+
+    @Override
+    public void processImportData(BookkeepingRecordsImportBo bo, Map<String, Integer> dictNameMap) {
+        if (bo == null) {
+            return;
+        }
+        if (bo.getRecordCategory() == null) {
+            return;
+        }
+        BookkeepingRecordTypeDefaultEnum recordTypeDefaultEnum = BookkeepingRecordTypeDefaultEnum.confirmRecordType(bo.getRecordTypeDesc());
+        if (BookkeepingRecordTypeDefaultEnum.IGNORE.equals(recordTypeDefaultEnum)) {
+            return;
+        }
+        Integer recordTypeCode = dictNameMap.get(recordTypeDefaultEnum.getName());
+        if (recordTypeCode == null) {
+            recordTypeCode = dictNameMap.get(BookkeepingRecordTypeDefaultEnum.OTHER.getName());
+        }
+        if (recordTypeCode == null) {
+            log.warn("BookkeepingRecordsService#processImportData 无法确定记录分类的字典值, bo: {}", bo.getRecordTypeDesc());
+            return;
+        }
+        BookkeepingRecordsEntity recordsEntity = new BookkeepingRecordsEntity();
+        recordsEntity.setOrderNo(OrderNoUtils.getAndIncrement(OrderNoEnum.BOOKKEEPING_RECORDS));
+        recordsEntity.setRecordDate(bo.getRecordTime().toLocalDate());
+        recordsEntity.setRecordTime(bo.getRecordTime());
+        recordsEntity.setRecordCategory(bo.getRecordCategory());
+        boolean isFillRemark = true;
+        if (bo.getRemark() == null) {
+            recordsEntity.setRecordSource("消费");
+        } else if (bo.getRemark().length() < 50){
+            recordsEntity.setRecordSource(bo.getRemark());
+            isFillRemark = false;
+        } else {
+            recordsEntity.setRecordSource(bo.getRemark().substring(0, 50));
+        }
+        recordsEntity.setAmount(bo.getAmount());
+        recordsEntity.setRecordType(recordTypeCode);
+        if (isFillRemark) {
+            recordsEntity.setRemark(bo.getRemark().length() < 255 ? bo.getRemark() : bo.getRemark().substring(0, 255));
+        }
+        recordsEntity.setUserId(bo.getUserId());
+        getBaseDao().save(recordsEntity);
     }
 
     private void addPointsRecordsByExcitation(String orderNo) {
@@ -300,6 +387,6 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         BookkeepingRecordsWalletBalanceDto dto = new BookkeepingRecordsWalletBalanceDto();
         dto.setAmount(RecordCategoryEnum.CONSUME.equals(recordCategory) ? amount.negate() : amount);
         dto.setUserId(UserUtils.getUserId());
-        MQProducerHelper.send(BookkeepingRecordsTopicEnum.WALLET_BALANCE, dto);
+        MQProducerHelper.send(BookkeepingRecordsTopicEnum.WALLET_AMOUNT, dto);
     }
 }

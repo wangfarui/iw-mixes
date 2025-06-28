@@ -60,8 +60,8 @@
         </if>
     </sql>
     <select id="totalStatistics"
-            resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo">
-        SELECT SUM(amount) AS totalAmount, count(*) AS totalRecordNum
+            resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo">
+        SELECT IFNULL(SUM(amount), 0) AS totalAmount, count(*) AS totalRecordNum
         FROM bookkeeping_records
         WHERE deleted = 0
         AND record_date BETWEEN #{dto.currentStartMonth} AND #{dto.currentEndMonth}
@@ -72,9 +72,39 @@
             AND is_statistics = 1
         </if>
     </select>
+    <select id="rankStatistics" resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo">
+        select id, record_source, record_time, amount
+        from bookkeeping_records
+        WHERE deleted = 0 and record_category = #{dto.recordCategory}
+        AND record_date BETWEEN #{dto.currentStartMonth} AND #{dto.currentEndMonth}
+        <if test="dto.isSearchAll != null and dto.isSearchAll == 0">
+            AND is_statistics = 1
+        </if>
+        order by amount desc
+        limit ${dto.limit}
+    </select>
+    <select id="barChartStatistics"
+            resultType="com.itwray.iw.bookkeeping.model.bo.BookkeepingBarChartStatisticsBo">
+        select
+        <choose>
+            <when test="dto.statisticsType.code == 1">record_date as recordDate</when>
+            <when test="dto.statisticsType.code == 2">DATE_FORMAT(record_date, '%Y-%m') as recordDate</when>
+        </choose>
+        ,IFNULL(sum(amount), 0) as amount
+        from bookkeeping_records
+        where deleted = 0 and record_category = #{dto.recordCategory}
+        AND record_date BETWEEN #{dto.currentStartMonth} AND #{dto.currentEndMonth}
+        <if test="dto.isSearchAll != null and dto.isSearchAll == 0">
+            AND is_statistics = 1
+        </if>
+        <choose>
+            <when test="dto.statisticsType.code == 1">group by record_date</when>
+            <when test="dto.statisticsType.code == 2">group by DATE_FORMAT(record_date, '%Y-%m')</when>
+        </choose>
+    </select>
     <select id="categoryStatistics"
             resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo">
-        SELECT record_type, sum(amount) AS amount, count(*) AS recordNum
+        SELECT record_type, IFNULL(sum(amount), 0) AS amount, count(*) AS recordNum
         FROM bookkeeping_records
         WHERE deleted = 0
         AND record_category = #{dto.recordCategory}

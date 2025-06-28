@@ -20,7 +20,7 @@ public @interface DistributedLock {
      * 锁的名称，可以用 SpEL 表达式支持动态获取方法参数
      * <p>支持表达式如下：
      * <ul>
-     *     <li>固定字符串: id</li>
+     *     <li>固定字符串: 'id'</li>
      *     <li>方法的参数: #orderId</li>
      *     <li>方法参数对象中的指定参数: #order.id</li>
      *     <li>方法参数中的Map: #map['id']</li>

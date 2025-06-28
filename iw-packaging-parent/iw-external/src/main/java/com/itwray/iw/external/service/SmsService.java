@@ -1,5 +1,6 @@
 package com.itwray.iw.external.service;
 
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
 
 /**
@@ -15,5 +16,5 @@ public interface SmsService {
      *
      * @param dto 验证码对象
      */
-    void sendVerificationCode(SmsSendVerificationCodeDto dto);
+    GeneralResponse<Void> sendVerificationCode(SmsSendVerificationCodeDto dto);
 }

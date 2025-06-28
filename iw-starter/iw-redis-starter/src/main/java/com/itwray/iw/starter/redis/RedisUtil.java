@@ -1,5 +1,6 @@
 package com.itwray.iw.starter.redis;
 
+import cn.hutool.json.JSONUtil;
 import com.itwray.iw.common.IwException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Redis工具类
@@ -215,6 +217,16 @@ public class RedisUtil {
     }
 
     /**
+     * 将数据放入set缓存
+     *
+     * @param key 键
+     * @return
+     */
+    public static <T> void sSetJson(String key, T value) {
+        redisTemplate.opsForSet().add(key, JSONUtil.toJsonStr(value));
+    }
+
+    /**
      * 获取变量中的值
      *
      * @param key 键
@@ -232,7 +244,6 @@ public class RedisUtil {
      * @param <T>       value的数据类型
      * @return typeClass value
      */
-    @SuppressWarnings("unchecked")
     @Nullable
     public static <T> Set<T> members(String key, Class<T> typeClass) {
         if (StringUtils.isBlank(key)) {
@@ -242,10 +253,7 @@ public class RedisUtil {
         if (set == null || set.isEmpty()) {
             return null;
         }
-        if (!typeClass.isAssignableFrom(set.stream().findAny().get().getClass())) {
-            throw new IwException("Target Class Type Mismatch!");
-        }
-        return (Set<T>) set;
+        return set.stream().map(t -> JSONUtil.toBean(t.toString(), typeClass)).collect(Collectors.toSet());
     }
 
     /**

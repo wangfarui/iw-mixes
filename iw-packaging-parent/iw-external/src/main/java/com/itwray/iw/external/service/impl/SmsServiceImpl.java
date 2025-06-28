@@ -5,6 +5,7 @@ import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.aliyun.teaopenapi.models.Config;
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.external.dao.SmsRecordsDao;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
@@ -56,10 +57,10 @@ public class SmsServiceImpl implements SmsService {
     }
 
     @Override
-    public void sendVerificationCode(SmsSendVerificationCodeDto dto) {
+    public GeneralResponse<Void> sendVerificationCode(SmsSendVerificationCodeDto dto) {
         if (!RuntimeEnvironmentEnum.PROD.name().equals(env.name())) {
             log.info("非生产环境, 已跳过短信发送流程");
-            return;
+            return GeneralResponse.success();
         }
         // 保存发送短信记录实体
         SmsRecordsEntity smsRecordsEntity = SmsRecordsEntity.builder()
@@ -79,10 +80,10 @@ public class SmsServiceImpl implements SmsService {
             SendSmsResponse sendSmsResponse = getClient().sendSms(sendSmsRequest);
             log.info("已执行短信发送操作, response: " + JSONUtil.toJsonStr(sendSmsResponse));
             if (!sendSmsResponse.getStatusCode().equals(GeneralApiCode.SUCCESS.getCode())) {
-                throw new BusinessException("短信发送失败，请重试");
+                return GeneralResponse.fail("短信发送失败，请重试");
             }
             if (!"OK".equals(sendSmsResponse.getBody().getCode())) {
-                throw new BusinessException("短信发送失败，请重试");
+                return GeneralResponse.fail("短信发送失败，请重试");
             }
             smsRecordsDao.updateSendStatus(smsRecordsEntity.getId(), SmsSendStatusEnum.SUCCESS);
         } catch (Exception e) {
@@ -94,6 +95,7 @@ public class SmsServiceImpl implements SmsService {
                 throw new BusinessException("短信发送失败，请稍后重试");
             }
         }
+        return GeneralResponse.success();
     }
 
     public Client getClient() {

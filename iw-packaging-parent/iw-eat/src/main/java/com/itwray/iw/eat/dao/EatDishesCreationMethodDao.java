@@ -3,6 +3,7 @@ package com.itwray.iw.eat.dao;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itwray.iw.common.constants.CommonConstants;
 import com.itwray.iw.eat.mapper.EatDishesCreationMethodMapper;
 import com.itwray.iw.eat.model.dto.DishesCreationMethodAddDto;
 import com.itwray.iw.eat.model.entity.EatDishesCreationMethodEntity;
@@ -10,6 +11,7 @@ import com.itwray.iw.eat.model.vo.DishesCreationMethodVo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -35,9 +37,11 @@ public class EatDishesCreationMethodDao extends ServiceImpl<EatDishesCreationMet
             AtomicInteger step = new AtomicInteger(1);
             List<EatDishesCreationMethodEntity> entityList = dishesCreationMethodList.stream()
                     .map(t -> {
-                        EatDishesCreationMethodEntity entity = BeanUtil.copyProperties(t, EatDishesCreationMethodEntity.class);
+                        EatDishesCreationMethodEntity entity = new EatDishesCreationMethodEntity();
                         entity.setStep(step.getAndIncrement());
                         entity.setDishesId(dishesId);
+                        entity.setStepImage(t.getStepImage());
+                        entity.setStepContent(Optional.ofNullable(t.getStepContent()).orElse(CommonConstants.EMPTY));
                         return entity;
                     }).collect(Collectors.toList());
             this.saveBatch(entityList);

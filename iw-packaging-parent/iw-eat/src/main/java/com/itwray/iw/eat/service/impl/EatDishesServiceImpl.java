@@ -1,11 +1,15 @@
 package com.itwray.iw.eat.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.common.utils.NumberUtils;
 import com.itwray.iw.eat.dao.EatDishesCreationMethodDao;
 import com.itwray.iw.eat.dao.EatDishesDao;
 import com.itwray.iw.eat.dao.EatDishesMaterialDao;
+import com.itwray.iw.eat.model.EatRedisKeyEnum;
 import com.itwray.iw.eat.model.dto.DishesAddDto;
 import com.itwray.iw.eat.model.dto.DishesPageDto;
 import com.itwray.iw.eat.model.dto.DishesUpdateDto;
@@ -13,15 +17,18 @@ import com.itwray.iw.eat.model.entity.EatDishesEntity;
 import com.itwray.iw.eat.model.vo.DishesDetailVo;
 import com.itwray.iw.eat.model.vo.DishesPageVo;
 import com.itwray.iw.eat.service.EatDishesService;
+import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.vo.PageVo;
+import com.itwray.iw.web.utils.UserUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +60,8 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Override
     @Transactional
     public void update(DishesUpdateDto dto) {
-        eatDishesDao.queryById(dto.getId());
+        EatDishesEntity eatDishesEntity = eatDishesDao.queryById(dto.getId());
+        this.validOperatorPermission(eatDishesEntity.getUserId());
         this.validDishesNameRepeat(dto.getDishesName(), dto.getId());
         eatDishesDao.lambdaUpdate()
                 .eq(EatDishesEntity::getId, dto.getId())
@@ -72,6 +80,8 @@ public class EatDishesServiceImpl implements EatDishesService {
     @Override
     @Transactional
     public void delete(Integer id) {
+        EatDishesEntity eatDishesEntity = eatDishesDao.queryById(id);
+        this.validOperatorPermission(eatDishesEntity.getUserId());
         eatDishesDao.removeById(id);
     }
 
@@ -96,6 +106,12 @@ public class EatDishesServiceImpl implements EatDishesService {
 
     @Override
     public List<DishesPageVo> recommendDishes() {
+        Integer userId = UserUtils.getUserId();
+        @SuppressWarnings("unchecked")
+        List<DishesPageVo> list = EatRedisKeyEnum.DISHES_RECOMMEND.getStringValue(List.class, userId);
+        if (CollUtil.isNotEmpty(list)) {
+            return list;
+        }
         EatDishesEntity entity1 = eatDishesDao.getBaseMapper().randDishes(1);
         EatDishesEntity entity2 = eatDishesDao.getBaseMapper().randDishes(2);
         EatDishesEntity entity3 = eatDishesDao.getBaseMapper().randDishes(3);
@@ -111,6 +127,12 @@ public class EatDishesServiceImpl implements EatDishesService {
         }
         if (vo3 != null) {
             result.add(vo3);
+        }
+        // 获取截止今天, 还剩多少秒
+        DateTime endOfDay = DateUtil.endOfDay(new Date());
+        long expiredSecond = (endOfDay.getTime() - System.currentTimeMillis()) / 1000;
+        if (expiredSecond > 0) {
+            RedisUtil.set(EatRedisKeyEnum.DISHES_RECOMMEND.getKey(userId), result, expiredSecond);
         }
         return result;
     }
@@ -135,6 +157,18 @@ public class EatDishesServiceImpl implements EatDishesService {
                 .one();
         if (entity != null) {
             throw new IwWebException("保存失败，菜品名称已存在");
+        }
+    }
+
+    /**
+     * 校验操作人权限
+     *
+     * @param hasPermissionUserId 具有操作权限的用户id
+     */
+    private void validOperatorPermission(Integer hasPermissionUserId) {
+        Integer userId = UserUtils.getUserId();
+        if (!userId.equals(hasPermissionUserId)) {
+            throw new IwWebException("没有权限操作");
         }
     }
 }

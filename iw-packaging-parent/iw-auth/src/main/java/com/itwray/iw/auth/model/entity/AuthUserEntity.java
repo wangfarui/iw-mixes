@@ -1,9 +1,11 @@
 package com.itwray.iw.auth.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.web.model.entity.IdEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -80,4 +82,20 @@ public class AuthUserEntity extends IdEntity<Integer> {
      * 最后登录时间
      */
     private LocalDateTime lastLoginTime;
+
+    /**
+     * 邮箱地址
+     */
+    private String emailAddress;
+
+    /**
+     * 用户角色类型
+     */
+    private Integer roleType;
+
+    /**
+     * 新用户
+     */
+    @TableField(exist = false)
+    private boolean newUser;
 }

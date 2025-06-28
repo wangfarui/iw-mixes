@@ -70,4 +70,9 @@ public class DishesDetailVo {
      * 菜品制作方法明细
      */
     private List<DishesCreationMethodVo> dishesCreationMethodList;
+
+    /**
+     * 菜品所属用户id
+     */
+    private Integer userId;
 }

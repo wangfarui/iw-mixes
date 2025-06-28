@@ -5,6 +5,7 @@ import com.itwray.iw.auth.model.dto.DictPageDto;
 import com.itwray.iw.auth.model.dto.DictUpdateDto;
 import com.itwray.iw.auth.model.vo.*;
 import com.itwray.iw.auth.service.BaseDictService;
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,5 +57,11 @@ public class BaseDictController extends WebController<BaseDictService, DictAddDt
     @Operation(summary = "分页查询字典")
     public PageVo<DictPageVo> page(@RequestBody @Valid DictPageDto dto) {
         return getWebService().page(dto);
+    }
+
+    @GetMapping("/version")
+    @Operation(summary = "查询用户字典版本")
+    public GeneralResponse<Long> getDictVersion() {
+        return getWebService().getDictVersion();
     }
 }

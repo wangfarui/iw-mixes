@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2025-05-07
  */
 @RestController
-@RequestMapping("/task/plan")
+@RequestMapping("/points/task/plan")
 @Validated
 @Tag(name = "任务计划表接口")
 public class PointsTaskPlanController extends WebController<PointsTaskPlanService,

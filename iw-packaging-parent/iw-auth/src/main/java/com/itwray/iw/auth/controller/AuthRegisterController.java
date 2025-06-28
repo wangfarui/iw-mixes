@@ -33,9 +33,15 @@ public class AuthRegisterController {
         return authRegisterService.registerByForm(dto, IpUtils.getClientIp(request));
     }
 
-    @GetMapping("/getVerificationCode")
-    @Operation(summary = "注册时获取验证码")
-    public void getVerificationCode(@RequestParam("phoneNumber") String phoneNumber) {
-        authRegisterService.getVerificationCode(phoneNumber);
+    @GetMapping("/getPhoneVerificationCode")
+    @Operation(summary = "注册时获取手机验证码")
+    public void getPhoneVerificationCode(@RequestParam("phoneNumber") String phoneNumber) {
+        authRegisterService.getPhoneVerificationCode(phoneNumber);
+    }
+
+    @GetMapping("/getEmailVerificationCode")
+    @Operation(summary = "注册时获取邮箱验证码")
+    public void getEmailVerificationCode(@RequestParam("emailAddress") String emailAddress) {
+        authRegisterService.getEmailVerificationCode(emailAddress);
     }
 }

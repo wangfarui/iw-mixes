@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2025-04-17
  */
 @RestController
-@RequestMapping("/task/relation")
+@RequestMapping("/points/task/relation")
 @Validated
 @Tag(name = "任务关联表接口")
 public class PointsTaskRelationController extends WebController<PointsTaskRelationService,

@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 public enum RecordCategoryEnum implements BusinessConstantEnum {
 
-    CONSUME(1, "支出（消费）"),
+    CONSUME(1, "支出"),
     INCOME(2, "收入");
 
     private final Integer code;

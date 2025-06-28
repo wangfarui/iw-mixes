@@ -48,6 +48,7 @@ values (3002, 0, '任意时间', 1, 0),
        (4002, 3, '交通出行', 3, 0),
        (4002, 4, '充值缴费', 4, 0),
        (4002, 5, '生活服务', 5, 0),
+       (4002, 6, '其他', 6, 0),
        (4003, 1, '支出', 1, 0),
        (4003, 2, '收入', 2, 0)
 ;
@@ -62,6 +63,15 @@ values (4001, '买菜', 1, 0),
 
 insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
 values (2010, 0, '未分类', 1, 0);
+
+## 初始超级管理员用户的字典数据
+## 注意! 该脚本需要在 iw-auth-init.sql 之后执行
+insert into base_dict(parent_id, dict_type, dict_code, dict_name, dict_status, sort, user_id)
+select bd.parent_id, bd.dict_type, bd.dict_code, bd.dict_name, bd.dict_status, bd.sort, au.id
+from auth_user au
+join base_dict bd on bd.user_id = 0
+where au.role_type = 20
+;
 
 ##  MQ消息消费记录表
 drop table if exists base_mq_consume_records;

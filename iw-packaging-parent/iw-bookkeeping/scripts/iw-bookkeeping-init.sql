@@ -73,7 +73,8 @@ add column budget_year smallint unsigned null comment '预算年份';
 drop table if exists bookkeeping_wallet;
 create table bookkeeping_wallet (
     id int unsigned auto_increment not null comment 'id',
-    wallet_balance decimal(8, 2) not null comment '余额',
+    wallet_balance decimal(10, 2) default 0 not null comment '余额',
+    wallet_assets decimal(10, 2) default 0 not null comment '资产',
     deleted tinyint(1) default 0 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
     create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time datetime default CURRENT_TIMESTAMP not null comment '更新时间',
@@ -81,3 +82,18 @@ create table bookkeeping_wallet (
     primary key (id),
     key idx_user_id (user_id)
 ) comment '用户钱包表';
+
+drop table if exists bookkeeping_wallet_records;
+create table bookkeeping_wallet_records (
+    id int unsigned auto_increment not null comment 'id',
+    change_type tinyint(1) not null comment '变动类型(1余额, 2资产)',
+    change_amount decimal(10, 2) not null comment '变动金额',
+    before_amount decimal(10, 2) not null comment '变动前金额',
+    after_amount decimal(10, 2) not null comment '变动后金额',
+    deleted tinyint(1) default 0 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
+    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id int unsigned default 0 not null comment '用户id',
+    primary key (id),
+    key idx_user_id (user_id)
+) comment '用户钱包记录表';

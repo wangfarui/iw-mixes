@@ -79,4 +79,12 @@ public interface AuthUserService {
      * @param dto 用户名信息
      */
     void editUsername(UserUsernameEditDto dto);
+
+    /**
+     * 用户提问 AI回答
+     *
+     * @param content 提问内容
+     * @return 回答内容
+     */
+    String aiAnswer(String content);
 }

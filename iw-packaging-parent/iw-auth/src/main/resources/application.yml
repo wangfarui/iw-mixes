@@ -4,7 +4,7 @@ iw:
     dataPermission:
       enabled: true
       enable-table-names:
-        - all_table
+        - base_application_account
 
 # 服务器配置
 server:

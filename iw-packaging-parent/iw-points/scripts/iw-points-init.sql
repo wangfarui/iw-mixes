@@ -105,3 +105,17 @@ create table points_task_plan (
     primary key (id),
     key idx_user_id (user_id)
 ) comment '任务计划表';
+
+drop table if exists points_task_fixed;
+create table points_task_fixed (
+    id int unsigned auto_increment not null comment 'id',
+    task_name varchar(128) NOT NULL DEFAULT '' COMMENT '任务名称',
+    task_points tinyint NOT NULL DEFAULT 0 COMMENT '任务积分(可以是正数或负数)',
+  	task_remark varchar(255) not null default '' COMMENT '任务备注',
+    deleted tinyint(1) default 0 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
+    create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id int unsigned default 0 not null comment '用户id',
+    primary key (id),
+    key idx_user_id (user_id)
+) comment '常用任务表';

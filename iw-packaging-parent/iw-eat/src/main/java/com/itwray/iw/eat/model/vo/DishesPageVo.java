@@ -53,4 +53,9 @@ public class DishesPageVo {
      * 状态(1:启用, 2:禁用, 3:售空)
      */
     private Integer status;
+
+    /**
+     * 菜品所属用户id
+     */
+    private Integer userId;
 }

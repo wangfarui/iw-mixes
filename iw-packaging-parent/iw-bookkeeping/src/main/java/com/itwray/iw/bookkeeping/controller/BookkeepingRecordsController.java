@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -53,13 +54,9 @@ public class BookkeepingRecordsController extends WebController<BookkeepingRecor
         return getWebService().statistics(dto);
     }
 
-    /**
-     * 记账记录修改功能
-     * <p>不支持跨记录类型修改</p>
-     */
-    @Override
-    @PutMapping("/update")
-    public void update(@RequestBody @Valid BookkeepingRecordUpdateDto dto) {
-        getWebService().update(dto);
+    @PostMapping("/import")
+    @Operation(summary = "导入账单")
+    public void importRecords(@RequestParam("file") MultipartFile file) {
+        getWebService().importRecords(file);
     }
 }

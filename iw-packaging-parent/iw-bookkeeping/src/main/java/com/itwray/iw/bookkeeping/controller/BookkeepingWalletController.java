@@ -1,10 +1,11 @@
 package com.itwray.iw.bookkeeping.controller;
 
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingWalletBalanceUpdateDto;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletBalanceVo;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingWalletAmountUpdateDto;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingWalletDetailVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingWalletService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,15 +29,15 @@ public class BookkeepingWalletController {
         this.bookkeepingWalletService = bookkeepingWalletService;
     }
 
-    @GetMapping("/balance")
-    @Operation(summary = "查询钱包余额")
-    public BookkeepingWalletBalanceVo getWalletBalance() {
-        return bookkeepingWalletService.getWalletBalance();
+    @GetMapping("/detail")
+    @Operation(summary = "查询用户钱包详情")
+    public BookkeepingWalletDetailVo getUserWalletDetail() {
+        return bookkeepingWalletService.getUserWalletDetail();
     }
 
-    @PutMapping("/updateBalance")
-    @Operation(summary = "修改钱包余额")
-    public void updateBalance(@RequestBody BookkeepingWalletBalanceUpdateDto dto) {
-        bookkeepingWalletService.updateBalance(dto);
+    @PutMapping("/updateAmount")
+    @Operation(summary = "修改钱包金额")
+    public void updateBalance(@RequestBody @Valid BookkeepingWalletAmountUpdateDto dto) {
+        bookkeepingWalletService.updateAmount(dto);
     }
 }

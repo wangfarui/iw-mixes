@@ -15,6 +15,9 @@ import lombok.Data;
 @Schema(name = "用户信息VO")
 public class UserInfoVo {
 
+    @Schema(title = "用户id")
+    private Integer id;
+
     @Schema(title = "姓名")
     private String name;
 
@@ -27,4 +30,13 @@ public class UserInfoVo {
     @Schema(title = "头像（url地址）")
     @JsonSerialize(using = DefaultImageSerializer.class)
     private String avatar = "";
+
+    @Schema(title = "电话号码")
+    private String phoneNumber;
+
+    @Schema(title = "邮箱地址")
+    private String emailAddress;
+
+    @Schema(title = "新用户")
+    private Boolean newUser;
 }

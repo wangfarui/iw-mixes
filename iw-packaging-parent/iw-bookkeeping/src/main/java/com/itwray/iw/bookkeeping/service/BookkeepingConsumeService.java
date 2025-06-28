@@ -1,11 +1,12 @@
 package com.itwray.iw.bookkeeping.service;
 
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeCategoryStatisticsDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeMonthStatisticsDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeStatisticsDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsRankVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -19,15 +20,20 @@ public interface BookkeepingConsumeService {
     /**
      * 统计月度总支出数据
      */
-    BookkeepingConsumeStatisticsTotalVo totalStatistics(BookkeepingConsumeMonthStatisticsDto dto);
+    BookkeepingStatisticsTotalVo totalStatistics(BookkeepingConsumeStatisticsDto dto);
 
     /**
      * 统计月度支出排行数据
      */
-    List<BookkeepingConsumeStatisticsRankVo> rankStatistics(BookkeepingConsumeMonthStatisticsDto dto);
+    List<BookkeepingStatisticsRankVo> rankStatistics(BookkeepingConsumeStatisticsDto dto);
 
     /**
-     * 统计月度支出分类数据
+     * 支出饼图图表统计
      */
-    List<BookkeepingConsumeStatisticsCategoryVo> categoryStatistics(BookkeepingConsumeCategoryStatisticsDto dto);
+    List<BookkeepingConsumeStatisticsCategoryVo> pieChartStatistics(BookkeepingConsumeCategoryStatisticsDto dto);
+
+    /**
+     * 支出柱状图图表统计
+     */
+    List<BigDecimal> barChartStatistics(BookkeepingConsumeStatisticsDto dto);
 }

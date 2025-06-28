@@ -4,6 +4,7 @@ import com.itwray.iw.auth.model.dto.DictAddDto;
 import com.itwray.iw.auth.model.dto.DictPageDto;
 import com.itwray.iw.auth.model.dto.DictUpdateDto;
 import com.itwray.iw.auth.model.vo.*;
+import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.WebService;
 
@@ -48,4 +49,10 @@ public interface BaseDictService extends WebService<DictAddDto, DictUpdateDto, D
      * @return 字典分页对象
      */
     PageVo<DictPageVo> page(DictPageDto dto);
+
+    /**
+     * 获取用户字典版本
+     * @return 版本号
+     */
+    GeneralResponse<Long> getDictVersion();
 }

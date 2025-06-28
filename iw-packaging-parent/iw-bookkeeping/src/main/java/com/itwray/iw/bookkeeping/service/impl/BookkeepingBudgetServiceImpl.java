@@ -4,17 +4,14 @@ import cn.hutool.core.collection.CollUtil;
 import com.itwray.iw.bookkeeping.dao.BookkeepingBudgetDao;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingBudgetMapper;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingBudgetAddDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingBudgetUpdateDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeCategoryStatisticsDto;
-import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeMonthStatisticsDto;
+import com.itwray.iw.bookkeeping.model.dto.*;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingBudgetEntity;
 import com.itwray.iw.bookkeeping.model.enums.BudgetTypeEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingBudgetDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingBudgetStatisticsVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsTotalVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingBudgetService;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.constants.WebCommonConstants;
@@ -103,13 +100,13 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
         vo.setBudgetAmount(budgetEntity.getBudgetAmount());
 
         // 查询总支出金额
-        BookkeepingConsumeMonthStatisticsDto dto = new BookkeepingConsumeMonthStatisticsDto();
+        BookkeepingStatisticsDto dto = new BookkeepingStatisticsDto();
         dto.setRecordCategory(RecordCategoryEnum.CONSUME);
         dto.setCurrentStartMonth(budgetType.equals(BudgetTypeEnum.MONTH) ? DateUtils.startDateOfNowMonth() : DateUtils.startDateOfNowYear());
         dto.setCurrentEndMonth(budgetType.equals(BudgetTypeEnum.MONTH) ? DateUtils.endDateOfNowMonth() : DateUtils.endDateOfNowYear());
-        BookkeepingConsumeStatisticsTotalVo statisticsTotalVo = bookkeepingRecordsDao.getBaseMapper().totalStatistics(dto);
+        BookkeepingStatisticsTotalVo statisticsTotalVo = bookkeepingRecordsDao.getBaseMapper().totalStatistics(dto);
         if (statisticsTotalVo == null) {
-            statisticsTotalVo = new BookkeepingConsumeStatisticsTotalVo();
+            statisticsTotalVo = new BookkeepingStatisticsTotalVo();
         }
         if (statisticsTotalVo.getTotalAmount() == null) {
             statisticsTotalVo.setTotalAmount(BigDecimal.ZERO);

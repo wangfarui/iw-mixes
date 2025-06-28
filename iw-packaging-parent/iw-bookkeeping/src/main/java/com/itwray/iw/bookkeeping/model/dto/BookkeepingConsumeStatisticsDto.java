@@ -1,9 +1,9 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.bookkeeping.model.enums.BookkeepingStatisticsTypeEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.common.utils.DateUtils;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -15,13 +15,18 @@ import java.time.LocalDate;
  * @since 2024/10/15
  */
 @Data
-public class BookkeepingConsumeMonthStatisticsDto {
+public class BookkeepingConsumeStatisticsDto {
 
     /**
      * 当前查询的月度
      */
     @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate currentMonth;
+
+    /**
+     * 统计类型
+     */
+    private BookkeepingStatisticsTypeEnum statisticsType;
 
     /**
      * 记账记录类型
