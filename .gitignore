@@ -6,6 +6,7 @@ target/
 *.zip
 *.tar
 *.tar.gz
+pom.xml.versionsBackup
 
 # eclipse ignore
 .settings/

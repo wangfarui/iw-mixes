@@ -5,7 +5,7 @@
 
     <groupId>com.itwray.mixes</groupId>
     <artifactId>iw-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0</version>
     <modules>
         <module>iw-common</module>
         <module>iw-feign-client</module>
@@ -21,8 +21,9 @@
 
     <properties>
         <!-- iw project -->
-        <iw.version>0.1.0-SNAPSHOT</iw.version>
-        <iw.starter.version>0.1.0-SNAPSHOT</iw.starter.version>
+        <!-- mvn versions:set -DnewVersion=0.2.0 -->
+        <iw.version>0.2.0</iw.version>
+        <iw.starter.version>0.2.0</iw.starter.version>
 
         <!-- base properties -->
         <java.version>17</java.version>
