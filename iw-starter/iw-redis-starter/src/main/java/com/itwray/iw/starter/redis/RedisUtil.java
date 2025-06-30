@@ -253,7 +253,13 @@ public class RedisUtil {
         if (set == null || set.isEmpty()) {
             return null;
         }
-        return set.stream().map(t -> JSONUtil.toBean(t.toString(), typeClass)).collect(Collectors.toSet());
+        boolean isBasicClass = typeClass.getPackageName().startsWith("java.lang");
+        return set.stream().map(t -> {
+            if (isBasicClass) {
+                return (T) t;
+            }
+            return JSONUtil.toBean(t.toString(), typeClass);
+        }).collect(Collectors.toSet());
     }
 
     /**
