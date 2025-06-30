@@ -4,3 +4,8 @@
 iw:
   ai:
     api-key: xxx
+
+# 全局未同步
+
+alter table auth_user
+add column `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间' after create_time;

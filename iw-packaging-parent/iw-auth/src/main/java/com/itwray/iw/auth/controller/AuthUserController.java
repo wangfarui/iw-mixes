@@ -1,7 +1,9 @@
 package com.itwray.iw.auth.controller;
 
+import com.itwray.iw.auth.model.dto.UserInfoEditDto;
 import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
 import com.itwray.iw.auth.model.dto.UserUsernameEditDto;
+import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.common.GeneralResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +12,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 /**
  * 用户的接口控制层
@@ -32,13 +32,6 @@ public class AuthUserController {
         this.authUserService = authUserService;
     }
 
-    @PostMapping("/editAvatar")
-    @Operation(summary = "编辑用户头像")
-    public void editAvatar(@RequestBody Map<String, Object> body) {
-        String avatar = (String) body.get("avatar");
-        authUserService.editAvatar(avatar);
-    }
-
     @PostMapping("/editPassword")
     @Operation(summary = "修改用户密码")
     public void editPassword(@RequestBody @Valid UserPasswordEditDto dto) {
@@ -57,8 +50,19 @@ public class AuthUserController {
         authUserService.editUsername(dto);
     }
 
+    @PutMapping("/editUserInfo")
+    @Operation(summary = "修改用户信息")
+    public void editUserInfo(@RequestBody @Valid UserInfoEditDto dto) {
+        authUserService.editUserInfo(dto);
+    }
+
     @GetMapping("/answer")
     public GeneralResponse<String> aiAnswer(@RequestParam("t") String content) {
         return GeneralResponse.success(authUserService.aiAnswer(content));
+    }
+
+    @GetMapping("/getUserInfo")
+    public UserInfoVo getUserInfo() {
+        return authUserService.getUserInfo();
     }
 }

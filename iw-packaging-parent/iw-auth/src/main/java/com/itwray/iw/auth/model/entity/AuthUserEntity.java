@@ -79,6 +79,11 @@ public class AuthUserEntity extends IdEntity<Integer> {
     private LocalDateTime createTime;
 
     /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+
+    /**
      * 最后登录时间
      */
     private LocalDateTime lastLoginTime;
