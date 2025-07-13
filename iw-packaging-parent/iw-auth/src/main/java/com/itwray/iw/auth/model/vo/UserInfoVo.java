@@ -2,6 +2,8 @@ package com.itwray.iw.auth.model.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.itwray.iw.web.json.serialize.DefaultImageSerializer;
+import com.itwray.iw.web.json.serialize.EmailAddressSerializer;
+import com.itwray.iw.web.json.serialize.PhoneNumberSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -32,9 +34,11 @@ public class UserInfoVo {
     private String avatar = "";
 
     @Schema(title = "电话号码")
+    @JsonSerialize(using = PhoneNumberSerializer.class)
     private String phoneNumber;
 
     @Schema(title = "邮箱地址")
+    @JsonSerialize(using = EmailAddressSerializer.class)
     private String emailAddress;
 
     @Schema(title = "新用户")

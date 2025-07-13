@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
 /**
- * 反序列化器, 逗号拼接转集合
+ * 序列化器, 逗号拼接转集合
  *
  * @author wray
  * @since 2024/4/25

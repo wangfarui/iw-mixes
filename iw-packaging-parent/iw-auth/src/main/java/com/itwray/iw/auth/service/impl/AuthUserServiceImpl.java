@@ -1,13 +1,11 @@
 package com.itwray.iw.auth.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.itwray.iw.auth.dao.AuthUserDao;
 import com.itwray.iw.auth.model.AuthRedisKeyEnum;
 import com.itwray.iw.auth.model.bo.UserAddBo;
-import com.itwray.iw.auth.model.dto.LoginPasswordDto;
-import com.itwray.iw.auth.model.dto.LoginVerificationCodeDto;
-import com.itwray.iw.auth.model.dto.UserPasswordEditDto;
-import com.itwray.iw.auth.model.dto.UserUsernameEditDto;
+import com.itwray.iw.auth.model.dto.*;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.enums.VerificationCodeActionEnum;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
@@ -31,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER;
@@ -209,16 +208,6 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Override
     @Transactional
-    public void editAvatar(String avatar) {
-        AuthUserEntity authUserEntity = getCurrentUser();
-        authUserDao.lambdaUpdate()
-                .eq(AuthUserEntity::getId, authUserEntity.getId())
-                .set(AuthUserEntity::getAvatar, avatar)
-                .update();
-    }
-
-    @Override
-    @Transactional
     public void editPassword(UserPasswordEditDto dto) {
         // 获取当前用户实体
         AuthUserEntity authUserEntity = getCurrentUser();
@@ -316,6 +305,24 @@ public class AuthUserServiceImpl implements AuthUserService {
             return "请发送你的问题哦";
         }
         return internalApiClient.aiAnswer(content).getData();
+    }
+
+    @Override
+    public UserInfoVo getUserInfo() {
+        AuthUserEntity authUserEntity = authUserDao.queryById(UserUtils.getUserId());
+        return BeanUtil.copyProperties(authUserEntity, UserInfoVo.class);
+    }
+
+    @Override
+    @Transactional
+    public void editUserInfo(UserInfoEditDto dto) {
+        // 更新用户名
+        authUserDao.lambdaUpdate()
+                .eq(AuthUserEntity::getId, UserUtils.getUserId())
+                .set(StringUtils.isNotBlank(dto.getName()), AuthUserEntity::getName, dto.getName())
+                .set(StringUtils.isNotBlank(dto.getAvatar()), AuthUserEntity::getAvatar, dto.getAvatar())
+                .set(AuthUserEntity::getUpdateTime, LocalDateTime.now())
+                .update();
     }
 
     /**

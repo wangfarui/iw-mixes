@@ -20,10 +20,10 @@ create table external_exchange_rate
     id            int unsigned                       not null auto_increment comment 'id',
     from_currency varchar(16)                        not null comment '转换前货币',
     to_currency   varchar(16)                        not null comment '转换后货币',
-    exchange_rate decimal(10, 6)                     not null comment '汇率',
+    exchange_rate decimal(16, 6)                     not null comment '汇率',
     query_date    date                               not null comment '查询日期',
-    from_amount   decimal(10, 6)                     not null comment '转换前金额',
-    to_amount     decimal(10, 6)                     not null comment '转换后金额',
+    from_amount   decimal(16, 6)                     not null comment '转换前金额',
+    to_amount     decimal(16, 6)                     not null comment '转换后金额',
     create_time   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     primary key (id),
     key idx_query_date (query_date)

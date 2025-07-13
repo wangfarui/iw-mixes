@@ -89,6 +89,8 @@ public class BaseApplicationAccountServiceImpl extends WebServiceImpl<BaseApplic
         if (Boolean.TRUE.equals(dto.getUpdatePassword())) {
             String encryptHex = this.encrypt(dto.getPassword());
             dto.setPassword(encryptHex);
+        } else {
+            dto.setPassword(null);
         }
         super.update(dto);
     }
