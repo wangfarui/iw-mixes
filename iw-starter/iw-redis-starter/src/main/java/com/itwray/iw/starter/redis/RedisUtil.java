@@ -253,7 +253,7 @@ public class RedisUtil {
         if (set == null || set.isEmpty()) {
             return null;
         }
-        boolean isBasicClass = typeClass.getPackageName().startsWith("java.lang");
+        boolean isBasicClass = typeClass.getPackageName().startsWith("java");
         return set.stream().map(t -> {
             if (isBasicClass) {
                 return (T) t;
