@@ -7,7 +7,3 @@ iw:
 
 # 全局未同步
 
-alter table external_exchange_rate
-modify column `exchange_rate` decimal(16,6) NOT NULL COMMENT '汇率',
-modify column  `from_amount` decimal(16,6) NOT NULL COMMENT '转换前金额',
- modify column  `to_amount` decimal(16,6) NOT NULL COMMENT '转换后金额';
