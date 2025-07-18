@@ -13,7 +13,7 @@ public enum PointsRecordsTopicEnum implements MQDestination {
 
     TASK("task", "积分任务"),
     TASK_FIXED("task_fixed", "常用任务"),
-    EXCITATION_BOOKKEEPING("excitation_bookkeeping", "记账收入激励"),
+    BOOKKEEPING_SERVICE("bookkeeping_service", "记账服务"),
     ;
 
     private final String tag;

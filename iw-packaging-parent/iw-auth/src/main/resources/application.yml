@@ -8,8 +8,6 @@ iw:
 
 # 服务器配置
 server:
-  servlet:
-    context-path: /auth-service
   port: 18001
 
 # spring 配置

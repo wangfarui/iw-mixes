@@ -120,10 +120,7 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
                 .update();
 
         // 生成Token并缓存
-        String token = UUID.randomUUID().toString().replace("-", "");
-        AuthRedisKeyEnum.USER_TOKEN_KEY.setStringValue(authUserEntity.getId(), token);
-        RedisUtil.sSet(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), token);
-        AuthRedisKeyEnum.USER_TOKEN_SET_KEY.setExpire(authUserEntity.getId());
+        String token = this.genericUserToken(authUserEntity.getId());
 
         // 将token写入到请求头中
         this.setTokenValue(token);
@@ -136,6 +133,17 @@ public class AuthUserDao extends BaseDao<AuthUserMapper, AuthUserEntity> {
         userInfoVo.setNewUser(authUserEntity.isNewUser());
 
         return userInfoVo;
+    }
+
+    /**
+     * 生成用户token 并缓存到Redis
+     */
+    public String genericUserToken(Integer userId) {
+        String token = UUID.randomUUID().toString().replace("-", "");
+        AuthRedisKeyEnum.USER_TOKEN_KEY.setStringValue(userId, token);
+        RedisUtil.sSet(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(userId), token);
+        AuthRedisKeyEnum.USER_TOKEN_SET_KEY.setExpire(userId);
+        return token;
     }
 
     /**

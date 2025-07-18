@@ -48,6 +48,10 @@
         </dependency>
         <dependency>
             <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-auth-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-external-client</artifactId>
         </dependency>
 

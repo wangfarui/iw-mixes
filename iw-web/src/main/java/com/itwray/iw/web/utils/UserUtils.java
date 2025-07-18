@@ -3,6 +3,7 @@ package com.itwray.iw.web.utils;
 import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.web.client.AuthenticationClient;
 import com.itwray.iw.web.exception.AuthorizedException;
+import com.itwray.iw.web.exception.IwWebException;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
@@ -38,9 +39,17 @@ public abstract class UserUtils {
     }
 
     public static @Nullable String getToken(boolean required) {
+        String token = getHeaderValue(RequestHeaderConstants.TOKEN_HEADER);
+        if (token == null && required) {
+            throw new IwWebException("当前未登录，请先登录");
+        }
+        return token;
+    }
+
+    public static @Nullable String getHeaderValue(String headerKey) {
         try {
             HttpServletRequest request = SpringWebHolder.getRequest();
-            return request.getHeader(RequestHeaderConstants.TOKEN_HEADER);
+            return request.getHeader(headerKey);
         } catch (IllegalStateException e) {
             // ignore
         }
@@ -55,10 +64,10 @@ public abstract class UserUtils {
      *     <li>业务层手动引用</li>
      * </ul>
      */
-    public static Integer getUserId() {
+    public static Integer getUserId(boolean required) {
         Integer userId = USER_ID.get();
         // 线程中为空时，尝试远程获取
-        if (userId == null) {
+        if (userId == null && required) {
             String token = getToken();
             if (token == null) {
                 throw new AuthorizedException("当前未登录，请先登录");
@@ -67,6 +76,10 @@ public abstract class UserUtils {
             setUserId(userId = getAuthClient().getUserIdByToken(token));
         }
         return userId;
+    }
+
+    public static Integer getUserId() {
+        return getUserId(true);
     }
 
     /**

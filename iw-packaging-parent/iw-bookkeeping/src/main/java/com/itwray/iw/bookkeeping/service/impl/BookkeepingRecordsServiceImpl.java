@@ -3,12 +3,15 @@ package com.itwray.iw.bookkeeping.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.idev.excel.FastExcel;
+import com.itwray.iw.auth.client.BaseDictClient;
+import com.itwray.iw.auth.model.vo.DictListVo;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.excel.listener.BookkeepingRecordsImportDataListener;
 import com.itwray.iw.bookkeeping.mapper.BookkeepingRecordsMapper;
 import com.itwray.iw.bookkeeping.model.bo.BookkeepingRecordsImportBo;
 import com.itwray.iw.bookkeeping.model.bo.RecordsStatisticsBo;
 import com.itwray.iw.bookkeeping.model.dto.*;
+import com.itwray.iw.bookkeeping.model.entity.BookkeepingBudgetEntity;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
 import com.itwray.iw.bookkeeping.model.enums.BookkeepingRecordTypeDefaultEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
@@ -42,6 +45,7 @@ import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.OrderNoUtils;
 import com.itwray.iw.web.utils.UserUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,6 +82,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private BaseDictDao baseDictDao;
 
+    private BaseDictClient baseDictClient;
+
     @SuppressWarnings("all")
     @Autowired
     public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao,
@@ -93,6 +99,11 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Autowired
     public void setBaseDictDao(BaseDictDao baseDictDao) {
         this.baseDictDao = baseDictDao;
+    }
+
+    @Autowired
+    public void setBaseDictClient(BaseDictClient baseDictClient) {
+        this.baseDictClient = baseDictClient;
     }
 
     @Override
@@ -348,7 +359,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         boolean isFillRemark = true;
         if (bo.getRemark() == null) {
             recordsEntity.setRecordSource("消费");
-        } else if (bo.getRemark().length() < 50){
+        } else if (bo.getRemark().length() < 50) {
             recordsEntity.setRecordSource(bo.getRemark());
             isFillRemark = false;
         } else {
@@ -363,6 +374,50 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         getBaseDao().save(recordsEntity);
     }
 
+    @Override
+    public void syncBookkeepingPointsByBudget(List<BookkeepingBudgetEntity> monthBudgetList) {
+        if (CollectionUtils.isEmpty(monthBudgetList)) {
+            return;
+        }
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("[yyyy年MM月]");
+        // 根据用户维度, 统计每个用户不同记账分类下的支出统计
+        Map<Integer, List<BookkeepingBudgetEntity>> userBudgetMap = monthBudgetList.stream()
+                .collect(Collectors.groupingBy(BookkeepingBudgetEntity::getUserId));
+        for (Map.Entry<Integer, List<BookkeepingBudgetEntity>> entry : userBudgetMap.entrySet()) {
+            UserUtils.setUserId(entry.getKey());
+            try {
+                // 查询
+                List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
+                Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
+                for (BookkeepingBudgetEntity budgetEntity : entry.getValue()) {
+                    BookkeepingRecordsStatisticsDto statisticsDto = new BookkeepingRecordsStatisticsDto();
+                    statisticsDto.setRecordStartDate(DateUtils.startDateOfMonth(budgetEntity.getBudgetMonth()));
+                    statisticsDto.setRecordEndDate(DateUtils.endDateOfMonth(budgetEntity.getBudgetMonth()));
+                    statisticsDto.setRecordType(budgetEntity.getRecordType());
+                    // 统计预算所在月份下, 指定记账分类的实际支出情况
+                    BookkeepingRecordsStatisticsVo statisticsVo = this.statistics(statisticsDto);
+                    // 判断是否满足预算
+                    boolean stayBudget = statisticsVo.getConsume().compareTo(budgetEntity.getBudgetAmount()) <= 0;
+                    // 预算内默认加2分, 预算外默认扣5分
+                    Integer points = stayBudget ? 2 : -5;
+                    PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
+                    pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(points));
+                    pointsRecordsAddDto.setPoints(points);
+                    pointsRecordsAddDto.setSource(
+                            budgetEntity.getBudgetMonth().format(dateTimeFormatter) +
+                                    dictMap.get(budgetEntity.getRecordType()) +
+                                    (stayBudget ? "符合预算" : "超出预算")
+                    );
+                    pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING_BUDGET_MONTH.getCode());
+                    pointsRecordsAddDto.setUserId(UserUtils.getUserId());
+                    MQProducerHelper.send(PointsRecordsTopicEnum.BOOKKEEPING_SERVICE, pointsRecordsAddDto);
+                }
+            } finally {
+                UserUtils.removeUserId();
+            }
+        }
+    }
+
     private void addPointsRecordsByExcitation(String orderNo) {
         PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
         pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.INCREASE.getCode());
@@ -370,7 +425,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         pointsRecordsAddDto.setSource("记账收入: " + orderNo);
         pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
         pointsRecordsAddDto.setUserId(UserUtils.getUserId());
-        MQProducerHelper.send(PointsRecordsTopicEnum.EXCITATION_BOOKKEEPING, pointsRecordsAddDto);
+        MQProducerHelper.send(PointsRecordsTopicEnum.BOOKKEEPING_SERVICE, pointsRecordsAddDto);
     }
 
     private void deductPointsRecordsByExcitation(String orderNo) {
@@ -380,7 +435,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         pointsRecordsAddDto.setSource("记账收入被删除: " + orderNo);
         pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING.getCode());
         pointsRecordsAddDto.setUserId(UserUtils.getUserId());
-        MQProducerHelper.send(PointsRecordsTopicEnum.EXCITATION_BOOKKEEPING, pointsRecordsAddDto);
+        MQProducerHelper.send(PointsRecordsTopicEnum.BOOKKEEPING_SERVICE, pointsRecordsAddDto);
     }
 
     private void syncWalletBalance(RecordCategoryEnum recordCategory, BigDecimal amount) {

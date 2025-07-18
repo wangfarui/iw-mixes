@@ -14,6 +14,11 @@ public abstract class RequestHeaderConstants {
     public static final String TOKEN_HEADER = "iwtoken";
 
     /**
+     * userId的固定header
+     */
+    public static final String USER_ID = "uid";
+
+    /**
      * 服务内部调用的密钥头
      */
     public static final String SECRET_HEADER_KEY = "Iw-Feign-Secret";

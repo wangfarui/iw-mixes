@@ -2,6 +2,7 @@ package com.itwray.iw.bookkeeping.service;
 
 import com.itwray.iw.bookkeeping.model.bo.BookkeepingRecordsImportBo;
 import com.itwray.iw.bookkeeping.model.dto.*;
+import com.itwray.iw.bookkeeping.model.entity.BookkeepingBudgetEntity;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
@@ -29,4 +30,11 @@ public interface BookkeepingRecordsService extends WebService<BookkeepingRecordA
     void importRecords(MultipartFile file);
 
     void processImportData(BookkeepingRecordsImportBo bo, Map<String, Integer> dictNameMap);
+
+    /**
+     * 通过预算数据同步记账积分
+     *
+     * @param monthBudgetList 月度分类预算列表
+     */
+    void syncBookkeepingPointsByBudget(List<BookkeepingBudgetEntity> monthBudgetList);
 }

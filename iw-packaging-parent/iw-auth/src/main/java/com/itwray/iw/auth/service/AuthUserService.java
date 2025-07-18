@@ -87,4 +87,9 @@ public interface AuthUserService {
      * 修改用户信息
      */
     void editUserInfo(UserInfoEditDto dto);
+
+    /**
+     * 生成用户token
+     */
+    String genericUserToken(Integer userId);
 }
