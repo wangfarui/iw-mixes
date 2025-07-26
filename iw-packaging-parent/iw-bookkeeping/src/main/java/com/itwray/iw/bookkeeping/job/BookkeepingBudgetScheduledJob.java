@@ -58,8 +58,6 @@ public class BookkeepingBudgetScheduledJob {
                 this.initDefaultFieldValue(t);
                 t.setBudgetMonth(nowMonth);
             });
-            System.out.println("aaaList monthBudgetList");
-            System.out.println(JSONUtil.toJsonStr(monthBudgetList));
             bookkeepingBudgetDao.saveBatch(monthBudgetList);
         }
     }
@@ -110,8 +108,6 @@ public class BookkeepingBudgetScheduledJob {
                 this.initDefaultFieldValue(t);
                 t.setBudgetYear(nowYear);
             });
-            System.out.println("aaaList yearBudgetList");
-            System.out.println(JSONUtil.toJsonStr(yearBudgetList));
             bookkeepingBudgetDao.saveBatch(yearBudgetList);
         }
     }
