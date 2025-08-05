@@ -22,6 +22,11 @@ public abstract class UserUtils {
     private static final ThreadLocal<Integer> USER_ID = new ThreadLocal<>();
 
     /**
+     * 当前线程的用户token
+     */
+    private static final ThreadLocal<String> USER_TOKEN = new ThreadLocal<>();
+
+    /**
      * 当前线程是否开启用户数据权限
      * <p>默认为 null 时表示开启</p>
      */
@@ -34,21 +39,34 @@ public abstract class UserUtils {
      */
     private static final Object AUTHENTICATION_CLIENT_LOCK = new Object();
 
+    public static void setToken(String token) {
+        USER_TOKEN.set(token);
+    }
+
     public static @Nonnull String getToken() {
         return getToken(true);
     }
 
     public static @Nullable String getToken(boolean required) {
-        String token = getHeaderValue(RequestHeaderConstants.TOKEN_HEADER);
+        String token = USER_TOKEN.get();
+        if (token == null) {
+            token = getHeaderValue(RequestHeaderConstants.TOKEN_HEADER);
+        } else {
+            return token;
+        }
         if (token == null && required) {
             throw new IwWebException("当前未登录，请先登录");
         }
+        USER_TOKEN.set(token);
         return token;
     }
 
     public static @Nullable String getHeaderValue(String headerKey) {
         try {
-            HttpServletRequest request = SpringWebHolder.getRequest();
+            HttpServletRequest request = SpringWebHolder.getRequest(false);
+            if (request == null) {
+                return null;
+            }
             return request.getHeader(headerKey);
         } catch (IllegalStateException e) {
             // ignore
@@ -97,6 +115,13 @@ public abstract class UserUtils {
      */
     public static void removeUserId() {
         USER_ID.remove();
+    }
+
+    /**
+     * 清除线程的用户token
+     */
+    public static void removeUserToken() {
+        USER_TOKEN.remove();
     }
 
     /**

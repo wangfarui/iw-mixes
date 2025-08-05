@@ -7,3 +7,31 @@ iw:
 
 # 全局未同步
 
+
+web nacos
+iw:
+  # Feign配置
+  feign:
+    secret: bfd513488fa45a297b510c9b6cce4fff
+
+gateway nacos
+iw:
+  redis:
+    database: 9
+  gateway:
+    authServiceName: iw-auth-service
+    authValidateUrl: /authentication/validateToken
+    ignoreValidateApi:
+      - /login/password
+      - /login/verificationCode
+      - /login/captcha.jpg
+      - /register/form
+      - /register/getPhoneVerificationCode
+      - /register/getEmailVerificationCode
+    ignoreValidateService:
+      - external-service
+    tokenValidTime: 3600
+    allowedInternalIps:
+      - 127.0.0.1
+      - 0.0.0.0.0.0.0.1
+      - 0:0:0:0:0:0:0:1

@@ -2,6 +2,7 @@ package com.itwray.iw.auth.controller;
 
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.common.GeneralResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +31,7 @@ public class InternalUserController {
     }
 
     @GetMapping("/genericUserToken")
+    @Operation(summary = "生成用户token")
     public GeneralResponse<String> genericUserToken(@RequestParam("userId") Integer userId) {
         String token = authUserService.genericUserToken(userId);
         return GeneralResponse.success(token);

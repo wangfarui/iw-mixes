@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author wray
  * @since 2024/9/9
  */
-@FeignClient(value = "iw-auth-service", path = "/auth-service/authentication")
+@FeignClient(value = "iw-auth-service", contextId = "authenticationClient", path = "/authentication")
 public interface AuthenticationClient {
 
     @GetMapping("/validateToken")

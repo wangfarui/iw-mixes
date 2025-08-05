@@ -31,6 +31,24 @@ public class SpringWebHolder {
     }
 
     /**
+     * 获取当前线程的Http请求
+     *
+     * @return HttpServletRequest
+     */
+    public static HttpServletRequest getRequest(boolean required) {
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (servletRequestAttributes == null) {
+            if (required) {
+                throw new IllegalStateException("非 web 上下文无法获取 HttpServletRequest");
+            } else {
+                return null;
+            }
+        } else {
+            return servletRequestAttributes.getRequest();
+        }
+    }
+
+    /**
      * 获取当前线程的Http响应对象
      *
      * @return HttpServletResponse

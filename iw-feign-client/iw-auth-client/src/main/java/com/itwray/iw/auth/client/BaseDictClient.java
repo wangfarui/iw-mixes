@@ -14,7 +14,7 @@ import java.util.List;
  * @author farui.wang
  * @since 2025/7/18
  */
-@FeignClient(value = "iw-auth-service", path = "/auth-service/dict")
+@FeignClient(value = "iw-auth-service", contextId = "dictClient", path = "/dict")
 public interface BaseDictClient {
 
     @GetMapping("/getDictListByType")

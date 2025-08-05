@@ -3,6 +3,7 @@ package com.itwray.iw.bookkeeping.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.idev.excel.FastExcel;
+import com.itwray.iw.auth.client.AuthUserClient;
 import com.itwray.iw.auth.client.BaseDictClient;
 import com.itwray.iw.auth.model.vo.DictListVo;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
@@ -76,23 +77,22 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private final BaseDictBusinessRelationDao baseDictBusinessRelationDao;
 
-    private final InternalApiClient internalApiClient;
-
     private final BaseBusinessFileDao baseBusinessFileDao;
 
     private BaseDictDao baseDictDao;
 
+    private InternalApiClient internalApiClient;
+
     private BaseDictClient baseDictClient;
 
-    @SuppressWarnings("all")
+    private AuthUserClient authUserClient;
+
     @Autowired
     public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao,
                                          BaseDictBusinessRelationDao baseDictBusinessRelationDao,
-                                         InternalApiClient internalApiClient,
                                          BaseBusinessFileDao baseBusinessFileDao) {
         super(baseDao);
         this.baseDictBusinessRelationDao = baseDictBusinessRelationDao;
-        this.internalApiClient = internalApiClient;
         this.baseBusinessFileDao = baseBusinessFileDao;
     }
 
@@ -102,8 +102,18 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     }
 
     @Autowired
+    public void setInternalApiClient(InternalApiClient internalApiClient) {
+        this.internalApiClient = internalApiClient;
+    }
+
+    @Autowired
     public void setBaseDictClient(BaseDictClient baseDictClient) {
         this.baseDictClient = baseDictClient;
+    }
+
+    @Autowired
+    public void setAuthUserClient(AuthUserClient authUserClient) {
+        this.authUserClient = authUserClient;
     }
 
     @Override
@@ -384,8 +394,11 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         Map<Integer, List<BookkeepingBudgetEntity>> userBudgetMap = monthBudgetList.stream()
                 .collect(Collectors.groupingBy(BookkeepingBudgetEntity::getUserId));
         for (Map.Entry<Integer, List<BookkeepingBudgetEntity>> entry : userBudgetMap.entrySet()) {
-            UserUtils.setUserId(entry.getKey());
+            Integer userId = entry.getKey();
+            String userToken = authUserClient.genericUserToken(userId);
             try {
+                UserUtils.setUserId(userId);
+                UserUtils.setToken(userToken);
                 // 查询
                 List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
                 Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
@@ -404,8 +417,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                     pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(points));
                     pointsRecordsAddDto.setPoints(points);
                     pointsRecordsAddDto.setSource(
-                            budgetEntity.getBudgetMonth().format(dateTimeFormatter) +
-                                    dictMap.get(budgetEntity.getRecordType()) +
+                            budgetEntity.getBudgetMonth().format(dateTimeFormatter) + "\"" +
+                                    dictMap.get(budgetEntity.getRecordType()) + "\"" +
                                     (stayBudget ? "符合预算" : "超出预算")
                     );
                     pointsRecordsAddDto.setSourceType(PointsSourceTypeEnum.BOOKKEEPING_BUDGET_MONTH.getCode());
@@ -414,6 +427,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 }
             } finally {
                 UserUtils.removeUserId();
+                UserUtils.removeUserToken();
             }
         }
     }
