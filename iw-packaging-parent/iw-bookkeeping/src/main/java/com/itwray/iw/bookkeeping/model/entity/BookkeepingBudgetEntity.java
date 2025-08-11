@@ -53,4 +53,14 @@ public class BookkeepingBudgetEntity extends UserEntity<Integer> {
      * 预算年份
      */
     private Integer budgetYear;
+
+    /**
+     * 奖励积分
+     */
+    private Integer rewardPoints;
+
+    /**
+     * 处罚积分
+     */
+    private Integer punishPoints;
 }

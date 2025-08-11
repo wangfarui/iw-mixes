@@ -97,3 +97,7 @@ create table bookkeeping_wallet_records (
     primary key (id),
     key idx_user_id (user_id)
 ) comment '用户钱包记录表';
+
+alter table bookkeeping_budget
+add column `reward_points` tinyint NOT NULL DEFAULT '0' COMMENT '奖励积分',
+add column `punish_points` tinyint NOT NULL DEFAULT '0' COMMENT '处罚积分';

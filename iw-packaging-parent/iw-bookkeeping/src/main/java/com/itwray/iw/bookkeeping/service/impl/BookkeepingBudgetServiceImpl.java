@@ -69,7 +69,7 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
 
         // 初始化预算年份和月份
         dto.setBudgetYear(!isMonthBudgetType ? LocalDate.now().getYear() : null);
-        dto.setBudgetMonth(isMonthBudgetType ? null : DateUtils.startDateOfNowMonth());
+        dto.setBudgetMonth(isMonthBudgetType ? DateUtils.startDateOfNowMonth() : null);
 
         return super.add(dto);
     }

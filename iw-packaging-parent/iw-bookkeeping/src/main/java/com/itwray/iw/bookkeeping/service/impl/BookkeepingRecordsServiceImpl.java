@@ -411,8 +411,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                     BookkeepingRecordsStatisticsVo statisticsVo = this.statistics(statisticsDto);
                     // 判断是否满足预算
                     boolean stayBudget = statisticsVo.getConsume().compareTo(budgetEntity.getBudgetAmount()) <= 0;
-                    // 预算内默认加2分, 预算外默认扣5分
-                    Integer points = stayBudget ? 2 : -5;
+                    // 根据预算结果确定积分变动数量
+                    Integer points = stayBudget ? budgetEntity.getRewardPoints() : budgetEntity.getPunishPoints();
                     PointsRecordsAddDto pointsRecordsAddDto = new PointsRecordsAddDto();
                     pointsRecordsAddDto.setTransactionType(PointsTransactionTypeEnum.getCodeByPoints(points));
                     pointsRecordsAddDto.setPoints(points);
