@@ -140,7 +140,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         }
 
         // 同步用户钱包余额
-        this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount());
+        this.syncWalletBalance(dto.getRecordCategory(), bookkeepingRecords.getAmount());
 
         return bookkeepingRecords.getId();
     }
@@ -175,8 +175,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         getBaseDao().updateById(recordsEntity);
 
         // 同步用户钱包余额
-        if (bookkeepingRecordsEntity.getAmount().compareTo(dto.getAmount()) != 0) {
-            this.syncWalletBalance(dto.getRecordCategory(), dto.getAmount().subtract(bookkeepingRecordsEntity.getAmount()));
+        if (bookkeepingRecordsEntity.getAmount().compareTo(recordsEntity.getAmount()) != 0) {
+            this.syncWalletBalance(dto.getRecordCategory(), recordsEntity.getAmount().subtract(bookkeepingRecordsEntity.getAmount()));
         }
     }
 
