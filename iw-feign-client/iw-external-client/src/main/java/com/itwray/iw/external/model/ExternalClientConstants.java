@@ -21,18 +21,8 @@ public abstract class ExternalClientConstants {
     public static final String[] ALL_SERVICE_NAME = {SERVICE_NAME, "iw-gateway-service", "iw-auth-service", "iw-bookkeeping-service"};
 
     /**
-     * 外部服务固定前缀
-     */
-    public static final String SERVICE_PATH_PREFIX = "/external-service";
-
-    /**
      * 内部地址前缀
      */
     public static final String INTERNAL_PATH_PREFIX = "/internal";
-
-    /**
-     * external-service的内部服务地址
-     */
-    public static final String INTERNAL_SERVICE_PATH = SERVICE_PATH_PREFIX + INTERNAL_PATH_PREFIX;
 
 }
