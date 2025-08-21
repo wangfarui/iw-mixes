@@ -41,12 +41,12 @@ public class BookkeepingBudgetAddDto implements AddDto {
     private Integer budgetYear;
 
     @Schema(title = "奖励积分")
-    @Min(value = -100, message = "奖励积分不能小于-100")
+    @Min(value = 0, message = "奖励积分不能小于0")
     @Max(value = 100, message = "奖励积分不能大于100")
     private Integer rewardPoints;
 
     @Schema(title = "处罚积分")
-    @Min(value = -100, message = "处罚积分不能小于-100")
+    @Min(value = 0, message = "处罚积分不能小于0")
     @Max(value = 100, message = "处罚积分不能大于100")
     private Integer punishPoints;
 }
