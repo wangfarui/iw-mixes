@@ -293,10 +293,14 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private void processBookkeepingRecordPageDto(BookkeepingRecordPageDto dto) {
         if (dto.getRecordStartDate() == null) {
-            dto.setRecordStartDate(DateUtils.startDateOfMonth(dto.getRecordEndDate()));
+            if (dto.getRecordEndDate() != null) {
+                dto.setRecordStartDate(DateUtils.startDateOfMonth(dto.getRecordEndDate()));
+            }
         }
         if (dto.getRecordEndDate() == null) {
-            dto.setRecordEndDate(DateUtils.endDateOfMonth(dto.getRecordStartDate()));
+            if (dto.getRecordStartDate() != null) {
+                dto.setRecordEndDate(DateUtils.endDateOfMonth(dto.getRecordStartDate()));
+            }
         }
         if (CollUtil.isNotEmpty(dto.getTagIdList())) {
             dto.setTagBusinessType(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
