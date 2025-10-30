@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: iw-gateway-service
+  profiles:
+    active: dev
   config:
     import:
       - optional:nacos:iw-web
