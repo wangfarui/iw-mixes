@@ -61,16 +61,41 @@ values (4001, '买菜', 1, 0),
        (4001, '旅游', 6, 0)
 ;
 
+## 字典 - 应用账号 - 应用分类数据初始化
 insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
 values (2010, 0, '未分类', 1, 0);
 
-## 初始超级管理员用户的字典数据
-## 注意! 该脚本需要在 iw-auth-init.sql 之后执行
+## 字典 - 记账会员类型数据初始化
+insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
+values (4004, 1, '音乐', 1, 0),
+       (4004, 2, '视频', 2, 0),
+       (4004, 3, '购物', 3, 0),
+       (4004, 4, '工具', 4, 0),
+       (4004, 5, '生活', 5, 0),
+       (4004, 6, '教育', 6, 0),
+       (4004, 7, '云服务', 7, 0),
+       (4004, 8, 'AI', 8, 0),
+       (4004, 9, '其他', 9, 0)
+;
+insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
+values (4005, 1, '按月', 1, 0),
+       (4005, 2, '按年', 2, 0),
+       (4005, 3, '按周', 3, 0),
+       (4005, 4, '按天', 4, 0),
+       (4005, 5, '一次性', 5, 0),
+       (4005, 6, '自定义', 6, 0),
+       (4006, 1, '天', 1, 0),
+       (4006, 2, '周', 2, 0),
+       (4006, 3, '月', 3, 0),
+       (4006, 4, '年', 4, 0)
+;
+
+## 初始所有用户的字典数据
+## 注意!!! 该脚本需要在 iw-auth-init.sql 之后执行
 insert into base_dict(parent_id, dict_type, dict_code, dict_name, dict_status, sort, user_id)
 select bd.parent_id, bd.dict_type, bd.dict_code, bd.dict_name, bd.dict_status, bd.sort, au.id
 from auth_user au
 join base_dict bd on bd.user_id = 0
-where au.role_type = 20
 ;
 
 ##  MQ消息消费记录表

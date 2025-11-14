@@ -1,7 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.itwray.iw.bookkeeping.model.enums.RecordsSortTypeEnum;
+import com.itwray.iw.bookkeeping.model.enums.BookkeepingRecordsSortTypeEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.PageDto;
 import lombok.Data;
@@ -76,9 +76,9 @@ public class BookkeepingRecordPageDto extends PageDto {
     private Integer tagBusinessType;
 
     /**
-     * 记录排序类型
+     * 记账记录排序类型
      */
-    private RecordsSortTypeEnum sortType;
+    private BookkeepingRecordsSortTypeEnum sortType;
 
     /**
      * 排序方式 1=升序, 其他值=降序

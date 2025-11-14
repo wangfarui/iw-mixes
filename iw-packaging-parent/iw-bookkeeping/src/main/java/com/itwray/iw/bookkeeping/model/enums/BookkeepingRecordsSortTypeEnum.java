@@ -10,7 +10,7 @@ import lombok.Getter;
  * @since 2025/5/6
  */
 @Getter
-public enum RecordsSortTypeEnum implements BusinessConstantEnum {
+public enum BookkeepingRecordsSortTypeEnum implements BusinessConstantEnum {
 
     DEFAULT(0, "id", "默认"),
     RECORD_TIME(1, "record_time", "记账时间"),
@@ -22,7 +22,7 @@ public enum RecordsSortTypeEnum implements BusinessConstantEnum {
 
     private final String desc;
 
-    RecordsSortTypeEnum(Integer code, String name, String desc) {
+    BookkeepingRecordsSortTypeEnum(Integer code, String name, String desc) {
         this.code = code;
         this.name = name;
         this.desc = desc;
