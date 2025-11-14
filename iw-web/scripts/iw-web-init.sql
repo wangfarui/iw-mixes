@@ -1,4 +1,3 @@
-drop table if exists base_dict;
 create table base_dict
 (
     id          int unsigned auto_increment                 not null comment 'id',
@@ -20,7 +19,6 @@ create table base_dict
 alter table base_dict
     modify column user_id int unsigned not null comment '用户id';
 
-drop table if exists base_dict_business_relation;
 create table base_dict_business_relation
 (
     id            int unsigned auto_increment not null comment '主键id',
@@ -99,7 +97,6 @@ join base_dict bd on bd.user_id = 0
 ;
 
 ##  MQ消息消费记录表
-drop table if exists base_mq_consume_records;
 create table base_mq_consume_records
 (
     id           bigint unsigned auto_increment comment '消息消费记录id',
@@ -117,7 +114,6 @@ create table base_mq_consume_records
 ) comment 'MQ消息消费记录表';
 
 ##  MQ消息生产记录表
-drop table if exists base_mq_produce_records;
 create table base_mq_produce_records
 (
     id           bigint unsigned auto_increment comment '消息生产记录id',
@@ -132,8 +128,6 @@ create table base_mq_produce_records
     primary key (id)
 ) comment 'MQ消息生产记录表';
 
-
-drop table if exists base_business_file;
 create table base_business_file (
     id int unsigned auto_increment not null comment 'id',
     business_type smallint not null comment '业务类型',

@@ -1,4 +1,3 @@
-drop table if exists base_file_records;
 create table base_file_records
 (
     id          int unsigned not null auto_increment comment 'id',
@@ -12,7 +11,6 @@ create table base_file_records
     UNIQUE KEY (file_hash)
 ) comment '文件上传记录表';
 
-drop table if exists base_application_account;
 create table base_application_account
 (
     id          int unsigned auto_increment                 not null comment 'id',

@@ -1,4 +1,3 @@
-drop table if exists bookkeeping_records;
 create table bookkeeping_records
 (
     id                   int unsigned                           not null auto_increment comment 'id',
@@ -22,7 +21,6 @@ alter table bookkeeping_records
 alter table bookkeeping_records
     add column order_no varchar(32) default '' not null comment '订单号' after id;
 
-drop table if exists bookkeeping_actions;
 create table bookkeeping_actions
 (
     id                   int unsigned                           not null auto_increment comment 'id',
@@ -52,7 +50,6 @@ values
 alter table bookkeeping_records
 add column record_icon varchar(255) default '' not null comment '记录图标' after record_source;
 
-drop table if exists bookkeeping_budget;
 create table bookkeeping_budget (
     id int unsigned auto_increment not null comment 'id',
     budget_type tinyint not null comment '预算类型',
@@ -70,7 +67,6 @@ alter table bookkeeping_budget
 add column budget_month date null comment '预算月份',
 add column budget_year smallint unsigned null comment '预算年份';
 
-drop table if exists bookkeeping_wallet;
 create table bookkeeping_wallet (
     id int unsigned auto_increment not null comment 'id',
     wallet_balance decimal(10, 2) default 0 not null comment '余额',
@@ -83,7 +79,6 @@ create table bookkeeping_wallet (
     key idx_user_id (user_id)
 ) comment '用户钱包表';
 
-drop table if exists bookkeeping_wallet_records;
 create table bookkeeping_wallet_records (
     id int unsigned auto_increment not null comment 'id',
     change_type tinyint(1) not null comment '变动类型(1余额, 2资产)',
