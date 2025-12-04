@@ -3,6 +3,7 @@ package com.itwray.iw.bookkeeping.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.idev.excel.FastExcel;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.itwray.iw.auth.client.AuthUserClient;
 import com.itwray.iw.auth.client.BaseDictClient;
 import com.itwray.iw.auth.model.vo.DictListVo;
@@ -19,6 +20,7 @@ import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsYearStatisticsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.utils.DateUtils;
@@ -28,6 +30,7 @@ import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
 import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
+import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseBusinessFileDao;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.dao.BaseDictDao;
@@ -434,6 +437,36 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 UserUtils.removeUserToken();
             }
         }
+    }
+
+    @Override
+    public BookkeepingRecordsYearStatisticsVo yearStatistics(String year) {
+        LocalDate startStatisticsDate;
+        if (StringUtils.isEmpty(year)) {
+            startStatisticsDate = DateUtils.startDateOfNowYear();
+        } else {
+            startStatisticsDate = LocalDate.parse(year + "-01-01", DateUtils.DATE_FORMATTER);
+        }
+        LocalDate endStatisticsDate = DateUtils.endDateOfYear(startStatisticsDate);
+
+        // 统计TOP数据
+        LambdaQueryChainWrapper<BookkeepingRecordsEntity> topWrapper = getBaseDao().lambdaQuery()
+                .ge(BookkeepingRecordsEntity::getRecordDate, startStatisticsDate)
+                .le(BookkeepingRecordsEntity::getRecordDate, endStatisticsDate)
+                .orderByDesc(BookkeepingRecordsEntity::getAmount)
+                .last(WebCommonConstants.standardLimit(10));
+
+        List<BookkeepingRecordsEntity> allTop10Records = topWrapper.list();
+        List<BookkeepingRecordsEntity> isStatisticsTop10Records = topWrapper.eq(BookkeepingRecordsEntity::getIsStatistics, BoolEnum.TRUE.getCode()).list();
+
+        // 统计不同记录分类下的消费情况
+
+        // 统计收入来源的分类情况
+
+        // 统计不同标签的消费情况
+
+
+        return null;
     }
 
     private void addPointsRecordsByExcitation(String orderNo) {

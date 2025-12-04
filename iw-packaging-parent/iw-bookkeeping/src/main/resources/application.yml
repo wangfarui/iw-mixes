@@ -9,6 +9,7 @@ iw:
         - bookkeeping_budget
         - bookkeeping_wallet
         - bookkeeping_wallet_records
+        - bookkeeping_membership_subscription
         - points_total
         - points_records
         - points_task_basics

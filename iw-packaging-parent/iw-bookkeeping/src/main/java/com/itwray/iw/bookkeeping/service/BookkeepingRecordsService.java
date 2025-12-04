@@ -6,6 +6,7 @@ import com.itwray.iw.bookkeeping.model.entity.BookkeepingBudgetEntity;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
+import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsYearStatisticsVo;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.WebService;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,4 +38,6 @@ public interface BookkeepingRecordsService extends WebService<BookkeepingRecordA
      * @param monthBudgetList 月度分类预算列表
      */
     void syncBookkeepingPointsByBudget(List<BookkeepingBudgetEntity> monthBudgetList);
+
+    BookkeepingRecordsYearStatisticsVo yearStatistics(String year);
 }
