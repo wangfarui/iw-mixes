@@ -1,10 +1,10 @@
 package com.itwray.iw.bookkeeping.job;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.json.JSONUtil;
 import com.itwray.iw.bookkeeping.dao.BookkeepingBudgetDao;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingBudgetEntity;
 import com.itwray.iw.bookkeeping.model.enums.BudgetTypeEnum;
+import com.itwray.iw.bookkeeping.service.BookkeepingMembershipSubscriptionService;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.utils.UserUtils;
@@ -29,10 +29,14 @@ public class BookkeepingBudgetScheduledJob {
 
     private final BookkeepingRecordsService bookkeepingRecordsService;
 
+    private final BookkeepingMembershipSubscriptionService bookkeepingMembershipSubscriptionService;
+
     public BookkeepingBudgetScheduledJob(BookkeepingBudgetDao bookkeepingBudgetDao,
-                                         BookkeepingRecordsService bookkeepingRecordsService) {
+                                         BookkeepingRecordsService bookkeepingRecordsService,
+                                         BookkeepingMembershipSubscriptionService bookkeepingMembershipSubscriptionService) {
         this.bookkeepingBudgetDao = bookkeepingBudgetDao;
         this.bookkeepingRecordsService = bookkeepingRecordsService;
+        this.bookkeepingMembershipSubscriptionService = bookkeepingMembershipSubscriptionService;
     }
 
     /**
@@ -109,6 +113,21 @@ public class BookkeepingBudgetScheduledJob {
                 t.setBudgetYear(nowYear);
             });
             bookkeepingBudgetDao.saveBatch(yearBudgetList);
+        }
+    }
+
+    /**
+     * 每天0点处理会员订阅的自动续费功能
+     * TODO 前提条件：bookkeeping服务是单实例
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void handleMembershipSubscriptionAutoRenew() {
+        try {
+            UserUtils.setUserDataPermission(false);
+            int count = bookkeepingMembershipSubscriptionService.autoRenew();
+            log.info("Job[handleMembershipSubscriptionAutoRenew], 自动续费了 {} 个会员服务", count);
+        } finally {
+            UserUtils.removeUserDataPermission();
         }
     }
 

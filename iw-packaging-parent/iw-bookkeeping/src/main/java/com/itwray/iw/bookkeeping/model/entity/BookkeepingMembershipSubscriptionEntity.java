@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.bookkeeping.model.enums.MembershipBillingCycleEnum;
 import com.itwray.iw.bookkeeping.model.enums.MembershipCycleUnitEnum;
+import com.itwray.iw.bookkeeping.utils.MembershipBillingCycleUtils;
 import com.itwray.iw.web.model.entity.UserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,6 +49,7 @@ public class BookkeepingMembershipSubscriptionEntity extends UserEntity<Integer>
 
     /**
      * 计费周期
+     * @see MembershipBillingCycleUtils
      */
     private MembershipBillingCycleEnum billingCycle;
 

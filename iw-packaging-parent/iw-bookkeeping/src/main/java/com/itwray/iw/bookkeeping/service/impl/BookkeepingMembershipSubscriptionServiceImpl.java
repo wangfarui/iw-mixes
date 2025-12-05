@@ -18,6 +18,7 @@ import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -75,6 +76,34 @@ public class BookkeepingMembershipSubscriptionServiceImpl extends WebServiceImpl
         return list.stream()
                 .map(t -> BeanUtil.copyProperties(t, BookkeepingMembershipSubscriptionListVo.class))
                 .toList();
+    }
+
+    @Override
+    public int autoRenew() {
+        int count = 0;
+        // 查询所有开通了自动续费的会员服务
+        List<BookkeepingMembershipSubscriptionEntity> subscriptionEntityList = getBaseDao().lambdaQuery()
+                .eq(BookkeepingMembershipSubscriptionEntity::getAutoRenew, Boolean.TRUE)
+                .eq(BookkeepingMembershipSubscriptionEntity::getEndDate, LocalDate.now())
+                .list();
+        if (CollectionUtils.isEmpty(subscriptionEntityList)) {
+            return count;
+        }
+        for (BookkeepingMembershipSubscriptionEntity subscriptionEntity : subscriptionEntityList) {
+            // 计算计费周期下的下一个续费时长
+            subscriptionEntity.setStartDate(subscriptionEntity.getEndDate());
+            LocalDate endDate = MembershipBillingCycleUtils.computeBillingCycleDate(subscriptionEntity);
+            if (endDate == null) {
+                continue;
+            }
+
+            BookkeepingMembershipSubscriptionEntity updateEntity = new BookkeepingMembershipSubscriptionEntity();
+            updateEntity.setId(subscriptionEntity.getId());
+            updateEntity.setEndDate(endDate);
+            boolean updateCount = getBaseDao().updateById(updateEntity);
+            count += updateCount ? 1 : 0;
+        }
+        return count;
     }
 
     /**

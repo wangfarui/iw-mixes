@@ -1,5 +1,6 @@
 package com.itwray.iw.bookkeeping.utils;
 
+import com.itwray.iw.bookkeeping.model.entity.BookkeepingMembershipSubscriptionEntity;
 import com.itwray.iw.bookkeeping.model.enums.MembershipBillingCycleEnum;
 import com.itwray.iw.bookkeeping.model.enums.MembershipCycleUnitEnum;
 
@@ -12,6 +13,15 @@ import java.time.LocalDate;
  * @since 2025/11/12
  */
 public abstract class MembershipBillingCycleUtils {
+
+    public static LocalDate computeBillingCycleDate(BookkeepingMembershipSubscriptionEntity membershipSubscriptionEntity) {
+        return MembershipBillingCycleUtils.computeBillingCycleDate(
+                membershipSubscriptionEntity.getStartDate(),
+                membershipSubscriptionEntity.getBillingCycle(),
+                membershipSubscriptionEntity.getCycleNum(),
+                membershipSubscriptionEntity.getCycleUnit()
+        );
+    }
 
     /**
      * 计算会员计费周期结束日期

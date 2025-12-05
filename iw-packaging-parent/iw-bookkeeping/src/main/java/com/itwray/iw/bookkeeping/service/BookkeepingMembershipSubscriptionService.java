@@ -18,4 +18,10 @@ import java.util.List;
 public interface BookkeepingMembershipSubscriptionService extends WebService<BookkeepingMembershipSubscriptionAddDto, BookkeepingMembershipSubscriptionUpdateDto, BookkeepingMembershipSubscriptionDetailVo, Integer> {
 
     List<BookkeepingMembershipSubscriptionListVo> list(BookkeepingMembershipSubscriptionListDto dto);
+
+    /**
+     * 会员订阅-自动续费
+     * <p>基于上游调用芳的用户权限，决定是自动续费当前用户还是所有用户</p>
+     */
+    int autoRenew();
 }
