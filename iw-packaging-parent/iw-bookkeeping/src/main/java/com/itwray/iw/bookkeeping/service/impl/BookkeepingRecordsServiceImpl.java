@@ -3,7 +3,6 @@ package com.itwray.iw.bookkeeping.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.idev.excel.FastExcel;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.itwray.iw.auth.client.AuthUserClient;
 import com.itwray.iw.auth.client.BaseDictClient;
 import com.itwray.iw.auth.model.vo.DictListVo;
@@ -17,10 +16,13 @@ import com.itwray.iw.bookkeeping.model.entity.BookkeepingBudgetEntity;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
 import com.itwray.iw.bookkeeping.model.enums.BookkeepingRecordTypeDefaultEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
-import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsYearStatisticsVo;
+import com.itwray.iw.bookkeeping.model.vo.*;
+import com.itwray.iw.bookkeeping.model.vo.yearly.consume.*;
+import com.itwray.iw.bookkeeping.model.vo.yearly.income.*;
+import com.itwray.iw.bookkeeping.model.vo.yearly.overview.BookkeepingRecordsOverviewHabitsVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.overview.BookkeepingRecordsOverviewMonthlyVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.overview.BookkeepingRecordsOverviewSummaryVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.overview.BookkeepingRecordsYearStatisticsOverviewVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.utils.DateUtils;
@@ -30,7 +32,6 @@ import com.itwray.iw.points.model.dto.PointsRecordsAddDto;
 import com.itwray.iw.points.model.enums.PointsSourceTypeEnum;
 import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
-import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.dao.BaseBusinessFileDao;
 import com.itwray.iw.web.dao.BaseDictBusinessRelationDao;
 import com.itwray.iw.web.dao.BaseDictDao;
@@ -63,8 +64,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -406,7 +406,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             try {
                 UserUtils.setUserId(userId);
                 UserUtils.setToken(userToken);
-                // 查询
+                // 查询记账分类字典值
                 List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
                 Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
                 for (BookkeepingBudgetEntity budgetEntity : entry.getValue()) {
@@ -440,33 +440,289 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     }
 
     @Override
-    public BookkeepingRecordsYearStatisticsVo yearStatistics(String year) {
+    public BookkeepingRecordsYearStatisticsOverviewVo yearStatisticsOverview(BookkeepingRecordsYearStatisticsQueryDto dto) {
+        this.computeYearStatisticsParam(dto);
+        dto.setRecordCategories(new HashSet<>(Arrays.asList(RecordCategoryEnum.CONSUME, RecordCategoryEnum.INCOME)));
+
+        BookkeepingRecordsYearStatisticsOverviewVo overviewVo = new BookkeepingRecordsYearStatisticsOverviewVo();
+
+        // 查询年度总览-汇总数据
+        BookkeepingRecordsOverviewSummaryVo summaryVo = getBaseDao().queryYearlyOverviewSummary(dto);
+        overviewVo.setYearStatistics(summaryVo);
+
+        // 查询年度总览-月度趋势数据
+        BookkeepingRecordsOverviewMonthlyVo monthlyVo = getBaseDao().queryYearlyOverviewMonthly(dto);
+        overviewVo.setMonthlyData(monthlyVo);
+
+        // 查询年度总览-记账习惯数据
+        BookkeepingRecordsOverviewHabitsVo habitsVo = BookkeepingRecordsOverviewHabitsVo.empty();
+        // 一年内的记账天数
+        Integer recordingDays = getBaseDao().getStatisticsMapper().statisticsRecordingDays(dto);
+        habitsVo.setRecordingDays(recordingDays == null ? 0 : recordingDays);
+        // 连续记账最长天数
+        BookkeepingRecordsOverviewHabitsVo maxContinuousDaysVo = getBaseDao().getStatisticsMapper().statisticsMaxContinuousDays(dto);
+        if (maxContinuousDaysVo != null) {
+            habitsVo.setMaxContinuousDays(maxContinuousDaysVo.getMaxContinuousDays());
+            habitsVo.setMaxContinuousStartDate(maxContinuousDaysVo.getMaxContinuousStartDate());
+            habitsVo.setMaxContinuousEndDate(maxContinuousDaysVo.getMaxContinuousEndDate());
+        }
+        // 记账次数最多的月份
+        BookkeepingRecordsOverviewHabitsVo peakMonthVo = getBaseDao().getStatisticsMapper().statisticsPeakMonth(dto);
+        if (peakMonthVo != null) {
+            habitsVo.setPeakMonth(peakMonthVo.getPeakMonth() + "月");
+            habitsVo.setPeakCount(peakMonthVo.getPeakCount());
+        }
+        // 遗漏次数、平均每天记账次数、文案
+        Integer missingCount = getBaseDao().getStatisticsMapper().statisticsMissingCount(dto);
+        habitsVo.setMissingCount(missingCount == null ? 0 : missingCount);
+        Long count = getBaseDao().lambdaQuery()
+                .between(BookkeepingRecordsEntity::getRecordDate, dto.getStartDate(), dto.getEndDate())
+                .eq(dto.getIgnoreNotStatistics() != null && dto.getIgnoreNotStatistics() == 0, BookkeepingRecordsEntity::getIsStatistics, 1)
+                .count();
+        if (habitsVo.getRecordingDays() == 0 || habitsVo.getMissingCount() == 0 || count == 0) {
+            habitsVo.setMissingRate(BigDecimal.ZERO);
+        } else {
+            habitsVo.setMissingRate(new BigDecimal(habitsVo.getMissingCount()).divide(new BigDecimal(count), 2, RoundingMode.HALF_UP));
+        }
+        if (count == 0) {
+            habitsVo.setAvgPerDay(BigDecimal.ZERO);
+        } else {
+            habitsVo.setAvgPerDay(new BigDecimal(count).divide(new BigDecimal("365"), 2, RoundingMode.HALF_UP));
+        }
+        if (habitsVo.getMaxContinuousDays() == 0) {
+            habitsVo.setEvaluation("一天天的，帐都不记，行不行啊小老弟❓");
+        } else {
+            habitsVo.setEvaluation(String.format("坚持记账的好习惯！连续记账超过%d天是值得表扬的成就。保持这个节奏，你会更好地掌握自己的财务状况。💪", habitsVo.getMaxContinuousDays()));
+        }
+        overviewVo.setRecordingHabits(habitsVo);
+
+        return overviewVo;
+    }
+
+    @Override
+    public BookkeepingRecordsYearStatisticsConsumeVo yearStatisticsConsume(BookkeepingRecordsYearStatisticsQueryDto dto) {
+        this.computeYearStatisticsParam(dto);
+        dto.setRecordCategories(new HashSet<>(Collections.singleton(RecordCategoryEnum.CONSUME)));
+
+        BookkeepingRecordsYearStatisticsConsumeVo consumeVo = new BookkeepingRecordsYearStatisticsConsumeVo();
+
+        // 查询年度支出-汇总数据
+        BookkeepingRecordsOverviewSummaryVo overviewSummaryVo = getBaseDao().queryYearlyOverviewSummary(dto);
+        BookkeepingRecordsConsumeSummaryVo consumeSummaryVo = new BookkeepingRecordsConsumeSummaryVo();
+        consumeSummaryVo.setTotalConsume(overviewSummaryVo.getTotalConsume());
+        consumeSummaryVo.setConsumeCount(overviewSummaryVo.getConsumeCount());
+        consumeVo.setYearStatistics(consumeSummaryVo);
+
+        // 查询年度支出-月度趋势
+        BookkeepingRecordsOverviewMonthlyVo monthlyVo = getBaseDao().queryYearlyOverviewMonthly(dto);
+        consumeVo.setMonthlyData(monthlyVo.getConsumeTrendData());
+
+        // 查询年度支出-支出分类占比
+        BookkeepingConsumeCategoryStatisticsDto categoryStatisticsDto = new BookkeepingConsumeCategoryStatisticsDto();
+        categoryStatisticsDto.setRecordCategory(RecordCategoryEnum.CONSUME);
+        categoryStatisticsDto.setCurrentStartMonth(dto.getStartDate());
+        categoryStatisticsDto.setCurrentEndMonth(dto.getEndDate());
+        categoryStatisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        List<BookkeepingConsumeStatisticsCategoryVo> statisticsCategoryVos = getBaseDao().getBaseMapper().categoryStatistics(categoryStatisticsDto);
+        if (CollectionUtils.isNotEmpty(statisticsCategoryVos)) {
+            BigDecimal totalAmount = statisticsCategoryVos.stream().map(BookkeepingConsumeStatisticsCategoryVo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            List<BookkeepingRecordsConsumeCategoriesVo> categoryVoList = new ArrayList<>();
+            // 查询记账分类字典值
+            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
+            Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
+            for (BookkeepingConsumeStatisticsCategoryVo statisticsCategoryVo : statisticsCategoryVos) {
+                BookkeepingRecordsConsumeCategoriesVo categoriesVo = new BookkeepingRecordsConsumeCategoriesVo();
+                categoriesVo.setName(dictMap.get(statisticsCategoryVo.getRecordType()));
+                categoriesVo.setAmount(statisticsCategoryVo.getAmount());
+                categoriesVo.setRatio(statisticsCategoryVo.getAmount().multiply(new BigDecimal("100")).divide(totalAmount, 2, RoundingMode.HALF_UP));
+                categoryVoList.add(categoriesVo);
+            }
+            consumeVo.setConsumeCategories(categoryVoList);
+        }
+
+        // 查询年度支出-支出标签占比
+        List<BookkeepingRecordsConsumeTagsVo> consumeTagsVos = getBaseDao().getStatisticsMapper().statisticsTagConsume(dto);
+        if (CollectionUtils.isNotEmpty(consumeTagsVos)) {
+            BigDecimal totalAmount = consumeTagsVos.stream().map(BookkeepingRecordsConsumeTagsVo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            Integer totalCount = consumeTagsVos.stream().map(BookkeepingRecordsConsumeTagsVo::getCount).reduce(0, Integer::sum);
+
+            // 查询记账标签字典值
+            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
+            Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getId, DictListVo::getDictName));
+            for (BookkeepingRecordsConsumeTagsVo consumeTagsVo : consumeTagsVos) {
+                consumeTagsVo.setName(dictMap.get(consumeTagsVo.getDictId()));
+                consumeTagsVo.setRatio(new BigDecimal(consumeTagsVo.getCount() * 100).divide(new BigDecimal(totalCount), 2, RoundingMode.HALF_UP));
+                consumeTagsVo.setAmountRatio(consumeTagsVo.getAmount().multiply(new BigDecimal("100")).divide(totalAmount, 2, RoundingMode.HALF_UP));
+            }
+        }
+        consumeVo.setConsumeTags(consumeTagsVos);
+
+        // 查询年度支出-Top10
+        BookkeepingStatisticsDto statisticsDto = new BookkeepingStatisticsDto();
+        statisticsDto.setRecordCategory(RecordCategoryEnum.CONSUME);
+        statisticsDto.setCurrentStartMonth(dto.getStartDate());
+        statisticsDto.setCurrentEndMonth(dto.getEndDate());
+        statisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        List<BookkeepingStatisticsRankVo> rankVoList = getBaseDao().getBaseMapper().rankStatistics(statisticsDto);
+        if (CollectionUtils.isNotEmpty(rankVoList)) {
+            // 查询记账分类字典值
+            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
+            Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
+            List<BookkeepingRecordsConsumeTopVo> topConsumeList = new ArrayList<>();
+            for (BookkeepingStatisticsRankVo rankVo : rankVoList) {
+                BookkeepingRecordsConsumeTopVo topVo = new BookkeepingRecordsConsumeTopVo();
+                topVo.setCategory(dictMap.get(rankVo.getRecordType()));
+                topVo.setDescription(rankVo.getRecordSource());
+                topVo.setDate(rankVo.getRecordDate());
+                topVo.setAmount(rankVo.getAmount());
+                topConsumeList.add(topVo);
+            }
+            consumeVo.setTopConsumeList(topConsumeList);
+        }
+
+        // 查询年度支出-支出洞察
+        BookkeepingRecordsConsumeInsightsVo insightsVo = new BookkeepingRecordsConsumeInsightsVo();
+        BookkeepingRecordsConsumeInsightsVo consumeDaysVo = getBaseDao().getStatisticsMapper().statisticsMaxDay(dto);
+        if (consumeDaysVo != null) {
+            insightsVo.setMaxDayAmount(consumeDaysVo.getMaxDayAmount());
+            insightsVo.setMaxDayDate(consumeDaysVo.getMaxDayDate());
+        }
+        BookkeepingRecordsConsumeInsightsVo consumeMonthVo = getBaseDao().getStatisticsMapper().statisticsMaxMonth(dto);
+        if (consumeMonthVo != null) {
+            insightsVo.setMaxMonthAmount(consumeMonthVo.getMaxMonthAmount());
+            insightsVo.setMaxMonthName(consumeMonthVo.getMaxMonthName() + "月");
+        }
+        if (CollectionUtils.isNotEmpty(consumeVo.getConsumeTags())) {
+            BookkeepingRecordsConsumeTagsVo tagsOneVo = consumeVo.getConsumeTags().get(0);
+            BookkeepingRecordsConsumeTagsVo tagsLastVo = consumeVo.getConsumeTags().get(consumeVo.getConsumeTags().size() - 1);
+            insightsVo.setTopTag(tagsOneVo.getName());
+            insightsVo.setTopTagCount(tagsOneVo.getCount());
+            insightsVo.setTopTagAmount(tagsOneVo.getAmount());
+            insightsVo.setBottomTag(tagsLastVo.getName());
+            insightsVo.setBottomTagCount(tagsLastVo.getCount());
+            insightsVo.setBottomTagAmount(tagsLastVo.getAmount());
+        }
+        Long count = getBaseDao().lambdaQuery()
+                .between(BookkeepingRecordsEntity::getRecordDate, dto.getStartDate(), dto.getEndDate())
+                .eq(dto.getIgnoreNotStatistics() != null && dto.getIgnoreNotStatistics() == 0, BookkeepingRecordsEntity::getIsStatistics, 1)
+                .eq(BookkeepingRecordsEntity::getRecordCategory, RecordCategoryEnum.CONSUME)
+                .ge(BookkeepingRecordsEntity::getAmount, new BigDecimal("100"))
+                .count();
+        if (count == 0) {
+            insightsVo.setLargeExpenseRatio(BigDecimal.ZERO);
+        } else {
+            insightsVo.setLargeExpenseRatio(new BigDecimal(count * 100).divide(new BigDecimal(consumeVo.getYearStatistics().getConsumeCount()), 2, RoundingMode.HALF_UP));
+        }
+        insightsVo.setAvgMonthAmount(consumeVo.getYearStatistics().getTotalConsume().divide(new BigDecimal("12"), 2, RoundingMode.HALF_UP));
+        consumeVo.setInsights(insightsVo);
+
+        return consumeVo;
+    }
+
+    @Override
+    public BookkeepingRecordsYearStatisticsIncomeVo yearStatisticsIncome(BookkeepingRecordsYearStatisticsQueryDto dto) {
+        this.computeYearStatisticsParam(dto);
+        dto.setRecordCategories(new HashSet<>(Collections.singleton(RecordCategoryEnum.INCOME)));
+
+        BookkeepingRecordsYearStatisticsIncomeVo incomeVo = new BookkeepingRecordsYearStatisticsIncomeVo();
+
+        // 查询年度收入-汇总数据
+        BookkeepingRecordsOverviewSummaryVo overviewSummaryVo = getBaseDao().queryYearlyOverviewSummary(dto);
+        BookkeepingRecordsIncomeSummaryVo incomeSummaryVo = new BookkeepingRecordsIncomeSummaryVo();
+        incomeSummaryVo.setTotalIncome(overviewSummaryVo.getTotalIncome());
+        incomeSummaryVo.setIncomeCount(overviewSummaryVo.getIncomeCount());
+        incomeVo.setYearStatistics(incomeSummaryVo);
+
+        // 查询年度收入-月度趋势
+        BookkeepingRecordsOverviewMonthlyVo monthlyVo = getBaseDao().queryYearlyOverviewMonthly(dto);
+        incomeVo.setMonthlyData(monthlyVo.getIncomeTrendData());
+
+        // 查询年度收入-收入分类占比
+        BookkeepingConsumeCategoryStatisticsDto categoryStatisticsDto = new BookkeepingConsumeCategoryStatisticsDto();
+        categoryStatisticsDto.setRecordCategory(RecordCategoryEnum.INCOME);
+        categoryStatisticsDto.setCurrentStartMonth(dto.getStartDate());
+        categoryStatisticsDto.setCurrentEndMonth(dto.getEndDate());
+        categoryStatisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        List<BookkeepingConsumeStatisticsCategoryVo> statisticsCategoryVos = getBaseDao().getBaseMapper().categoryStatistics(categoryStatisticsDto);
+        if (CollectionUtils.isNotEmpty(statisticsCategoryVos)) {
+            BigDecimal totalAmount = statisticsCategoryVos.stream().map(BookkeepingConsumeStatisticsCategoryVo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            List<BookkeepingRecordsIncomeCategoriesVo> categoryVoList = new ArrayList<>();
+            // 查询记账分类字典值
+            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
+            Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
+            for (BookkeepingConsumeStatisticsCategoryVo statisticsCategoryVo : statisticsCategoryVos) {
+                BookkeepingRecordsIncomeCategoriesVo categoriesVo = new BookkeepingRecordsIncomeCategoriesVo();
+                categoriesVo.setName(dictMap.get(statisticsCategoryVo.getRecordType()));
+                categoriesVo.setAmount(statisticsCategoryVo.getAmount());
+                categoriesVo.setRatio(statisticsCategoryVo.getAmount().multiply(new BigDecimal("100")).divide(totalAmount, 2, RoundingMode.HALF_UP));
+                categoryVoList.add(categoriesVo);
+            }
+            incomeVo.setIncomeCategories(categoryVoList);
+        }
+
+        // 查询年度收入-Top10
+        BookkeepingStatisticsDto statisticsDto = new BookkeepingStatisticsDto();
+        statisticsDto.setRecordCategory(RecordCategoryEnum.INCOME);
+        statisticsDto.setCurrentStartMonth(dto.getStartDate());
+        statisticsDto.setCurrentEndMonth(dto.getEndDate());
+        statisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        List<BookkeepingStatisticsRankVo> rankVoList = getBaseDao().getBaseMapper().rankStatistics(statisticsDto);
+        if (CollectionUtils.isNotEmpty(rankVoList)) {
+            // 查询记账分类字典值
+            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
+            Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
+            List<BookkeepingRecordsIncomeTopVo> topIncomeList = new ArrayList<>();
+            for (BookkeepingStatisticsRankVo rankVo : rankVoList) {
+                BookkeepingRecordsIncomeTopVo topVo = new BookkeepingRecordsIncomeTopVo();
+                topVo.setCategory(dictMap.get(rankVo.getRecordType()));
+                topVo.setDescription(rankVo.getRecordSource());
+                topVo.setDate(rankVo.getRecordDate());
+                topVo.setAmount(rankVo.getAmount());
+                topIncomeList.add(topVo);
+            }
+            incomeVo.setTopIncomeList(topIncomeList);
+        }
+
+        // 查询年度收入-收入洞察
+        BookkeepingRecordsIncomeInsightsVo insightsVo = new BookkeepingRecordsIncomeInsightsVo();
+        BookkeepingRecordsConsumeInsightsVo consumeDaysVo = getBaseDao().getStatisticsMapper().statisticsMaxDay(dto);
+        if (consumeDaysVo != null) {
+            insightsVo.setMaxDayAmount(consumeDaysVo.getMaxDayAmount());
+            insightsVo.setMaxDayDate(consumeDaysVo.getMaxDayDate());
+        }
+        BookkeepingRecordsConsumeInsightsVo consumeMonthVo = getBaseDao().getStatisticsMapper().statisticsMaxMonth(dto);
+        if (consumeMonthVo != null) {
+            insightsVo.setMaxMonthAmount(consumeMonthVo.getMaxMonthAmount());
+            insightsVo.setMaxMonthName(consumeMonthVo.getMaxMonthName() + "月");
+        }
+        Long count = getBaseDao().lambdaQuery()
+                .between(BookkeepingRecordsEntity::getRecordDate, dto.getStartDate(), dto.getEndDate())
+                .eq(dto.getIgnoreNotStatistics() != null && dto.getIgnoreNotStatistics() == 0, BookkeepingRecordsEntity::getIsStatistics, 1)
+                .eq(BookkeepingRecordsEntity::getRecordCategory, RecordCategoryEnum.INCOME)
+                .ge(BookkeepingRecordsEntity::getAmount, new BigDecimal("100"))
+                .count();
+        if (count == 0) {
+            insightsVo.setLargeIncomeRatio(BigDecimal.ZERO);
+        } else {
+            insightsVo.setLargeIncomeRatio(new BigDecimal(count * 100).divide(new BigDecimal(incomeVo.getYearStatistics().getIncomeCount()), 2, RoundingMode.HALF_UP));
+        }
+        insightsVo.setAvgMonthAmount(incomeVo.getYearStatistics().getTotalIncome().divide(new BigDecimal("12"), 2, RoundingMode.HALF_UP));
+        incomeVo.setInsights(insightsVo);
+
+        return incomeVo;
+    }
+
+    private void computeYearStatisticsParam(BookkeepingRecordsYearStatisticsQueryDto dto) {
+        dto.setUserId(UserUtils.getUserId());
         LocalDate startStatisticsDate;
-        if (StringUtils.isEmpty(year)) {
+        if (StringUtils.isEmpty(dto.getYear())) {
             startStatisticsDate = DateUtils.startDateOfNowYear();
         } else {
-            startStatisticsDate = LocalDate.parse(year + "-01-01", DateUtils.DATE_FORMATTER);
+            startStatisticsDate = LocalDate.parse(dto.getYear() + "-01-01", DateUtils.DATE_FORMATTER);
         }
         LocalDate endStatisticsDate = DateUtils.endDateOfYear(startStatisticsDate);
-
-        // 统计TOP数据
-        LambdaQueryChainWrapper<BookkeepingRecordsEntity> topWrapper = getBaseDao().lambdaQuery()
-                .ge(BookkeepingRecordsEntity::getRecordDate, startStatisticsDate)
-                .le(BookkeepingRecordsEntity::getRecordDate, endStatisticsDate)
-                .orderByDesc(BookkeepingRecordsEntity::getAmount)
-                .last(WebCommonConstants.standardLimit(10));
-
-        List<BookkeepingRecordsEntity> allTop10Records = topWrapper.list();
-        List<BookkeepingRecordsEntity> isStatisticsTop10Records = topWrapper.eq(BookkeepingRecordsEntity::getIsStatistics, BoolEnum.TRUE.getCode()).list();
-
-        // 统计不同记录分类下的消费情况
-
-        // 统计收入来源的分类情况
-
-        // 统计不同标签的消费情况
-
-
-        return null;
+        dto.setStartDate(startStatisticsDate);
+        dto.setEndDate(endStatisticsDate);
     }
 
     private void addPointsRecordsByExcitation(String orderNo) {
