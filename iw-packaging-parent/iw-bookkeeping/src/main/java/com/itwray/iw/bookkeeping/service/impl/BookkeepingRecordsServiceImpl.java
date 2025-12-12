@@ -475,19 +475,20 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 遗漏次数、平均每天记账次数、文案
         Integer missingCount = getBaseDao().getStatisticsMapper().statisticsMissingCount(dto);
         habitsVo.setMissingCount(missingCount == null ? 0 : missingCount);
-        Long count = getBaseDao().lambdaQuery()
+        Long recordingCount = getBaseDao().lambdaQuery()
                 .between(BookkeepingRecordsEntity::getRecordDate, dto.getStartDate(), dto.getEndDate())
                 .eq(dto.getIgnoreNotStatistics() != null && dto.getIgnoreNotStatistics() == 0, BookkeepingRecordsEntity::getIsStatistics, 1)
                 .count();
-        if (habitsVo.getRecordingDays() == 0 || habitsVo.getMissingCount() == 0 || count == 0) {
+        if (habitsVo.getRecordingDays() == 0 || habitsVo.getMissingCount() == 0 || recordingCount == 0) {
             habitsVo.setMissingRate(BigDecimal.ZERO);
         } else {
-            habitsVo.setMissingRate(new BigDecimal(habitsVo.getMissingCount()).divide(new BigDecimal(count), 2, RoundingMode.HALF_UP));
+            habitsVo.setMissingRate(new BigDecimal(habitsVo.getMissingCount()).divide(new BigDecimal(recordingCount), 2, RoundingMode.HALF_UP));
         }
-        if (count == 0) {
+        habitsVo.setRecordingCount(recordingCount);
+        if (recordingCount == 0) {
             habitsVo.setAvgPerDay(BigDecimal.ZERO);
         } else {
-            habitsVo.setAvgPerDay(new BigDecimal(count).divide(new BigDecimal("365"), 2, RoundingMode.HALF_UP));
+            habitsVo.setAvgPerDay(new BigDecimal(recordingCount).divide(new BigDecimal("365"), 2, RoundingMode.HALF_UP));
         }
         if (habitsVo.getMaxContinuousDays() == 0) {
             habitsVo.setEvaluation("一天天的，帐都不记，行不行啊小老弟❓");

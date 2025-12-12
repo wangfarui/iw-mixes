@@ -60,6 +60,11 @@ public class BookkeepingRecordsOverviewHabitsVo {
     private BigDecimal missingRate;
 
     /**
+     * 一年内的记账次数
+     */
+    private Long recordingCount;
+
+    /**
      * 平均每天记账次数（保留1-2位小数）
      */
     private BigDecimal avgPerDay;
