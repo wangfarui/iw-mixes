@@ -482,7 +482,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         if (habitsVo.getRecordingDays() == 0 || habitsVo.getMissingCount() == 0 || recordingCount == 0) {
             habitsVo.setMissingRate(BigDecimal.ZERO);
         } else {
-            habitsVo.setMissingRate(new BigDecimal(habitsVo.getMissingCount()).divide(new BigDecimal(recordingCount), 2, RoundingMode.HALF_UP));
+            habitsVo.setMissingRate(new BigDecimal(habitsVo.getMissingCount() * 100).divide(new BigDecimal(recordingCount), 2, RoundingMode.HALF_UP));
         }
         habitsVo.setRecordingCount(recordingCount);
         if (recordingCount == 0) {
