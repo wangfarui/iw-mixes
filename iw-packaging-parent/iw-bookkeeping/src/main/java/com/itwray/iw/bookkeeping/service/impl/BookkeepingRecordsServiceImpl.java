@@ -548,7 +548,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             Integer totalCount = consumeTagsVos.stream().map(BookkeepingRecordsConsumeTagsVo::getCount).reduce(0, Integer::sum);
 
             // 查询记账标签字典值
-            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TAG.getCode());
+            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TAG_CONSUME.getCode());
             Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getId, DictListVo::getDictName));
             for (BookkeepingRecordsConsumeTagsVo consumeTagsVo : consumeTagsVos) {
                 consumeTagsVo.setName(dictMap.get(consumeTagsVo.getDictId()));

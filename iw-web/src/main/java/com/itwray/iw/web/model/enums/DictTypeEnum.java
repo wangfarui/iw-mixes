@@ -30,7 +30,8 @@ public enum DictTypeEnum implements ConstantEnum {
     EAT_DISHES_STATUS(3004, "餐饮-菜品状态", DataType.CODE, RoleTypeEnum.ADMIN), // DishesStatusEnum
 
     /** iw-bookkeeping 记账模块 **/
-    BOOKKEEPING_RECORD_TAG(4001, "记账-记录标签", DataType.ID, RoleTypeEnum.USER),
+    BOOKKEEPING_RECORD_TAG_CONSUME(4001, "记账-记录标签-支出", DataType.ID, RoleTypeEnum.USER),
+    BOOKKEEPING_RECORD_TAG_INCOME(4011, "记账-记录标签-收入", DataType.ID, RoleTypeEnum.USER),
     BOOKKEEPING_RECORD_TYPE(4002, "记账-记录分类", DataType.CODE, RoleTypeEnum.USER),
     BOOKKEEPING_RECORD_CATEGORY(4003, "记账-记录类型", DataType.CODE, RoleTypeEnum.ADMIN), // RecordCategoryEnum
     BOOKKEEPING_MEMBERSHIP_TYPE(4004, "记账-会员类型", DataType.CODE, RoleTypeEnum.USER),

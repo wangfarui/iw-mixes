@@ -58,6 +58,12 @@ values (4001, '买菜', 1, 0),
        (4001, '固定支出', 5, 0),
        (4001, '旅游', 6, 0)
 ;
+insert into base_dict (dict_type, dict_name, sort, user_id)
+values (4011, '工资', 1, 0),
+       (4011, '返现', 2, 0),
+       (4011, '退款', 3, 0),
+       (4011, '奖金', 4, 0)
+;
 
 ## 字典 - 应用账号 - 应用分类数据初始化
 insert into base_dict (dict_type, dict_code, dict_name, sort, user_id)
