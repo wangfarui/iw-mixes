@@ -1,15 +1,19 @@
 package com.itwray.iw.gateway.filter;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.common.constants.GeneralApiCode;
 import com.itwray.iw.common.constants.RequestHeaderConstants;
+import com.itwray.iw.common.utils.SignatureUtil;
 import com.itwray.iw.gateway.config.IwGatewayProperties;
 import com.itwray.iw.starter.redis.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -36,6 +40,9 @@ public class DefaultGatewayFilter implements GlobalFilter {
 
     private String authServiceUrlCache;
 
+    @Value("${iw.feign.secret:}")
+    private String feignSecret;
+
     public DefaultGatewayFilter(WebClient.Builder webClientBuilder, DiscoveryClient discoveryClient, IwGatewayProperties gatewayProperties) {
         this.webClientBuilder = webClientBuilder;
         this.discoveryClient = discoveryClient;
@@ -50,6 +57,22 @@ public class DefaultGatewayFilter implements GlobalFilter {
         if (path != null && gatewayProperties.isIgnoreValidateApi(path)) {
             return chain.filter(exchange);
         }
+
+        if (path != null && path.contains("/internal/")) {
+            HttpHeaders headers = request.getHeaders();
+            String appKey = headers.getFirst("X-App-Key");
+            String timestamp = headers.getFirst("X-Timestamp");
+            String signature = headers.getFirst("X-Signature");
+
+            if (StrUtil.hasBlank(appKey,timestamp, signature )) {
+                return createUnauthorizedResponse(exchange.getResponse(), "无效请求");
+            }
+            String expected = SignatureUtil.generateSignature(appKey, timestamp, path, this.feignSecret);
+            if (!expected.equalsIgnoreCase(signature)) {
+                return createUnauthorizedResponse(exchange.getResponse(), "无效请求");
+            }
+        }
+
         String token = request.getHeaders().getFirst(RequestHeaderConstants.TOKEN_HEADER);
         if (token == null) {
             return createUnauthorizedResponse(exchange.getResponse(), "未登录，请登录后再试");

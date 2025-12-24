@@ -1,6 +1,7 @@
 package com.itwray.iw.web.core.feign;
 
 import com.itwray.iw.common.constants.RequestHeaderConstants;
+import com.itwray.iw.common.utils.SignatureUtil;
 import com.itwray.iw.web.core.webmvc.GeneralResponseWrapperAdvice;
 import com.itwray.iw.web.utils.UserUtils;
 import feign.RequestInterceptor;
@@ -8,6 +9,7 @@ import feign.codec.Decoder;
 import feign.optionals.OptionalDecoder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
@@ -29,6 +31,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableFeignClients(basePackages = "com.itwray.iw.*.client")
 public class FeignConfiguration {
+
+    @Value("${iw.feign.secret:}")
+    private String feignSecret;
 
     private final ObjectFactory<HttpMessageConverters> messageConverters;
 
@@ -57,6 +62,17 @@ public class FeignConfiguration {
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
+            String timestamp = String.valueOf(System.currentTimeMillis());
+
+            String path = requestTemplate.path();
+            String appKey = path.split("/")[0];
+
+            String signature = SignatureUtil.generateSignature(appKey, timestamp, path, this.feignSecret);
+
+            requestTemplate.header("X-App-Key", appKey);
+            requestTemplate.header("X-Timestamp", timestamp);
+            requestTemplate.header("X-Signature", signature);
+
             // 从当前请求上下文获取token
             String token = UserUtils.getToken(false);
             if (token != null) {

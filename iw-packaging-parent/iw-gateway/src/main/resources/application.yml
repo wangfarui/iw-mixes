@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: iw-gateway-service
+  profiles:
+    active: dev
   config:
     import:
       - optional:nacos:iw-web
@@ -34,7 +36,7 @@ spring:
             - Path=/auth-service/**
           filters:
             # 默认StripPrefix为false，即0，不会去除前缀
-            - StripPrefix=0
+            - StripPrefix=1
         - id: iw-eat-service
           uri: lb://iw-bookkeeping-service
           predicates:
@@ -57,6 +59,8 @@ spring:
           uri: lb://iw-external-service
           predicates:
             - Path=/external-service/api/**
+          filters:
+            - StripPrefix=1
         - id: iw-external-service_internal
           uri: lb://iw-external-service
           predicates:
@@ -64,12 +68,15 @@ spring:
           filters:
             - name: IpCheck        # 自定义过滤器用于 IP 校验
             - name: SecretCheck    # 自定义过滤器用于 密钥 校验
+            - StripPrefix=1
         - id: websocket-ai
           uri: lb://iw-external-service
           predicates:
             - Path=/external-service/wb/**
           metadata:
             protocol: websocket  # 声明WebSocket协议
+          filters:
+            - StripPrefix=1
     # nacos配置
     nacos:
       discovery:

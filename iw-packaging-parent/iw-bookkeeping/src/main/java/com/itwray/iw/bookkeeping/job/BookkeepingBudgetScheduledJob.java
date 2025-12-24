@@ -1,10 +1,11 @@
 package com.itwray.iw.bookkeeping.job;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.json.JSONUtil;
 import com.itwray.iw.bookkeeping.dao.BookkeepingBudgetDao;
 import com.itwray.iw.bookkeeping.model.entity.BookkeepingBudgetEntity;
 import com.itwray.iw.bookkeeping.model.enums.BudgetTypeEnum;
+import com.itwray.iw.bookkeeping.service.BookkeepingMembershipSubscriptionService;
+import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.utils.UserUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 积分任务的定时任务
+ * 记账记录的定时任务
  *
  * @author farui.wang
  * @since 2025/5/12
@@ -26,8 +27,16 @@ public class BookkeepingBudgetScheduledJob {
 
     private final BookkeepingBudgetDao bookkeepingBudgetDao;
 
-    public BookkeepingBudgetScheduledJob(BookkeepingBudgetDao bookkeepingBudgetDao) {
+    private final BookkeepingRecordsService bookkeepingRecordsService;
+
+    private final BookkeepingMembershipSubscriptionService bookkeepingMembershipSubscriptionService;
+
+    public BookkeepingBudgetScheduledJob(BookkeepingBudgetDao bookkeepingBudgetDao,
+                                         BookkeepingRecordsService bookkeepingRecordsService,
+                                         BookkeepingMembershipSubscriptionService bookkeepingMembershipSubscriptionService) {
         this.bookkeepingBudgetDao = bookkeepingBudgetDao;
+        this.bookkeepingRecordsService = bookkeepingRecordsService;
+        this.bookkeepingMembershipSubscriptionService = bookkeepingMembershipSubscriptionService;
     }
 
     /**
@@ -53,9 +62,30 @@ public class BookkeepingBudgetScheduledJob {
                 this.initDefaultFieldValue(t);
                 t.setBudgetMonth(nowMonth);
             });
-            System.out.println("aaaList monthBudgetList");
-            System.out.println(JSONUtil.toJsonStr(monthBudgetList));
             bookkeepingBudgetDao.saveBatch(monthBudgetList);
+        }
+    }
+
+    /**
+     * 每月1号凌晨0点执行, 统计上月预算支出情况, 同步积分
+     * TODO 前提条件：bookkeeping服务是单实例
+     */
+    @Scheduled(cron = "0 0 0 1 * ?")
+    public void handleMonthBudgetToPoints() {
+        LocalDate nowMonth = DateUtils.startDateOfNowMonth();
+        List<BookkeepingBudgetEntity> monthBudgetList;
+        try {
+            UserUtils.setUserDataPermission(false);
+            // 查询上个月所有的月度分类预算数据
+            monthBudgetList = bookkeepingBudgetDao.lambdaQuery()
+                    .eq(BookkeepingBudgetEntity::getBudgetType, BudgetTypeEnum.MONTH_CATEGORY)
+                    .eq(BookkeepingBudgetEntity::getBudgetMonth, nowMonth.minusMonths(1))
+                    .list();
+        } finally {
+            UserUtils.removeUserDataPermission();
+        }
+        if (CollUtil.isNotEmpty(monthBudgetList)) {
+            bookkeepingRecordsService.syncBookkeepingPointsByBudget(monthBudgetList);
         }
     }
 
@@ -82,9 +112,22 @@ public class BookkeepingBudgetScheduledJob {
                 this.initDefaultFieldValue(t);
                 t.setBudgetYear(nowYear);
             });
-            System.out.println("aaaList yearBudgetList");
-            System.out.println(JSONUtil.toJsonStr(yearBudgetList));
             bookkeepingBudgetDao.saveBatch(yearBudgetList);
+        }
+    }
+
+    /**
+     * 每天0点处理会员订阅的自动续费功能
+     * TODO 前提条件：bookkeeping服务是单实例
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void handleMembershipSubscriptionAutoRenew() {
+        try {
+            UserUtils.setUserDataPermission(false);
+            int count = bookkeepingMembershipSubscriptionService.autoRenew();
+            log.info("Job[handleMembershipSubscriptionAutoRenew], 自动续费了 {} 个会员服务", count);
+        } finally {
+            UserUtils.removeUserDataPermission();
         }
     }
 

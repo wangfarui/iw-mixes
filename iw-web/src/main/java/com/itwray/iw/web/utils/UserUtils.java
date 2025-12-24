@@ -3,6 +3,7 @@ package com.itwray.iw.web.utils;
 import com.itwray.iw.common.constants.RequestHeaderConstants;
 import com.itwray.iw.web.client.AuthenticationClient;
 import com.itwray.iw.web.exception.AuthorizedException;
+import com.itwray.iw.web.exception.IwWebException;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
@@ -21,6 +22,11 @@ public abstract class UserUtils {
     private static final ThreadLocal<Integer> USER_ID = new ThreadLocal<>();
 
     /**
+     * 当前线程的用户token
+     */
+    private static final ThreadLocal<String> USER_TOKEN = new ThreadLocal<>();
+
+    /**
      * 当前线程是否开启用户数据权限
      * <p>默认为 null 时表示开启</p>
      */
@@ -33,14 +39,35 @@ public abstract class UserUtils {
      */
     private static final Object AUTHENTICATION_CLIENT_LOCK = new Object();
 
+    public static void setToken(String token) {
+        USER_TOKEN.set(token);
+    }
+
     public static @Nonnull String getToken() {
         return getToken(true);
     }
 
     public static @Nullable String getToken(boolean required) {
+        String token = USER_TOKEN.get();
+        if (token == null) {
+            token = getHeaderValue(RequestHeaderConstants.TOKEN_HEADER);
+        } else {
+            return token;
+        }
+        if (token == null && required) {
+            throw new IwWebException("当前未登录，请先登录");
+        }
+        USER_TOKEN.set(token);
+        return token;
+    }
+
+    public static @Nullable String getHeaderValue(String headerKey) {
         try {
-            HttpServletRequest request = SpringWebHolder.getRequest();
-            return request.getHeader(RequestHeaderConstants.TOKEN_HEADER);
+            HttpServletRequest request = SpringWebHolder.getRequest(false);
+            if (request == null) {
+                return null;
+            }
+            return request.getHeader(headerKey);
         } catch (IllegalStateException e) {
             // ignore
         }
@@ -55,10 +82,10 @@ public abstract class UserUtils {
      *     <li>业务层手动引用</li>
      * </ul>
      */
-    public static Integer getUserId() {
+    public static Integer getUserId(boolean required) {
         Integer userId = USER_ID.get();
         // 线程中为空时，尝试远程获取
-        if (userId == null) {
+        if (userId == null && required) {
             String token = getToken();
             if (token == null) {
                 throw new AuthorizedException("当前未登录，请先登录");
@@ -67,6 +94,10 @@ public abstract class UserUtils {
             setUserId(userId = getAuthClient().getUserIdByToken(token));
         }
         return userId;
+    }
+
+    public static Integer getUserId() {
+        return getUserId(true);
     }
 
     /**
@@ -84,6 +115,13 @@ public abstract class UserUtils {
      */
     public static void removeUserId() {
         USER_ID.remove();
+    }
+
+    /**
+     * 清除线程的用户token
+     */
+    public static void removeUserToken() {
+        USER_TOKEN.remove();
     }
 
     /**

@@ -6,14 +6,14 @@ iw:
 
 # 服务器配置
 server:
-  servlet:
-    context-path: /external-service
   port: 18006
 
 # spring 配置
 spring:
   application:
     name: iw-external-service
+  profiles:
+    active: dev
   datasource:
     driver-class-name: ${iw.db.driver-class}
     url: ${iw.db.url}

@@ -12,6 +12,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingConsumeService;
+import com.itwray.iw.bookkeeping.utils.BookkeepingStatisticsUtils;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.exception.BusinessException;
@@ -123,19 +124,7 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
         }
         BookkeepingStatisticsDto statisticsDto = this.buildStatisticsDto(dto);
         List<BookkeepingBarChartStatisticsBo> list = bookkeepingRecordsDao.getBaseMapper().barChartStatistics(statisticsDto);
-        if (list.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, BigDecimal> recordDateMap = list.stream().collect(Collectors.toMap(
-                BookkeepingBarChartStatisticsBo::getRecordDate, BookkeepingBarChartStatisticsBo::getAmount
-        ));
-        List<BigDecimal> result = new ArrayList<>();
-        int year = statisticsDto.getCurrentStartMonth().getYear();
-        for (int i = 1; i <= 12; i++) {
-            String recordDate = year + "-" + (i < 10 ? "0" + i : i);
-            result.add(Optional.ofNullable(recordDateMap.get(recordDate)).orElse(BigDecimal.ZERO));
-        }
-        return result;
+        return BookkeepingStatisticsUtils.convertToBarChartStatisticsBo(dto.getCurrentStartMonth(), list);
     }
 
     private BookkeepingStatisticsDto buildStatisticsDto(BookkeepingConsumeStatisticsDto dto) {

@@ -53,6 +53,9 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
         if (!isTotalBudgetType && dto.getRecordType() == null) {
             throw new BusinessException("分类预算的记录分类不能为空");
         }
+        if (dto.getPunishPoints() != null) {
+            dto.setPunishPoints(-dto.getPunishPoints());
+        }
 
         boolean isMonthBudgetType = dto.getBudgetType().isMonthBudgetType();
 
@@ -69,9 +72,26 @@ public class BookkeepingBudgetServiceImpl extends WebServiceImpl<BookkeepingBudg
 
         // 初始化预算年份和月份
         dto.setBudgetYear(!isMonthBudgetType ? LocalDate.now().getYear() : null);
-        dto.setBudgetMonth(isMonthBudgetType ? null : DateUtils.startDateOfNowMonth());
+        dto.setBudgetMonth(isMonthBudgetType ? DateUtils.startDateOfNowMonth() : null);
 
         return super.add(dto);
+    }
+
+    @Override
+    public void update(BookkeepingBudgetUpdateDto dto) {
+        if (dto.getPunishPoints() != null) {
+            dto.setPunishPoints(-dto.getPunishPoints());
+        }
+        super.update(dto);
+    }
+
+    @Override
+    public BookkeepingBudgetDetailVo detail(Integer integer) {
+        BookkeepingBudgetDetailVo vo = super.detail(integer);
+        if (vo.getPunishPoints() != null) {
+            vo.setPunishPoints(-vo.getPunishPoints());
+        }
+        return vo;
     }
 
     @Override

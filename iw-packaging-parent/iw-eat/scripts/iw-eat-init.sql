@@ -1,4 +1,3 @@
-drop table if exists eat_dishes;
 create table eat_dishes
 (
     id                int unsigned      not null auto_increment comment 'id',
@@ -17,7 +16,6 @@ create table eat_dishes
     key idx_dishes_name (dishes_name)
 ) comment '菜品表';
 
-drop table if exists eat_dishes_material;
 create table eat_dishes_material
 (
     id              int unsigned           not null auto_increment comment 'id',
@@ -30,7 +28,6 @@ create table eat_dishes_material
     key idx_dishes_id (dishes_id)
 ) comment '菜品用料表';
 
-drop table if exists eat_dishes_creation_method;
 create table eat_dishes_creation_method
 (
     id           int unsigned     not null auto_increment comment 'id',
@@ -42,7 +39,6 @@ create table eat_dishes_creation_method
     key idx_dishes_id (dishes_id)
 ) comment '菜品制作方法表';
 
-drop table if exists eat_meal;
 create table eat_meal
 (
     id          int unsigned     not null auto_increment comment 'id',
@@ -57,7 +53,6 @@ create table eat_meal
     key idx_meal_date (meal_date)
 ) comment '用餐表';
 
-drop table if exists eat_meal_menu;
 create table eat_meal_menu
 (
     id          int unsigned not null auto_increment comment 'id',

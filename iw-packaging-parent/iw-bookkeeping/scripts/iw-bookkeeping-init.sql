@@ -1,4 +1,3 @@
-drop table if exists bookkeeping_records;
 create table bookkeeping_records
 (
     id                   int unsigned                           not null auto_increment comment 'id',
@@ -22,7 +21,6 @@ alter table bookkeeping_records
 alter table bookkeeping_records
     add column order_no varchar(32) default '' not null comment '订单号' after id;
 
-drop table if exists bookkeeping_actions;
 create table bookkeeping_actions
 (
     id                   int unsigned                           not null auto_increment comment 'id',
@@ -52,7 +50,6 @@ values
 alter table bookkeeping_records
 add column record_icon varchar(255) default '' not null comment '记录图标' after record_source;
 
-drop table if exists bookkeeping_budget;
 create table bookkeeping_budget (
     id int unsigned auto_increment not null comment 'id',
     budget_type tinyint not null comment '预算类型',
@@ -70,7 +67,6 @@ alter table bookkeeping_budget
 add column budget_month date null comment '预算月份',
 add column budget_year smallint unsigned null comment '预算年份';
 
-drop table if exists bookkeeping_wallet;
 create table bookkeeping_wallet (
     id int unsigned auto_increment not null comment 'id',
     wallet_balance decimal(10, 2) default 0 not null comment '余额',
@@ -83,7 +79,6 @@ create table bookkeeping_wallet (
     key idx_user_id (user_id)
 ) comment '用户钱包表';
 
-drop table if exists bookkeeping_wallet_records;
 create table bookkeeping_wallet_records (
     id int unsigned auto_increment not null comment 'id',
     change_type tinyint(1) not null comment '变动类型(1余额, 2资产)',
@@ -97,3 +92,30 @@ create table bookkeeping_wallet_records (
     primary key (id),
     key idx_user_id (user_id)
 ) comment '用户钱包记录表';
+
+alter table bookkeeping_budget
+add column `reward_points` tinyint NOT NULL DEFAULT '0' COMMENT '奖励积分',
+add column `punish_points` tinyint NOT NULL DEFAULT '0' COMMENT '处罚积分';
+
+create table bookkeeping_membership_subscription
+(
+    id              int unsigned auto_increment             not null comment 'id',
+    membership_type tinyint       default 0                 not null comment '会员类型',
+    membership_name varchar(64)   default ''                not null comment '会员名称',
+    amount          decimal(8, 2) default 0                 not null comment '金额',
+    billing_cycle   tinyint                                 not null comment '计费周期',
+    cycle_num       int                                     null comment '自定义周期间隔数',
+    cycle_unit      tinyint                                 null comment '自定义周期单位',
+    start_date      date                                    not null comment '开始日期',
+    end_date        date                                    null comment '结束日期',
+    auto_renew      tinyint(1)    default 0                 not null comment '是否自动续费(true表示开启自动续费, 默认false表示未开启)',
+    pay_way         varchar(64)   default ''                not null comment '支付方式',
+    remind_days     tinyint                                 null comment '提前提醒天数',
+    remark          varchar(255)  default ''                not null comment '备注',
+    deleted         tinyint(1)    default 0                 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
+    create_time     datetime      default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time     datetime      default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id         int unsigned  default '0'               not null comment '用户id',
+    primary key (id),
+    key idx_user_id (user_id)
+) comment '会员订阅记录表';

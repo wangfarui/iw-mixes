@@ -8,6 +8,7 @@ import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingIncomeService;
+import com.itwray.iw.bookkeeping.utils.BookkeepingStatisticsUtils;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +54,12 @@ public class BookkeepingIncomeServiceImpl implements BookkeepingIncomeService {
         if (list.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, BigDecimal> recordDateMap = list.stream().collect(Collectors.toMap(
-                BookkeepingBarChartStatisticsBo::getRecordDate, BookkeepingBarChartStatisticsBo::getAmount
-        ));
         List<BigDecimal> result = new ArrayList<>();
         switch (dto.getStatisticsType()) {
             case MONTH -> {
+                Map<String, BigDecimal> recordDateMap = list.stream().collect(Collectors.toMap(
+                        BookkeepingBarChartStatisticsBo::getRecordDate, BookkeepingBarChartStatisticsBo::getAmount
+                ));
                 LocalDate startDate = statisticsDto.getCurrentStartMonth();
                 while (!startDate.isAfter(statisticsDto.getCurrentEndMonth())) {
                     String s = DateUtils.formatLocalDate(startDate);
@@ -67,11 +68,7 @@ public class BookkeepingIncomeServiceImpl implements BookkeepingIncomeService {
                 }
             }
             case YEAR -> {
-                int year = statisticsDto.getCurrentStartMonth().getYear();
-                for (int i = 1; i <= 12; i++) {
-                    String recordDate = year + "-" + (i < 10 ? "0" + i : i);
-                    result.add(Optional.ofNullable(recordDateMap.get(recordDate)).orElse(BigDecimal.ZERO));
-                }
+                result = BookkeepingStatisticsUtils.convertToBarChartStatisticsBo(statisticsDto.getCurrentStartMonth(), list);
             }
         }
         return result;

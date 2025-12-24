@@ -29,4 +29,10 @@ public class BookkeepingBudgetDetailVo implements DetailVo {
     @Schema(title = "预算金额")
     private BigDecimal budgetAmount;
 
+    @Schema(title = "奖励积分")
+    private Integer rewardPoints;
+
+    @Schema(title = "处罚积分")
+    private Integer punishPoints;
+
 }

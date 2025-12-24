@@ -10,13 +10,16 @@ public class CodeGeneratorUtil {
 
     public static void main(String[] args) {
         GlobalConfig config = GlobalConfig.builder()
-                .dbPassword("root")
-                .outputDir("D:\\workspaces\\wray\\iw-mixes\\iw-code-generator")
-                .parentPackage("com.itwray.iw.generator")
-                .enabledWebModule(false)
+                .dbUrl("jdbc:mysql://localhost:3306/iw_mixes?serverTimezone=Asia/Shanghai")
+                .dbUsername("iw_root")
+                .dbPassword("iw@2024")
+                .author("wray")
+                .outputDir("/Users/wangfarui/workspaces/wfr/iw-mixes/iw-packaging-parent/iw-bookkeeping")
+                .parentPackage("com.itwray.iw.bookkeeping")
+                .enabledWebModule(true)
                 .enableFileOverride(false)
                 .build();
 
-        CodeGenerator.generate(config, "my_table");
+        CodeGenerator.generate(config, "bookkeeping_membership_subscription");
     }
 }

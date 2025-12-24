@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @since 2025/4/12
  */
 @Validated
-@FeignClient(value = ExternalClientConstants.SERVICE_NAME, contextId = "internal-client", path = ExternalClientConstants.INTERNAL_SERVICE_PATH, configuration = InternalFeignConfig.class)
+@FeignClient(value = ExternalClientConstants.SERVICE_NAME, contextId = "internal-client", path = ExternalClientConstants.INTERNAL_PATH_PREFIX, configuration = InternalFeignConfig.class)
 public interface InternalApiClient {
 
     @PostMapping("/api/getExchangeRate")

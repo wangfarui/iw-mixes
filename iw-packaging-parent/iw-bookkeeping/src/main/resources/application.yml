@@ -9,6 +9,7 @@ iw:
         - bookkeeping_budget
         - bookkeeping_wallet
         - bookkeeping_wallet_records
+        - bookkeeping_membership_subscription
         - points_total
         - points_records
         - points_task_basics
@@ -25,6 +26,8 @@ server:
 spring:
   application:
     name: iw-bookkeeping-service
+  profiles:
+    active: dev
   datasource:
     driver-class-name: ${iw.db.driver-class}
     url: ${iw.db.url}

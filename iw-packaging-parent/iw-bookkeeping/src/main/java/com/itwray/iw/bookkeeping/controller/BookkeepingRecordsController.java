@@ -4,9 +4,11 @@ import com.itwray.iw.bookkeeping.model.dto.*;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordDetailVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordPageVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingRecordsStatisticsVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsYearStatisticsConsumeVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.income.BookkeepingRecordsYearStatisticsIncomeVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.overview.BookkeepingRecordsYearStatisticsOverviewVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.web.controller.WebController;
-import com.itwray.iw.web.exception.IwWebException;
 import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,5 +60,23 @@ public class BookkeepingRecordsController extends WebController<BookkeepingRecor
     @Operation(summary = "导入账单")
     public void importRecords(@RequestParam("file") MultipartFile file) {
         getWebService().importRecords(file);
+    }
+
+    @PostMapping("/yearStatistics/overview")
+    @Operation(summary = "年度统计-总览")
+    public BookkeepingRecordsYearStatisticsOverviewVo yearStatisticsOverview(@RequestBody BookkeepingRecordsYearStatisticsQueryDto dto) {
+        return getWebService().yearStatisticsOverview(dto);
+    }
+
+    @PostMapping("/yearStatistics/consume")
+    @Operation(summary = "年度统计-支出")
+    public BookkeepingRecordsYearStatisticsConsumeVo yearStatisticsConsume(@RequestBody BookkeepingRecordsYearStatisticsQueryDto dto) {
+        return getWebService().yearStatisticsConsume(dto);
+    }
+
+    @PostMapping("/yearStatistics/income")
+    @Operation(summary = "年度统计-收入")
+    public BookkeepingRecordsYearStatisticsIncomeVo yearStatisticsIncome(@RequestBody BookkeepingRecordsYearStatisticsQueryDto dto) {
+        return getWebService().yearStatisticsIncome(dto);
     }
 }

@@ -15,7 +15,8 @@ public class WebHandlerInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // 清理每次请求中的用户id
+        // 清理每次请求中的用户id和token
         UserUtils.removeUserId();
+        UserUtils.removeUserToken();
     }
 }

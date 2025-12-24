@@ -337,17 +337,27 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
             }
         }
         if (dictTypeEnum.getDataType().equals(DictTypeEnum.DataType.CODE)) {
+            // 字典类型为CODE时, dictCode如果为空，则code自动累加1
             if (dto.getDictCode() == null) {
-                throw new BusinessException("CODE类型的字典项, 其字典code不能为空");
-            }
-            // 检测字典code是否重复
-            Long count = getBaseDao().lambdaQuery()
-                    .eq(BaseDictEntity::getDictType, dto.getDictType())
-                    .eq(BaseDictEntity::getDictCode, dto.getDictCode())
-                    .ne(oldDictId != null, BaseDictEntity::getId, oldDictId)
-                    .count();
-            if (count > 0) {
-                throw new BusinessException("CODE类型的字典项, 其字典code不能重复");
+                Integer maxDictCode = getBaseDao().lambdaQuery()
+                        .eq(BaseDictEntity::getDictType, dto.getDictType())
+                        .select(BaseDictEntity::getDictCode)
+                        .orderByDesc(BaseDictEntity::getDictCode)
+                        .last(WebCommonConstants.LIMIT_ONE)
+                        .oneOpt()
+                        .map(BaseDictEntity::getDictCode)
+                        .orElse(1);
+                dto.setDictCode(maxDictCode + 1);
+            } else {
+                // 检测字典code是否重复
+                Long count = getBaseDao().lambdaQuery()
+                        .eq(BaseDictEntity::getDictType, dto.getDictType())
+                        .eq(BaseDictEntity::getDictCode, dto.getDictCode())
+                        .ne(oldDictId != null, BaseDictEntity::getId, oldDictId)
+                        .count();
+                if (count > 0) {
+                    throw new BusinessException("CODE类型的字典项, 其字典code不能重复");
+                }
             }
         }
         // 检测字典name是否重复

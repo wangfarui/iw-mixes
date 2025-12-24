@@ -1,5 +1,4 @@
 ## 积分相关表
-drop table if exists points_total;
 create table points_total
 (
     id             int unsigned auto_increment        not null comment 'id',
@@ -11,7 +10,6 @@ create table points_total
     unique key udx_user_id (user_id)
 ) comment '积分合计表';
 
-drop table if exists points_records;
 create table points_records
 (
     id               int unsigned auto_increment            not null comment 'id',
@@ -29,7 +27,6 @@ create table points_records
 ) comment '积分记录表';
 
 ## 任务相关表
-drop table if exists points_task_group;
 create table points_task_group
 (
     id          int unsigned auto_increment comment 'id',
@@ -45,7 +42,6 @@ create table points_task_group
     key idx_parent_id (parent_id)
 ) comment '任务分组表';
 
-drop table if exists points_task_basics;
 create table points_task_basics
 (
     id            int unsigned auto_increment comment 'id',
@@ -67,7 +63,6 @@ create table points_task_basics
     key idx_task_group (task_group_id)
 ) comment '任务基础表';
 
-drop table if exists points_task_relation;
 create table points_task_relation
 (
     id int unsigned auto_increment comment 'id',
@@ -84,7 +79,6 @@ add column done_time datetime null comment '任务完成时间' after sort;
 alter table points_task_relation
 add column punish_status tinyint(1) default 0 not null comment '惩罚状态 0-未惩罚 1-已惩罚';
 
-drop table if exists points_task_plan;
 create table points_task_plan (
     id int unsigned auto_increment not null comment 'id',
     task_name varchar(128) NOT NULL DEFAULT '' COMMENT '任务名称',
@@ -106,7 +100,6 @@ create table points_task_plan (
     key idx_user_id (user_id)
 ) comment '任务计划表';
 
-drop table if exists points_task_fixed;
 create table points_task_fixed (
     id int unsigned auto_increment not null comment 'id',
     task_name varchar(128) NOT NULL DEFAULT '' COMMENT '任务名称',

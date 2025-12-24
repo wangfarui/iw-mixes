@@ -5,7 +5,7 @@
     <parent>
         <artifactId>iw-packaging-parent</artifactId>
         <groupId>com.itwray.mixes</groupId>
-        <version>0.2.0</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,12 +20,12 @@
         <dependency>
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-points</artifactId>
-            <version>0.2.0</version>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-eat</artifactId>
-            <version>0.2.0</version>
+            <version>${revision}</version>
         </dependency>
         
         <dependency>
@@ -45,6 +45,10 @@
         <dependency>
             <groupId>com.itwray.mixes</groupId>
             <artifactId>iw-points-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.itwray.mixes</groupId>
+            <artifactId>iw-auth-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.itwray.mixes</groupId>

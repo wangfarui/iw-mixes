@@ -25,8 +25,8 @@ public class GeneralResponseDecoder implements Decoder {
 
     @Override
     public Object decode(Response response, Type type) throws IOException, FeignClientException {
-        // 使用默认的解码器获取GeneralResponse响应体
-        GeneralResponse<?> generalResponse = (GeneralResponse<?>) defaultDecoder.decode(response, GeneralResponse.class);
+        // 使用目标方法返回值的 type（包含泛型）去 decode
+        GeneralResponse<?> generalResponse = (GeneralResponse<?>) defaultDecoder.decode(response, ParameterizedTypeImpl.make(GeneralResponse.class, new Type[]{type}, null));
 
         // 判断调用是否成功
         if (!generalResponse.isSuccess()) {

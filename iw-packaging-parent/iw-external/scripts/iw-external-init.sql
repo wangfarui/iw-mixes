@@ -1,4 +1,3 @@
-drop table if exists external_sms_records;
 create table external_sms_records
 (
     id             int unsigned                         not null auto_increment comment 'id',
@@ -14,7 +13,6 @@ create table external_sms_records
     key idx_phone_number (phone_number)
 ) comment '外部SMS短信记录表';
 
-drop table if exists external_exchange_rate;
 create table external_exchange_rate
 (
     id            int unsigned                       not null auto_increment comment 'id',

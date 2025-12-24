@@ -325,6 +325,11 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .update();
     }
 
+    @Override
+    public String genericUserToken(Integer userId) {
+        return authUserDao.genericUserToken(userId);
+    }
+
     /**
      * 获取当前登录用户的id
      */

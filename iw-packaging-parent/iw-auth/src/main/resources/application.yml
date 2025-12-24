@@ -8,14 +8,14 @@ iw:
 
 # 服务器配置
 server:
-  servlet:
-    context-path: /auth-service
   port: 18001
 
 # spring 配置
 spring:
   application:
     name: iw-auth-service
+  profiles:
+    active: dev
   datasource:
     driver-class-name: ${iw.db.driver-class}
     url: ${iw.db.url}
