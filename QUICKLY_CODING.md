@@ -12,7 +12,7 @@
 * Hutool 5.8.26
 * SpringDoc 2.3.0
 
-> 更多依赖版本，见 [pom.xml](https://github.com/wangfarui/iw-mixes/blob/main/pom.xml)
+> 更多依赖版本，见 [pom.xml](https://github.com/wangfarui/iw-mixes/blob/dev/pom.xml)
 
 ## 项目规则
 

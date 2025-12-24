@@ -92,4 +92,4 @@
 </table>
 
 # 快速上手
-参考：[QUICKLY_CODING.md](https://github.com/wangfarui/iw-mixes/blob/main/QUICKLY_CODING.md)
+参考：[QUICKLY_CODING.md](https://github.com/wangfarui/iw-mixes/blob/dev/QUICKLY_CODING.md)
