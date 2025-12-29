@@ -12,8 +12,6 @@ server:
 spring:
   application:
     name: iw-external-service
-  profiles:
-    active: dev
   datasource:
     driver-class-name: ${iw.db.driver-class}
     url: ${iw.db.url}
