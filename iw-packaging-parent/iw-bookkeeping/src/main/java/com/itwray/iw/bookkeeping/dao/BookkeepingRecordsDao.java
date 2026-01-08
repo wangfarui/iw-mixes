@@ -80,7 +80,7 @@ public class BookkeepingRecordsDao extends BaseDao<BookkeepingRecordsMapper, Boo
             statisticsDto.setRecordCategory(RecordCategoryEnum.CONSUME);
             List<BookkeepingBarChartStatisticsBo> barChartStatistics = getBaseMapper().barChartStatistics(statisticsDto);
             if (CollectionUtils.isNotEmpty(barChartStatistics)) {
-                monthlyVo.setConsumeTrendData(BookkeepingStatisticsUtils.convertToBarChartStatisticsBo(dto.getStartDate(), barChartStatistics));
+                monthlyVo.setConsumeTrendData(BookkeepingStatisticsUtils.convertToBarChartYearStatisticsBo(dto.getStartDate(), barChartStatistics));
             }
 
             count++;
@@ -90,7 +90,7 @@ public class BookkeepingRecordsDao extends BaseDao<BookkeepingRecordsMapper, Boo
             statisticsDto.setRecordCategory(RecordCategoryEnum.INCOME);
             List<BookkeepingBarChartStatisticsBo> barChartStatistics = getBaseMapper().barChartStatistics(statisticsDto);
             if (CollectionUtils.isNotEmpty(barChartStatistics)) {
-                monthlyVo.setIncomeTrendData(BookkeepingStatisticsUtils.convertToBarChartStatisticsBo(dto.getStartDate(), barChartStatistics));
+                monthlyVo.setIncomeTrendData(BookkeepingStatisticsUtils.convertToBarChartYearStatisticsBo(dto.getStartDate(), barChartStatistics));
             }
 
             count++;

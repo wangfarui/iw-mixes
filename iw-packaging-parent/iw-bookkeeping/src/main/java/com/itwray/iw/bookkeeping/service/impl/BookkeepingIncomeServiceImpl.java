@@ -68,7 +68,7 @@ public class BookkeepingIncomeServiceImpl implements BookkeepingIncomeService {
                 }
             }
             case YEAR -> {
-                result = BookkeepingStatisticsUtils.convertToBarChartStatisticsBo(statisticsDto.getCurrentStartMonth(), list);
+                result = BookkeepingStatisticsUtils.convertToBarChartYearStatisticsBo(statisticsDto.getCurrentStartMonth(), list);
             }
         }
         return result;

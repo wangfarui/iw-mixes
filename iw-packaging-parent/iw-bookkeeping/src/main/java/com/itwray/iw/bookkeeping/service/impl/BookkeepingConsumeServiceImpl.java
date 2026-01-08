@@ -6,7 +6,6 @@ import com.itwray.iw.bookkeeping.model.bo.BookkeepingBarChartStatisticsBo;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeCategoryStatisticsDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeStatisticsDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingStatisticsDto;
-import com.itwray.iw.bookkeeping.model.enums.BookkeepingStatisticsTypeEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
@@ -119,12 +118,15 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
 
     @Override
     public List<BigDecimal> barChartStatistics(BookkeepingConsumeStatisticsDto dto) {
-        if (!BookkeepingStatisticsTypeEnum.YEAR.equals(dto.getStatisticsType())) {
-            throw new BusinessException("支出统计目前只支持年度统计");
-        }
         BookkeepingStatisticsDto statisticsDto = this.buildStatisticsDto(dto);
         List<BookkeepingBarChartStatisticsBo> list = bookkeepingRecordsDao.getBaseMapper().barChartStatistics(statisticsDto);
-        return BookkeepingStatisticsUtils.convertToBarChartStatisticsBo(dto.getCurrentStartMonth(), list);
+        List<BigDecimal> result;
+        switch (dto.getStatisticsType()) {
+            case YEAR -> result = BookkeepingStatisticsUtils.convertToBarChartYearStatisticsBo(dto.getCurrentStartMonth(), list);
+            case MONTH -> result = BookkeepingStatisticsUtils.convertToBarChartMonthStatisticsBo(dto.getCurrentMonth(), list);
+            default -> result = new ArrayList<>();
+        }
+        return result;
     }
 
     private BookkeepingStatisticsDto buildStatisticsDto(BookkeepingConsumeStatisticsDto dto) {
