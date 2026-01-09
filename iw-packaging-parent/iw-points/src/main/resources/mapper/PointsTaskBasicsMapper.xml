@@ -39,7 +39,7 @@
         <if test="statisticsDeadline != null and statisticsDeadline == true">
             and deadline_date is not null
         </if>
-        order by
+        order by is_top desc,
         <if test="sortDeadline != null and sortDeadline == true">
             deadline_date is null, deadline_date asc,
         </if>
