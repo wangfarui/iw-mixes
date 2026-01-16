@@ -21,6 +21,7 @@ import com.itwray.iw.starter.rocketmq.config.RocketMQClientListener;
 import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,6 +90,7 @@ public class PointsRecordsServiceImpl extends WebServiceImpl<PointsRecordsDao, P
     public PageVo<PointsRecordsPageVo> page(PointsRecordsPageDto dto) {
         LambdaQueryWrapper<PointsRecordsEntity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dto.getTransactionType() != null, PointsRecordsEntity::getTransactionType, dto.getTransactionType())
+                .like(StringUtils.isNotBlank(dto.getSource()), PointsRecordsEntity::getSource, dto.getSource())
                 .between(dto.getCreateStartTime() != null && dto.getCreateEndTime() != null,
                         PointsRecordsEntity::getCreateTime, dto.getCreateStartTime(), dto.getCreateEndTime())
                 .orderByDesc(PointsRecordsEntity::getId);

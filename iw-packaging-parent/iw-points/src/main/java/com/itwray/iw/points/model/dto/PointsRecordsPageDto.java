@@ -35,4 +35,9 @@ public class PointsRecordsPageDto extends PageDto {
      */
     @JsonDeserialize(using = EndLocalDateTimeDeserializer.class)
     private LocalDateTime createEndTime;
+
+    /**
+     * 积分来源
+     */
+    private String source;
 }
