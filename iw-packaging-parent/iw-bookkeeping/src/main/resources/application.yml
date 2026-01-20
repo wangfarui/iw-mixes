@@ -17,6 +17,7 @@ iw:
         - points_task_plan
         - points_task_fixed
         - eat_meal
+        - eat_fridge_food
 
 # 服务器配置
 server:

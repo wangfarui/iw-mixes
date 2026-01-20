@@ -65,3 +65,21 @@ create table eat_meal_menu
 
 alter table eat_meal
     add column user_id int unsigned not null comment '用户id';
+
+create table eat_fridge_food
+(
+    id          int unsigned auto_increment comment 'id',
+    name        varchar(32)                          not null comment '食材名称',
+    emoji       varchar(255)                         null comment '食材图标',
+    category    tinyint unsigned                     null comment '食材分类',
+    section     tinyint unsigned                     null comment '食材分区',
+    quantity    varchar(32)                          null comment '数量',
+    add_date    date                                 not null comment '入库日期',
+    expire_date date                                 null comment '过期日期',
+    deleted     tinyint(1) default 0                 not null comment '是否删除(true表示已删除, 默认false表示未删除',
+    create_time datetime   default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime   default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id     int unsigned                         not null comment '用户id',
+    primary key (id),
+    key idx_user_id (user_id)
+) comment '冰箱食材表';

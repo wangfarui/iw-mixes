@@ -5,6 +5,7 @@ iw:
       enabled: true
       enable-table-names:
         - eat_meal
+        - eat_fridge_food
 
 # 服务器配置
 server:
