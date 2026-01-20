@@ -65,4 +65,9 @@ public class AuthUserController {
     public UserInfoVo getUserInfo() {
         return authUserService.getUserInfo();
     }
+
+    @GetMapping("/isAdminUser")
+    public Boolean isAdminUser() {
+        return authUserService.isAdminUser();
+    }
 }

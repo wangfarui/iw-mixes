@@ -19,6 +19,7 @@ import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.redis.lock.DistributedLock;
 import com.itwray.iw.web.exception.AuthorizedException;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.model.enums.RoleTypeEnum;
 import com.itwray.iw.web.utils.IpUtils;
 import com.itwray.iw.web.utils.SpringWebHolder;
 import com.itwray.iw.web.utils.UserUtils;
@@ -328,6 +329,12 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     public String genericUserToken(Integer userId) {
         return authUserDao.genericUserToken(userId);
+    }
+
+    @Override
+    public Boolean isAdminUser() {
+        AuthUserEntity authUserEntity = authUserDao.queryById(UserUtils.getUserId());
+        return RoleTypeEnum.isAdminRole(authUserEntity.getRoleType());
     }
 
     /**

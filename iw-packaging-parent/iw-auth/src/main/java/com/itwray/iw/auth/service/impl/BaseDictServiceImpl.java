@@ -39,10 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -138,14 +135,22 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     @Override
     @Transactional
     public Integer add(DictAddDto dto) {
-        boolean isAdminDict = this.verifyUserPermission(dto.getDictType());
-        this.checkSaveParam(dto);
+        boolean isAdminDict = this.verifyUserPermission(dto.getDictType(), dto.getIsSyncAll());
+        this.checkAndFillSaveParam(dto);
 
         // 如果新增时没有指定sort值
         if (NumberUtils.isNullOrZero(dto.getSort())) {
             // 根据字典类型查询当前最大sort值
             dto.setSort(getBaseDao().queryNextSortValue(dto.getDictType()));
         }
+
+        Integer userId = UserUtils.getUserId();
+        Integer id = super.add(dto);
+        // 更新Redis缓存
+        List<DictAllListVo> dictAllListVos = queryAllDictByType(dto.getDictType());
+        RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dto.getDictType(), dictAllListVos);
+        RedisUtil.expire(this.obtainDictRedisKeyByUser(), AuthRedisKeyEnum.DICT_KEY.getExpireTime());
+        AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), userId);
 
         // 如果是管理员字典项, 则需要同步给所有用户
         if (isAdminDict) {
@@ -154,7 +159,12 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
                 List<AuthUserEntity> userEntityList = authUserDao.getBaseMapper().queryAllUser();
                 BaseDictEntity dictEntity = BeanUtil.copyProperties(dto, BaseDictEntity.class);
                 for (AuthUserEntity userEntity : userEntityList) {
+                    // 跳过当前用户
+                    if (Objects.equals(userId, userEntity.getId())) {
+                        continue;
+                    }
                     dictEntity.setId(null);
+                    dictEntity.setParentId(id);
                     dictEntity.setUserId(userEntity.getId());
                     getBaseDao().save(dictEntity);
                     // 删除其Redis缓存
@@ -166,36 +176,44 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
             } finally {
                 RedisLockUtil.unlock(OPERATE_ADMIN_DICT_LOCK_KEY);
             }
-        } else {
-            Integer id = super.add(dto);
-            // 更新Redis缓存
-            List<DictAllListVo> dictAllListVos = queryAllDictByType(dto.getDictType());
-            RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), dto.getDictType(), dictAllListVos);
-            RedisUtil.expire(this.obtainDictRedisKeyByUser(), AuthRedisKeyEnum.DICT_KEY.getExpireTime());
-            AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), UserUtils.getUserId());
-            return id;
         }
+
+        return id;
     }
 
     @Override
     @Transactional
     public void update(DictUpdateDto dto) {
-        boolean isAdminDict = this.verifyUserPermission(dto.getDictType());
-        this.checkSaveParam(dto);
+        boolean isAdminDict = this.verifyUserPermission(dto.getDictType(), dto.getIsSyncAll());
+        this.checkAndFillSaveParam(dto);
 
         // 根据id查询字典类型
         BaseDictEntity baseDictEntity = this.checkDataSecurity(dto.getId(), dto.getDictStatus());
 
+        super.update(dto);
+        // 更新Redis缓存
+        List<DictAllListVo> dictAllListVos = queryAllDictByType(baseDictEntity.getDictType());
+        RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), baseDictEntity.getDictType(), dictAllListVos);
+        AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), UserUtils.getUserId());
+
         // 如果是管理员字典项, 则需要同步给所有用户
         if (isAdminDict) {
-            BaseDictEntity updateEntity = new BaseDictEntity();
-            updateEntity.setDictCode(dto.getDictCode());
-            updateEntity.setDictName(dto.getDictName());
-            updateEntity.setDictStatus(dto.getDictStatus());
-            updateEntity.setSort(dto.getSort());
             RedisLockUtil.lock(OPERATE_ADMIN_DICT_LOCK_KEY);
             try {
-                getBaseDao().getBaseMapper().updateAllDictByDictName(baseDictEntity.getDictType(), baseDictEntity.getDictName(), updateEntity);
+                BaseDictEntity updateEntity = new BaseDictEntity();
+                updateEntity.setDictCode(dto.getDictCode());
+                updateEntity.setDictName(dto.getDictName());
+                updateEntity.setDictStatus(dto.getDictStatus());
+                updateEntity.setSort(dto.getSort());
+                DictTypeEnum dictTypeEnum = DictTypeEnum.getDictByCode(dto.getDictType());
+                // 管理员字典类型通过code+名称更新
+                if (dictTypeEnum != null && dictTypeEnum.isAdminDict()) {
+                    getBaseDao().getBaseMapper().updateAllDictByDictName(baseDictEntity.getDictType(), baseDictEntity.getDictName(), updateEntity);
+                } else {
+                    // 用户字典类型通过parentId更新
+                    getBaseDao().getBaseMapper().updateAllDictByParentId(baseDictEntity.getDictType(), baseDictEntity.getId(), updateEntity);
+                }
+
                 // 查询所有用户
                 List<AuthUserEntity> userEntityList = authUserDao.getBaseMapper().queryAllUser();
                 for (AuthUserEntity userEntity : userEntityList) {
@@ -206,12 +224,6 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
             } finally {
                 RedisLockUtil.unlock(OPERATE_ADMIN_DICT_LOCK_KEY);
             }
-        } else {
-            super.update(dto);
-            // 更新Redis缓存
-            List<DictAllListVo> dictAllListVos = queryAllDictByType(baseDictEntity.getDictType());
-            RedisUtil.putHashKey(this.obtainDictRedisKeyByUser(), baseDictEntity.getDictType(), dictAllListVos);
-            AuthRedisKeyEnum.USER_DICT_VERSION.setStringValue(System.currentTimeMillis(), UserUtils.getUserId());
         }
     }
 
@@ -219,7 +231,7 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     @Transactional
     public void delete(Integer id) {
         BaseDictEntity dictEntity = getBaseDao().queryById(id);
-        boolean isAdminDict = this.verifyUserPermission(dictEntity.getDictType());
+        boolean isAdminDict = this.verifyUserPermission(dictEntity.getDictType(), null);
 
         // 根据id查询字典类型
         this.checkDataSecurity(id, null);
@@ -312,9 +324,9 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
     }
 
     /**
-     * 检测保存时的参数合法性
+     * 检测并填充保存时的参数合法性
      */
-    private void checkSaveParam(DictAddDto dto) {
+    private void checkAndFillSaveParam(DictAddDto dto) {
         DictTypeEnum dictTypeEnum = ConstantEnumUtil.findByType(DictTypeEnum.class, dto.getDictType());
         if (dictTypeEnum == null) {
             throw new BusinessException("字典类型错误");
@@ -377,17 +389,26 @@ public class BaseDictServiceImpl extends WebServiceImpl<BaseDictDao, BaseDictMap
      * @param dictType 字典类型code
      * @return 是否为管理员字典项 true->是
      */
-    private boolean verifyUserPermission(Integer dictType) {
+    private boolean verifyUserPermission(Integer dictType, Integer isSyncAll) {
         DictTypeEnum dictTypeEnum = ConstantEnumUtil.findByType(DictTypeEnum.class, dictType);
         if (dictTypeEnum == null) {
             throw new BusinessException("无权操作");
         }
+        boolean isAdminUser = this.isAdminUser(UserUtils.getUserId());
         if (dictTypeEnum.isAdminDict()) {
-            if (!this.isAdminUser(UserUtils.getUserId())) {
+            if (!isAdminUser) {
                 throw new BusinessException("无权操作");
             }
         }
-        return dictTypeEnum.isAdminDict();
+        boolean isAdminDict = dictTypeEnum.isAdminDict();
+        // 非管理员字典，但是请求需要同步所有用户的字典项
+        if (!isAdminDict && Objects.equals(BoolEnum.TRUE.getCode(), isSyncAll)) {
+            if (!isAdminUser) {
+                throw new BusinessException("权限不足");
+            }
+            isAdminDict = true;
+        }
+        return isAdminDict;
     }
 
     /**

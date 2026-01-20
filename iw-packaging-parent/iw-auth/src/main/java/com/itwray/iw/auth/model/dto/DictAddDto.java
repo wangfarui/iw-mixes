@@ -36,4 +36,7 @@ public class DictAddDto implements AddDto {
 
     @Schema(title = "字典状态(0禁用 1启用)")
     private Integer dictStatus;
+
+    @Schema(title = "是否同步至所有用户(0否 1是)")
+    private Integer isSyncAll;
 }

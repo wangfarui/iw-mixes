@@ -92,4 +92,9 @@ public interface AuthUserService {
      * 生成用户token
      */
     String genericUserToken(Integer userId);
+
+    /**
+     * 当前用户是否为管理员用户
+     */
+    Boolean isAdminUser();
 }
