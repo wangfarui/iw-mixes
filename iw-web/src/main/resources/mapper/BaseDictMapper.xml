@@ -2,9 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itwray.iw.web.mapper.BaseDictMapper">
 
-    <update id="updateAllDictByDictName">
-        update base_dict
-        set update_time = NOW()
+    <sql id="updateAllField">
         <if test="dto.dictCode != null">
             , dict_code = #{dto.dictCode}
         </if>
@@ -17,9 +15,18 @@
         <if test="dto.sort != null">
             , sort = #{dto.sort}
         </if>
-        <if test="dto.deleted != null">
-            , deleted = #{dto.deleted}
-        </if>
+    </sql>
+
+    <update id="updateAllDictByDictName">
+        update base_dict
+        set update_time = NOW()
+        <include refid="updateAllField" />
         where dict_type = #{dictType} and dict_name = #{dictName}
+    </update>
+    <update id="updateAllDictByParentId">
+        update base_dict
+        set update_time = NOW()
+        <include refid="updateAllField" />
+        where dict_type = #{dictType} and parent_id = #{parentId}
     </update>
 </mapper>

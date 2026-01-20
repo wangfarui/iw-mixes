@@ -28,6 +28,8 @@ public enum DictTypeEnum implements ConstantEnum {
     EAT_MEAL_TIME(3002, "餐饮-用餐时间", DataType.CODE, RoleTypeEnum.ADMIN), // MealTimeEnum
     EAT_DISHES_TYPE(3003, "餐饮-菜品分类", DataType.CODE, RoleTypeEnum.ADMIN), // DishesTypeEnum
     EAT_DISHES_STATUS(3004, "餐饮-菜品状态", DataType.CODE, RoleTypeEnum.ADMIN), // DishesStatusEnum
+    EAT_FRIDGE_CATEGORY(3010, "冰箱-食材分类", DataType.CODE, RoleTypeEnum.USER),
+    EAT_FRIDGE_SECTION(3011, "冰箱-食材分区", DataType.CODE, RoleTypeEnum.USER),
 
     /** iw-bookkeeping 记账模块 **/
     BOOKKEEPING_RECORD_TAG_CONSUME(4001, "记账-记录标签-支出", DataType.ID, RoleTypeEnum.USER),
@@ -93,5 +95,17 @@ public enum DictTypeEnum implements ConstantEnum {
         return Arrays.stream(DictTypeEnum.values())
                 .filter(t -> !RoleTypeEnum.SUPER_ADMIN.equals(t.getRoleTypeEnum()))
                 .collect(Collectors.toList());
+    }
+
+    public static DictTypeEnum getDictByCode(Integer code) {
+        if (code == null) {
+            return null;
+        }
+        for (DictTypeEnum dictTypeEnum : DictTypeEnum.values()) {
+            if (code.equals(dictTypeEnum.getCode())) {
+                return dictTypeEnum;
+            }
+        }
+        return null;
     }
 }
