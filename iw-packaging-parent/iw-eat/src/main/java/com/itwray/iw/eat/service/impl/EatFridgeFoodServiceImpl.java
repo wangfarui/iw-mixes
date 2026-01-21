@@ -10,6 +10,8 @@ import com.itwray.iw.eat.model.entity.EatFridgeFoodEntity;
 import com.itwray.iw.eat.model.vo.EatFridgeFoodDetailVo;
 import com.itwray.iw.eat.model.vo.EatFridgeFoodPageVo;
 import com.itwray.iw.eat.service.EatFridgeFoodService;
+import com.itwray.iw.web.model.enums.SortTypeEnum;
+import com.itwray.iw.web.model.enums.SortWayEnum;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +43,8 @@ public class EatFridgeFoodServiceImpl extends WebServiceImpl<EatFridgeFoodDao, E
                 .eq(Objects.nonNull(dto.getSection()), EatFridgeFoodEntity::getSection, dto.getSection())
                 .ge(Objects.nonNull(dto.getExpireStartDate()), EatFridgeFoodEntity::getExpireDate, dto.getExpireStartDate())
                 .le(Objects.nonNull(dto.getExpireEndDate()), EatFridgeFoodEntity::getExpireDate, dto.getExpireEndDate())
-                .orderByDesc(EatFridgeFoodEntity::getId);
+                .orderByAsc(SortWayEnum.isAsc(dto.getSortWay()), SortTypeEnum.getDefaultSortField(dto.getSortType()))
+                .orderByDesc(!SortWayEnum.isAsc(dto.getSortWay()), SortTypeEnum.getDefaultSortField(dto.getSortType()));
         return getBaseDao().page(dto, queryWrapper, EatFridgeFoodPageVo.class);
     }
 
