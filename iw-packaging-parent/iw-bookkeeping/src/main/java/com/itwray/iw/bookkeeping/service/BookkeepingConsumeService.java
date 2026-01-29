@@ -5,6 +5,8 @@ import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeStatisticsDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeTagsVo;
+import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,4 +38,9 @@ public interface BookkeepingConsumeService {
      * 支出柱状图图表统计
      */
     List<BigDecimal> barChartStatistics(BookkeepingConsumeStatisticsDto dto);
+
+    /**
+     * 支出标签统计
+     */
+    List<BookkeepingRecordsConsumeTagsVo> tagsStatistics(@Valid BookkeepingConsumeStatisticsDto dto);
 }

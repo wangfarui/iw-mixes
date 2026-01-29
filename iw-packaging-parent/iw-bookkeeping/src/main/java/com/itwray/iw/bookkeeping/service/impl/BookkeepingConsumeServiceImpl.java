@@ -1,20 +1,27 @@
 package com.itwray.iw.bookkeeping.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.itwray.iw.auth.client.BaseDictClient;
+import com.itwray.iw.auth.model.vo.DictListVo;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.model.bo.BookkeepingBarChartStatisticsBo;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeCategoryStatisticsDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeStatisticsDto;
+import com.itwray.iw.bookkeeping.model.dto.BookkeepingRecordsYearStatisticsQueryDto;
 import com.itwray.iw.bookkeeping.model.dto.BookkeepingStatisticsDto;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeTagsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingConsumeService;
 import com.itwray.iw.bookkeeping.utils.BookkeepingStatisticsUtils;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.constants.WebCommonConstants;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.model.enums.DictTypeEnum;
+import com.itwray.iw.web.utils.UserUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +42,16 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
 
     private final BookkeepingRecordsDao bookkeepingRecordsDao;
 
+    private BaseDictClient baseDictClient;
+
     @Autowired
     public BookkeepingConsumeServiceImpl(BookkeepingRecordsDao bookkeepingRecordsDao) {
         this.bookkeepingRecordsDao = bookkeepingRecordsDao;
+    }
+
+    @Autowired
+    public void setBaseDictClient(BaseDictClient baseDictClient) {
+        this.baseDictClient = baseDictClient;
     }
 
     @Override
@@ -127,6 +141,32 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
             default -> result = new ArrayList<>();
         }
         return result;
+    }
+
+    @Override
+    public List<BookkeepingRecordsConsumeTagsVo> tagsStatistics(BookkeepingConsumeStatisticsDto dto) {
+        BookkeepingStatisticsDto statisticsDto = this.buildStatisticsDto(dto);
+        BookkeepingRecordsYearStatisticsQueryDto yearStatisticsQueryDto = new BookkeepingRecordsYearStatisticsQueryDto();
+        yearStatisticsQueryDto.setStartDate(statisticsDto.getCurrentStartMonth());
+        yearStatisticsQueryDto.setEndDate(statisticsDto.getCurrentEndMonth());
+        yearStatisticsQueryDto.setIgnoreNotStatistics(dto.getIsSearchAll());
+        yearStatisticsQueryDto.setRecordCategories(new HashSet<>(Collections.singleton(RecordCategoryEnum.CONSUME)));
+        yearStatisticsQueryDto.setUserId(UserUtils.getUserId());
+        List<BookkeepingRecordsConsumeTagsVo> consumeTagsVos = bookkeepingRecordsDao.getStatisticsMapper().statisticsTagConsume(yearStatisticsQueryDto);
+        if (CollectionUtils.isNotEmpty(consumeTagsVos)) {
+            BigDecimal totalAmount = consumeTagsVos.stream().map(BookkeepingRecordsConsumeTagsVo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            int totalCount = consumeTagsVos.stream().map(BookkeepingRecordsConsumeTagsVo::getCount).reduce(0, Integer::sum);
+
+            // 查询记账标签字典值
+            List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TAG_CONSUME.getCode());
+            Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getId, DictListVo::getDictName));
+            for (BookkeepingRecordsConsumeTagsVo consumeTagsVo : consumeTagsVos) {
+                consumeTagsVo.setName(dictMap.get(consumeTagsVo.getDictId()));
+                consumeTagsVo.setRatio(new BigDecimal(consumeTagsVo.getCount() * 100).divide(new BigDecimal(totalCount), 2, RoundingMode.HALF_UP));
+                consumeTagsVo.setAmountRatio(consumeTagsVo.getAmount().multiply(new BigDecimal("100")).divide(totalAmount, 2, RoundingMode.HALF_UP));
+            }
+        }
+        return consumeTagsVos;
     }
 
     private BookkeepingStatisticsDto buildStatisticsDto(BookkeepingConsumeStatisticsDto dto) {

@@ -5,6 +5,7 @@ import com.itwray.iw.bookkeeping.model.dto.BookkeepingConsumeStatisticsDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingConsumeStatisticsCategoryVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
+import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeTagsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingConsumeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,5 +61,11 @@ public class BookkeepingConsumeController {
     @Operation(summary = "支出柱状图图表统计")
     public List<BigDecimal> barChartStatistics(@RequestBody @Valid BookkeepingConsumeStatisticsDto dto) {
         return bookkeepingConsumeService.barChartStatistics(dto);
+    }
+
+    @PostMapping("/tagsStatistics")
+    @Operation(summary = "标签统计")
+    public List<BookkeepingRecordsConsumeTagsVo> tagsStatistics(@RequestBody @Valid BookkeepingConsumeStatisticsDto dto) {
+        return bookkeepingConsumeService.tagsStatistics(dto);
     }
 }
