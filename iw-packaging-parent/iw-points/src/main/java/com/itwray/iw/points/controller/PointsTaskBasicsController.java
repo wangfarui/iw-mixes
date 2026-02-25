@@ -3,10 +3,13 @@ package com.itwray.iw.points.controller;
 import com.itwray.iw.points.model.dto.task.*;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
+import com.itwray.iw.points.model.vo.task.TaskBasicsPageVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
 import com.itwray.iw.web.controller.WebController;
+import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,5 +80,11 @@ public class PointsTaskBasicsController extends WebController<PointsTaskBasicsSe
     public void updateTaskParam(@RequestBody TaskBasicsUpdateDto dto) {
         // 只更新不为null的数据, 主要用于更新个别参数
         getWebService().update(dto);
+    }
+
+    @PostMapping("/page")
+    @Operation(summary = "分页查询记账记录")
+    public PageVo<TaskBasicsPageVo> page(@RequestBody @Valid TaskBasicsPageDto dto) {
+        return getWebService().page(dto);
     }
 }

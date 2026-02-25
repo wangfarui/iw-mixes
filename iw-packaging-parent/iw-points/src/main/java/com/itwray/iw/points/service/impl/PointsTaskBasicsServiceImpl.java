@@ -2,6 +2,8 @@ package com.itwray.iw.points.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.nacos.common.utils.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itwray.iw.points.dao.PointsTaskBasicsDao;
 import com.itwray.iw.points.dao.PointsTaskGroupDao;
 import com.itwray.iw.points.dao.PointsTaskRelationDao;
@@ -15,6 +17,7 @@ import com.itwray.iw.points.model.enums.PointsTransactionTypeEnum;
 import com.itwray.iw.points.model.enums.TaskStatusEnum;
 import com.itwray.iw.points.model.vo.task.TaskBasicsDetailVo;
 import com.itwray.iw.points.model.vo.task.TaskBasicsListVo;
+import com.itwray.iw.points.model.vo.task.TaskBasicsPageVo;
 import com.itwray.iw.points.service.PointsTaskBasicsService;
 import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.constants.WebCommonConstants;
@@ -22,7 +25,9 @@ import com.itwray.iw.web.dao.BaseBusinessFileDao;
 import com.itwray.iw.web.model.enums.BusinessFileTypeEnum;
 import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
 import com.itwray.iw.web.model.vo.FileVo;
+import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 任务基础表 服务实现类
@@ -160,6 +166,20 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
     public void deleteTaskFile(TaskBasicsDeleteFileDto deleteFileDto) {
         getBaseDao().queryById(deleteFileDto.getTaskId());
         baseBusinessFileDao.removeBusinessFile(deleteFileDto.getTaskId(), BusinessFileTypeEnum.POINTS_TASK_BASICS, deleteFileDto.getFileUrl());
+    }
+
+    @Override
+    public PageVo<TaskBasicsPageVo> page(TaskBasicsPageDto dto) {
+        LambdaQueryWrapper<PointsTaskBasicsEntity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotBlank(dto.getTaskName()), PointsTaskBasicsEntity::getTaskName, dto.getTaskName())
+                .eq(Objects.nonNull(dto.getTaskStatus()), PointsTaskBasicsEntity::getTaskStatus, dto.getTaskStatus())
+                .orderByDesc(PointsTaskBasicsEntity::getId);
+        PageVo<PointsTaskBasicsEntity> pageVo = getBaseDao().page(dto, queryWrapper);
+        if (CollectionUtils.isEmpty(pageVo.getRecords())) {
+            return PageVo.of(pageVo);
+        }
+        List<TaskBasicsListVo> listVos = this.buildListVo(pageVo.getRecords());
+        return PageVo.of(pageVo, BeanUtil.copyToList(listVos, TaskBasicsPageVo.class));
     }
 
     @Override

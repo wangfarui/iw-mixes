@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.itwray.iw.web.model.dto.PageDto;
 import com.itwray.iw.web.model.entity.IdEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,6 +53,13 @@ public class PageVo<T> implements IPage<T> {
     public PageVo(long total, List<T> records) {
         this.total = total;
         this.records = records;
+    }
+
+    public static <R, T extends IdEntity> PageVo<R> of(PageVo<T> pageVo) {
+        PageVo<R> vo = new PageVo<>(pageVo.getCurrent(), pageVo.getSize());
+        vo.setTotal(pageVo.getTotal());
+        vo.setRecords(new ArrayList<>());
+        return vo;
     }
 
     public static <R, T extends IdEntity> PageVo<R> of(PageVo<T> pageVo, List<R> records) {
