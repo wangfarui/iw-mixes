@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 /**
  * 查询任务分页VO
@@ -37,10 +37,6 @@ public class TaskBasicsPageVo {
     @JsonFormat(pattern = DateUtils.DATE_FORMAT)
     private LocalDate deadlineDate;
 
-    @Schema(title = "截止时间(在重复任务中可被理解为开始时间)")
-    @JsonFormat(pattern = DateUtils.TIME_FORMAT)
-    private LocalTime deadlineTime;
-
     @Schema(title = "优先级(数值越大,优先级越高) 0-无优先级")
     private Integer priority;
 
@@ -49,5 +45,13 @@ public class TaskBasicsPageVo {
 
     @Schema(title = "排序 0-默认排序")
     private Integer sort;
+
+    @Schema(title = "任务完成时间")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
+    private LocalDateTime doneTime;
+
+    @Schema(title = "创建日期")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
+    private LocalDateTime createTime;
 
 }

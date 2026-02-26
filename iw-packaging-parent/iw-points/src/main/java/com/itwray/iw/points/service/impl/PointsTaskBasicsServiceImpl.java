@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.points.dao.PointsTaskBasicsDao;
 import com.itwray.iw.points.dao.PointsTaskGroupDao;
 import com.itwray.iw.points.dao.PointsTaskRelationDao;
@@ -173,6 +174,10 @@ public class PointsTaskBasicsServiceImpl extends WebServiceImpl<PointsTaskBasics
         LambdaQueryWrapper<PointsTaskBasicsEntity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.isNotBlank(dto.getTaskName()), PointsTaskBasicsEntity::getTaskName, dto.getTaskName())
                 .eq(Objects.nonNull(dto.getTaskStatus()), PointsTaskBasicsEntity::getTaskStatus, dto.getTaskStatus())
+                .ge(Objects.nonNull(dto.getStartDeadlineDate()), PointsTaskBasicsEntity::getDeadlineDate, dto.getStartDeadlineDate())
+                .le(Objects.nonNull(dto.getEndDeadlineDate()), PointsTaskBasicsEntity::getDeadlineDate, dto.getEndDeadlineDate())
+                .ge(Objects.nonNull(dto.getStartDoneTime()), PointsTaskBasicsEntity::getDoneTime, DateUtils.startTimeOfDay(dto.getStartDoneTime()))
+                .le(Objects.nonNull(dto.getEndDoneTime()), PointsTaskBasicsEntity::getDoneTime, DateUtils.endTimeOfDay(dto.getEndDoneTime()))
                 .orderByDesc(PointsTaskBasicsEntity::getId);
         PageVo<PointsTaskBasicsEntity> pageVo = getBaseDao().page(dto, queryWrapper);
         if (CollectionUtils.isEmpty(pageVo.getRecords())) {

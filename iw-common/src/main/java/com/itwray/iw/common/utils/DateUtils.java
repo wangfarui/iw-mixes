@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  * 日期工具类
@@ -127,6 +128,17 @@ public abstract class DateUtils {
     }
 
     /**
+     * 返回指定天的开始时间
+     */
+    public static LocalDateTime startTimeOfDay(LocalDate date) {
+        if (Objects.isNull(date)) {
+            return null;
+        }
+        // 将时间设置为 00:00:00
+        return LocalDateTime.of(date, LocalTime.MIDNIGHT);
+    }
+
+    /**
      * 返回当前月的结束时间
      */
     public static LocalDateTime endTimeOfNowMonth() {
@@ -143,6 +155,17 @@ public abstract class DateUtils {
 
         // 将时间设置为 23:59:59
         return LocalDateTime.of(lastDayOfMonth, LocalTime.of(23, 59, 59));
+    }
+
+    /**
+     * 返回指定天的结束时间
+     */
+    public static LocalDateTime endTimeOfDay(LocalDate date) {
+        if (Objects.isNull(date)) {
+            return null;
+        }
+        // 将时间设置为 23:59:59
+        return LocalDateTime.of(date, LocalTime.of(23, 59, 59));
     }
 
     /**

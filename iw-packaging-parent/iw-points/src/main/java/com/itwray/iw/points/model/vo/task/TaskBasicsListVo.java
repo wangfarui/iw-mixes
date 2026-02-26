@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
@@ -55,5 +56,13 @@ public class TaskBasicsListVo {
 
     @Schema(title = "排序 0-默认排序")
     private Integer sort;
+
+    @Schema(title = "任务完成时间")
+    @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)
+    private LocalDateTime doneTime;
+
+    @Schema(title = "创建日期")
+    @JsonFormat(pattern = DateUtils.DATE_FORMAT)
+    private LocalDateTime createTime;
 
 }
