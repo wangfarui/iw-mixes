@@ -17,6 +17,8 @@ server:
 spring:
   application:
     name: iw-eat-service
+  profiles:
+    default: dev
   datasource:
     driver-class-name: ${iw.db.driver-class}
     url: ${iw.db.url}

@@ -15,6 +15,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class IwExternalApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IwExternalApplication.class);
+        SpringApplication.run(IwExternalApplication.class, args);
     }
 }

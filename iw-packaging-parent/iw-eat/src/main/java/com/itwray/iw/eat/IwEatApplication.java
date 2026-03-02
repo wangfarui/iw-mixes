@@ -15,6 +15,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class IwEatApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IwEatApplication.class);
+        SpringApplication.run(IwEatApplication.class, args);
     }
 }

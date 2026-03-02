@@ -17,6 +17,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class IwAuthApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IwAuthApplication.class);
+        SpringApplication.run(IwAuthApplication.class, args);
     }
 }

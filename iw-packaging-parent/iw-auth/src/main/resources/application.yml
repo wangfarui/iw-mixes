@@ -15,7 +15,7 @@ spring:
   application:
     name: iw-auth-service
   profiles:
-    active: dev
+    default: dev
   datasource:
     driver-class-name: ${iw.db.driver-class}
     url: ${iw.db.url}

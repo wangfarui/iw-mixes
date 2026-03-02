@@ -17,6 +17,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class IwPointsApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IwPointsApplication.class);
+        SpringApplication.run(IwPointsApplication.class, args);
     }
 }

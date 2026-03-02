@@ -15,6 +15,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class IwGatewayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IwGatewayApplication.class);
+        SpringApplication.run(IwGatewayApplication.class, args);
     }
 }

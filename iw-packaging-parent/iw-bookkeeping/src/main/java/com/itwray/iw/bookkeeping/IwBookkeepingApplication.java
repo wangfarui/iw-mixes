@@ -21,6 +21,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class IwBookkeepingApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IwBookkeepingApplication.class);
+        SpringApplication.run(IwBookkeepingApplication.class, args);
     }
 }

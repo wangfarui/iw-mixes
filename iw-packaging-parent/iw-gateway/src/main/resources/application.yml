@@ -5,7 +5,7 @@ spring:
   application:
     name: iw-gateway-service
   profiles:
-    active: dev
+    default: dev
   config:
     import:
       - optional:nacos:iw-web
@@ -86,4 +86,3 @@ spring:
       password: ${SPRING_CLOUD_NACOS_PASSWORD:}
       username: ${SPRING_CLOUD_NACOS_USERNAME:}
       server-addr: ${SPRING_CLOUD_NACOS_SERVER_ADDR:localhost:8848}
-

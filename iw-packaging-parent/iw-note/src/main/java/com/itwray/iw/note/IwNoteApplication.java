@@ -13,6 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class IwNoteApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IwNoteApplication.class);
+        SpringApplication.run(IwNoteApplication.class, args);
     }
 }

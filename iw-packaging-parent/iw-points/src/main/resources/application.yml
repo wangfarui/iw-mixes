@@ -21,6 +21,8 @@ server:
 spring:
   application:
     name: iw-points-service
+  profiles:
+    default: dev
   datasource:
     driver-class-name: ${iw.db.driver-class}
     url: ${iw.db.url}
