@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.itwray.iw.web.model.entity.IdEntity;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.itwray.iw.web.model.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,7 +19,7 @@ import java.time.LocalDateTime;
 @TableName("auth_user")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class AuthUserEntity extends IdEntity<Integer> {
+public class AuthUserEntity extends BaseEntity<Integer> {
 
     /**
      * 用户id
@@ -72,16 +71,6 @@ public class AuthUserEntity extends IdEntity<Integer> {
      * 是否启用
      */
     private Boolean enabled;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
 
     /**
      * 最后登录时间

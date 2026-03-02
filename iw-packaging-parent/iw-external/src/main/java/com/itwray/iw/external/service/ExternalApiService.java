@@ -1,5 +1,8 @@
 package com.itwray.iw.external.service;
 
+import com.itwray.iw.auth.model.vo.WebsiteNavigationListVo;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,4 +46,11 @@ public interface ExternalApiService {
      * @return 热点数据
      */
     Map<Object, Object> getDailyHot(String source);
+
+    /**
+     * 查询共享网站列表
+     *
+     * @return 共享网站列表
+     */
+    List<WebsiteNavigationListVo> querySharedWebsiteList();
 }

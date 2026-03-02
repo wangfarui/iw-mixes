@@ -243,13 +243,7 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .update();
 
         // 密码修改成功之后，清除历史token缓存
-        Set<String> userTokens = RedisUtil.members(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()), String.class);
-        if (userTokens != null) {
-            for (String token : userTokens) {
-                RedisUtil.delete(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token));
-            }
-        }
-        RedisUtil.delete(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(authUserEntity.getId()));
+        this.clearUserTokenCache(authUserEntity.getId());
     }
 
     @Override
@@ -337,6 +331,24 @@ public class AuthUserServiceImpl implements AuthUserService {
         return RoleTypeEnum.isAdminRole(authUserEntity.getRoleType());
     }
 
+    @Override
+    @Transactional
+    public void deletion() {
+        Integer userId = UserUtils.getUserId();
+        boolean updateResult = authUserDao.lambdaUpdate()
+                .eq(AuthUserEntity::getId, userId)
+                .eq(AuthUserEntity::getDeleted, Boolean.FALSE)
+                .set(AuthUserEntity::getDeleted, Boolean.TRUE)
+                .update();
+        if (!updateResult) {
+            throw new BusinessException("用户不存在，请刷新重试");
+        }
+
+        this.clearUserTokenCache(userId);
+        RedisUtil.delete(AuthRedisKeyEnum.DICT_KEY.getKey(userId));
+        RedisUtil.delete(AuthRedisKeyEnum.USER_DICT_VERSION.getKey(userId));
+    }
+
     /**
      * 获取当前登录用户的id
      */
@@ -376,6 +388,21 @@ public class AuthUserServiceImpl implements AuthUserService {
             throw new AuthorizedException("用户不存在，请重新登录");
         }
         return userEntity;
+    }
+
+    /**
+     * 清除用户Token缓存
+     *
+     * @param userId 用户id
+     */
+    private void clearUserTokenCache(Integer userId) {
+        Set<String> userTokens = RedisUtil.members(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(userId), String.class);
+        if (userTokens != null) {
+            for (String token : userTokens) {
+                RedisUtil.delete(AuthRedisKeyEnum.USER_TOKEN_KEY.getKey(token));
+            }
+        }
+        RedisUtil.delete(AuthRedisKeyEnum.USER_TOKEN_SET_KEY.getKey(userId));
     }
 
     /**

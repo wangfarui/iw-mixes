@@ -97,4 +97,9 @@ public interface AuthUserService {
      * 当前用户是否为管理员用户
      */
     Boolean isAdminUser();
+
+    /**
+     * 注销用户
+     */
+    void deletion();
 }

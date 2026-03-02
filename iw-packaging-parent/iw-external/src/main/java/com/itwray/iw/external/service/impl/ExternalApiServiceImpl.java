@@ -4,6 +4,8 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itwray.iw.auth.client.BaseWebsiteNavigationClient;
+import com.itwray.iw.auth.model.vo.WebsiteNavigationListVo;
 import com.itwray.iw.external.model.ExternalClientConstants;
 import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
 import com.itwray.iw.external.service.ExternalApiService;
@@ -35,6 +37,8 @@ public class ExternalApiServiceImpl implements ExternalApiService {
 
     private DiscoveryClient discoveryClient;
 
+    private BaseWebsiteNavigationClient baseWebsiteNavigationClient;
+
     /**
      * 高德地图API Key
      */
@@ -56,6 +60,11 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     @Autowired
     public void setDiscoveryClient(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
+    }
+
+    @Autowired
+    public void setBaseWebsiteNavigationClient(BaseWebsiteNavigationClient baseWebsiteNavigationClient) {
+        this.baseWebsiteNavigationClient = baseWebsiteNavigationClient;
     }
 
     @Override
@@ -170,5 +179,10 @@ public class ExternalApiServiceImpl implements ExternalApiService {
         } catch (JsonProcessingException e) {
             throw new IwWebException(e);
         }
+    }
+
+    @Override
+    public List<WebsiteNavigationListVo> querySharedWebsiteList() {
+        return baseWebsiteNavigationClient.querySharedWebsiteList();
     }
 }

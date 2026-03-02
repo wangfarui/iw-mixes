@@ -60,7 +60,7 @@ spring:
           predicates:
             - Path=/external-service/api/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
         - id: iw-external-service_internal
           uri: lb://iw-external-service
           predicates:

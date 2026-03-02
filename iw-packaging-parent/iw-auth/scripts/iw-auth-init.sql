@@ -27,6 +27,9 @@ add index idx_email_address (email_address);
 alter table auth_user
 add column role_type tinyint(4) unsigned not null default 1 comment '角色类型 1普通用户';
 
+alter table auth_user
+add column deleted tinyint(1) not null default 0 comment '是否删除(0未删除,1已删除)' after enabled;
+
 insert into auth_user (username, password, name, role_type)
 values ('superadmin', '$2a$10$M4rF5xsU9IRWfc0E1Scc1eEB8RQYYz5tURQFQzL3bWiuI0R/IOLFW', '超级管理员', 20)
 ;

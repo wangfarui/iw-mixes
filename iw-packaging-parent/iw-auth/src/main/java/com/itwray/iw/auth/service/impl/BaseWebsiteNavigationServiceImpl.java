@@ -10,13 +10,11 @@ import com.itwray.iw.auth.model.dto.WebsiteNavigationAddDto;
 import com.itwray.iw.auth.model.dto.WebsiteNavigationPageDto;
 import com.itwray.iw.auth.model.dto.WebsiteNavigationUpdateDto;
 import com.itwray.iw.auth.model.entity.BaseWebsiteNavigationEntity;
-import com.itwray.iw.auth.model.enums.WebsiteNavigationStatusEnum;
 import com.itwray.iw.auth.model.vo.WebsiteNavigationDetailVo;
+import com.itwray.iw.auth.model.vo.WebsiteNavigationListVo;
 import com.itwray.iw.auth.model.vo.WebsiteNavigationPageVo;
 import com.itwray.iw.auth.service.BaseWebsiteNavigationService;
-import com.itwray.iw.common.utils.ConstantEnumUtil;
 import com.itwray.iw.common.constants.CommonConstants;
-import com.itwray.iw.web.exception.BusinessException;
 import com.itwray.iw.web.model.vo.PageVo;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +46,6 @@ public class BaseWebsiteNavigationServiceImpl extends WebServiceImpl<BaseWebsite
     public Integer add(WebsiteNavigationAddDto dto) {
         BaseWebsiteNavigationEntity entity = BeanUtil.copyProperties(dto, BaseWebsiteNavigationEntity.class);
         entity.setTags(this.serializeTags(dto.getTags()));
-        entity.setStatus(this.normalizeStatus(dto.getStatus(), true));
         getBaseDao().save(entity);
         return entity.getId();
     }
@@ -59,7 +56,6 @@ public class BaseWebsiteNavigationServiceImpl extends WebServiceImpl<BaseWebsite
         getBaseDao().queryById(dto.getId());
         BaseWebsiteNavigationEntity entity = BeanUtil.copyProperties(dto, BaseWebsiteNavigationEntity.class);
         entity.setTags(this.serializeTags(dto.getTags()));
-        entity.setStatus(this.normalizeStatus(dto.getStatus(), false));
         getBaseDao().updateById(entity);
     }
 
@@ -73,11 +69,11 @@ public class BaseWebsiteNavigationServiceImpl extends WebServiceImpl<BaseWebsite
 
     @Override
     public PageVo<WebsiteNavigationPageVo> page(WebsiteNavigationPageDto dto) {
-        Integer status = this.normalizeStatus(dto.getStatus(), false);
         LambdaQueryWrapper<BaseWebsiteNavigationEntity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.isNotBlank(dto.getName()), BaseWebsiteNavigationEntity::getName, dto.getName())
                 .like(StringUtils.isNotBlank(dto.getCategory()), BaseWebsiteNavigationEntity::getCategory, dto.getCategory())
-                .eq(status != null, BaseWebsiteNavigationEntity::getStatus, status)
+                .eq(dto.getStatus() != null, BaseWebsiteNavigationEntity::getStatus, dto.getStatus())
+                .eq(dto.getShared() != null, BaseWebsiteNavigationEntity::getShared, dto.getShared())
                 .like(StringUtils.isNotBlank(dto.getTag()), BaseWebsiteNavigationEntity::getTags, dto.getTag());
         queryWrapper.orderByDesc(BaseWebsiteNavigationEntity::getId);
         return getBaseDao().page(dto, queryWrapper, entity -> {
@@ -85,6 +81,19 @@ public class BaseWebsiteNavigationServiceImpl extends WebServiceImpl<BaseWebsite
             pageVo.setTags(this.deserializeTags(entity.getTags()));
             return pageVo;
         });
+    }
+
+    @Override
+    public List<WebsiteNavigationListVo> querySharedWebsiteList() {
+        List<BaseWebsiteNavigationEntity> list = getBaseDao().querySharedWebsiteList();
+        if (list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return list.stream().map(entity -> {
+            WebsiteNavigationListVo vo = BeanUtil.copyProperties(entity, WebsiteNavigationListVo.class);
+            vo.setTags(this.deserializeTags(entity.getTags()));
+            return vo;
+        }).toList();
     }
 
     private String serializeTags(List<String> tags) {
@@ -113,15 +122,5 @@ public class BaseWebsiteNavigationServiceImpl extends WebServiceImpl<BaseWebsite
                     .filter(StringUtils::isNotBlank)
                     .toList();
         }
-    }
-
-    private Integer normalizeStatus(Integer status, boolean defaultOnline) {
-        if (status == null) {
-            return defaultOnline ? WebsiteNavigationStatusEnum.ONLINE.getCode() : null;
-        }
-        if (!ConstantEnumUtil.isEnumCode(WebsiteNavigationStatusEnum.class, status)) {
-            throw new BusinessException("网站状态错误");
-        }
-        return status;
     }
 }

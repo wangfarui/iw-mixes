@@ -2,4 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itwray.iw.auth.mapper.BaseWebsiteNavigationMapper">
 
+    <select id="querySharedWebsiteList" resultType="com.itwray.iw.auth.model.entity.BaseWebsiteNavigationEntity">
+        select id,
+               name,
+               url,
+               description,
+               icon,
+               category,
+               tags,
+               status,
+               shared,
+               create_time,
+               update_time,
+               user_id,
+               deleted
+        from base_website_navigation
+        where deleted = 0
+          and shared = 1
+        order by id desc
+    </select>
+
 </mapper>

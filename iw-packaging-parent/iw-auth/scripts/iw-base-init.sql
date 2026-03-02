@@ -46,3 +46,7 @@ create table base_website_navigation
     key idx_category (category),
     key idx_status (status)
 ) comment '网站导航记录表';
+
+alter table base_website_navigation
+    add column shared tinyint(1) unsigned default 0 not null comment '是否共享(0不共享 1共享)' after status,
+    add index idx_shared (shared);

@@ -1,5 +1,6 @@
 package com.itwray.iw.auth.model.dto;
 
+import com.itwray.iw.auth.model.enums.WebsiteNavigationStatusEnum;
 import com.itwray.iw.web.model.dto.AddDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -44,5 +45,8 @@ public class WebsiteNavigationAddDto implements AddDto {
     private List<String> tags;
 
     @Schema(title = "网站状态(1在线 2离线)")
-    private Integer status;
+    private WebsiteNavigationStatusEnum status;
+
+    @Schema(title = "是否共享(0不共享 1共享)")
+    private Integer shared;
 }

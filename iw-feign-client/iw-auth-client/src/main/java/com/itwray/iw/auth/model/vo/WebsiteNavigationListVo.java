@@ -3,7 +3,6 @@ package com.itwray.iw.auth.model.vo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.auth.model.enums.WebsiteNavigationStatusEnum;
 import com.itwray.iw.common.utils.DateUtils;
-import com.itwray.iw.web.model.vo.DetailVo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,14 +10,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 网站导航记录详情 VO
+ * 网站导航记录列表VO
  *
  * @author wray
- * @since 2026/2/28
+ * @since 2026/3/2
  */
 @Data
-@Schema(name = "网站导航记录详情VO")
-public class WebsiteNavigationDetailVo implements DetailVo {
+@Schema(name = "网站导航记录列表VO")
+public class WebsiteNavigationListVo {
 
     @Schema(title = "id")
     private Integer id;

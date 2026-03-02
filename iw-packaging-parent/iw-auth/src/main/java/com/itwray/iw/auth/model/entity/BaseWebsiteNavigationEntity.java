@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.auth.model.enums.WebsiteNavigationStatusEnum;
+import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.web.model.entity.UserEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -60,5 +61,12 @@ public class BaseWebsiteNavigationEntity extends UserEntity<Integer> {
      *
      * @see WebsiteNavigationStatusEnum#getCode()
      */
-    private Integer status;
+    private WebsiteNavigationStatusEnum status;
+
+    /**
+     * 是否共享
+     *
+     * @see BoolEnum#getCode()
+     */
+    private Integer shared;
 }

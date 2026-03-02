@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itwray.iw.auth.model.enums.WebsiteNavigationStatusEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.vo.PageRecordVo;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -41,7 +42,10 @@ public class WebsiteNavigationPageVo implements PageRecordVo {
     private List<String> tags;
 
     @Schema(title = "网站状态(1在线 2离线)")
-    private Integer status;
+    private WebsiteNavigationStatusEnum status;
+
+    @Schema(title = "是否共享(0不共享 1共享)")
+    private Integer shared;
 
     @Schema(title = "创建时间")
     @JsonFormat(pattern = DateUtils.DATETIME_FORMAT)

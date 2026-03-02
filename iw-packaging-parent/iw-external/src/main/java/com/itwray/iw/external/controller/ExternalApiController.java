@@ -1,5 +1,6 @@
 package com.itwray.iw.external.controller;
 
+import com.itwray.iw.auth.model.vo.WebsiteNavigationListVo;
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.service.ExternalApiService;
 import com.itwray.iw.web.annotation.SkipWrapper;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +20,7 @@ import java.util.Map;
  * @since 2024/10/17
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/external-service/api")
 @Validated
 @Tag(name = "外部API接口")
 @SkipWrapper
@@ -59,6 +61,12 @@ public class ExternalApiController {
     @Operation(summary = "查询每日热点")
     public Map<Object, Object> getDailyHot(@PathVariable String source) {
         return externalApiService.getDailyHot(source);
+    }
+
+    @GetMapping("/websiteList")
+    @Operation(summary = "查询共享网站列表")
+    public List<WebsiteNavigationListVo> websiteList() {
+        return externalApiService.querySharedWebsiteList();
     }
 
 }

@@ -5,6 +5,8 @@ import com.itwray.iw.auth.model.entity.BaseWebsiteNavigationEntity;
 import com.itwray.iw.web.dao.BaseDao;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 网站导航记录表 DAO
  *
@@ -14,4 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BaseWebsiteNavigationDao extends BaseDao<BaseWebsiteNavigationMapper, BaseWebsiteNavigationEntity> {
 
+    public List<BaseWebsiteNavigationEntity> querySharedWebsiteList() {
+        return getBaseMapper().querySharedWebsiteList();
+    }
 }
