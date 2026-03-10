@@ -88,6 +88,11 @@ public class AuthUserEntity extends BaseEntity<Integer> {
     private Integer roleType;
 
     /**
+     * 当前家庭组ID (0-个人模式)
+     */
+    private Integer familyGroupId;
+
+    /**
      * 新用户
      */
     @TableField(exist = false)

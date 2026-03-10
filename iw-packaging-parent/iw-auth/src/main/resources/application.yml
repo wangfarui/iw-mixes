@@ -5,6 +5,7 @@ iw:
       enabled: true
       enable-table-names:
         - base_application_account
+        - base_website_navigation
 
 # 服务器配置
 server:
