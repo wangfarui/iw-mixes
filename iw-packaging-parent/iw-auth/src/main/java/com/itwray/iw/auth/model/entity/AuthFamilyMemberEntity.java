@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.itwray.iw.auth.model.enums.FamilyMemberRoleEnum;
 import com.itwray.iw.auth.model.enums.FamilyMemberStatusEnum;
+import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.web.model.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,9 +40,16 @@ public class AuthFamilyMemberEntity extends BaseEntity<Integer> {
     private Integer userId;
 
     /**
-     * 角色 (1-群主, 2-成员)
+     * 角色 (1-群主, 2-家长, 3-成员, 4-儿童)
      */
     private FamilyMemberRoleEnum role;
+
+    /**
+     * 默认共享开关
+     *
+     * @see BoolEnum#getCode()
+     */
+    private Integer defaultShared;
 
     /**
      * 状态 (1-正常, 2-已退出, 3-已移除)

@@ -65,6 +65,7 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
     @Transactional
     public Integer add(FamilyGroupAddDto dto) {
         Integer userId = UserUtils.getUserId();
+        ensureNoActiveGroup(userId);
 
         // 创建家庭组
         AuthFamilyGroupEntity groupEntity = BeanUtil.copyProperties(dto, AuthFamilyGroupEntity.class);
@@ -77,6 +78,7 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
         memberEntity.setGroupId(groupEntity.getId());
         memberEntity.setUserId(userId);
         memberEntity.setRole(FamilyMemberRoleEnum.OWNER);
+        memberEntity.setDefaultShared(BoolEnum.FALSE.getCode());
         memberEntity.setStatus(FamilyMemberStatusEnum.NORMAL);
         memberEntity.setJoinTime(LocalDateTime.now());
         familyMemberDao.save(memberEntity);
@@ -145,8 +147,8 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
     public FamilyInviteVo generateInvite(FamilyInviteGenerateDto dto) {
         Integer userId = UserUtils.getUserId();
 
-        // 校验权限（仅群主可生成邀请码）
-        checkOwnerPermission(dto.getGroupId());
+        // 校验权限（群主、家长可生成邀请码）
+        checkRolePermission(dto.getGroupId(), FamilyMemberRoleEnum.OWNER, FamilyMemberRoleEnum.PARENT);
 
         // 生成唯一邀请码（最多重试10次）
         String inviteCode = null;
@@ -234,8 +236,8 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
 
     @Override
     public List<FamilyInviteVo> inviteList(Integer groupId) {
-        // 校验权限（仅群主可查看）
-        checkOwnerPermission(groupId);
+        // 校验权限（群主、家长可查看）
+        checkRolePermission(groupId, FamilyMemberRoleEnum.OWNER, FamilyMemberRoleEnum.PARENT);
 
         // 查询邀请码列表
         List<AuthFamilyInviteEntity> inviteList = familyInviteDao.lambdaQuery()
@@ -284,16 +286,12 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
                 .eq(AuthFamilyMemberEntity::getStatus, FamilyMemberStatusEnum.NORMAL)
                 .one();
 
-        // 如果已在其他家庭组，先退出
+        // 已有家庭组时，必须先手动退出
         if (currentMember != null) {
             if (currentMember.getGroupId().equals(inviteVo.getGroupId())) {
                 throw new BusinessException("您已是该家庭组成员");
             }
-            // 更新原家庭组成员状态为已退出
-            familyMemberDao.lambdaUpdate()
-                    .eq(AuthFamilyMemberEntity::getId, currentMember.getId())
-                    .set(AuthFamilyMemberEntity::getStatus, FamilyMemberStatusEnum.QUIT)
-                    .update();
+            throw new BusinessException("您已加入其他家庭组，请先退出当前家庭组");
         }
 
         // 校验人数上限
@@ -311,6 +309,7 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
         memberEntity.setGroupId(inviteVo.getGroupId());
         memberEntity.setUserId(userId);
         memberEntity.setRole(FamilyMemberRoleEnum.MEMBER);
+        memberEntity.setDefaultShared(BoolEnum.FALSE.getCode());
         memberEntity.setStatus(FamilyMemberStatusEnum.NORMAL);
         memberEntity.setJoinTime(LocalDateTime.now());
         familyMemberDao.save(memberEntity);
@@ -506,26 +505,131 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
                 .update();
     }
 
+    @Override
+    @Transactional
+    public void assignRole(FamilyMemberRoleAssignDto dto) {
+        Integer currentUserId = UserUtils.getUserId();
+        FamilyMemberRoleEnum targetRole = ConstantEnumUtil.findByType(FamilyMemberRoleEnum.class, dto.getRole());
+        if (targetRole == null || FamilyMemberRoleEnum.OWNER.equals(targetRole)) {
+            throw new BusinessException("仅支持分配成员、家长、儿童角色");
+        }
+
+        // 操作人必须是群成员
+        AuthFamilyMemberEntity operator = queryNormalMember(dto.getGroupId(), currentUserId);
+        if (operator == null) {
+            throw new BusinessException("您不是该家庭组成员");
+        }
+
+        if (currentUserId.equals(dto.getUserId())) {
+            throw new BusinessException("不能修改自己的角色");
+        }
+
+        AuthFamilyMemberEntity targetMember = queryNormalMember(dto.getGroupId(), dto.getUserId());
+        if (targetMember == null) {
+            throw new BusinessException("该用户不是家庭组成员");
+        }
+        if (FamilyMemberRoleEnum.OWNER.equals(targetMember.getRole())) {
+            throw new BusinessException("不能修改群主角色");
+        }
+
+        FamilyMemberRoleEnum operatorRole = operator.getRole();
+        if (FamilyMemberRoleEnum.OWNER.equals(operatorRole)) {
+            // 群主可将成员调整为家长/成员/儿童
+        } else if (FamilyMemberRoleEnum.PARENT.equals(operatorRole)) {
+            if (!FamilyMemberRoleEnum.MEMBER.equals(targetMember.getRole())
+                    && !FamilyMemberRoleEnum.CHILD.equals(targetMember.getRole())) {
+                throw new BusinessException("家长仅可调整成员或儿童角色");
+            }
+            if (!FamilyMemberRoleEnum.MEMBER.equals(targetRole)
+                    && !FamilyMemberRoleEnum.CHILD.equals(targetRole)) {
+                throw new BusinessException("家长仅可分配成员或儿童角色");
+            }
+        } else {
+            throw new BusinessException("仅群主或家长可执行此操作");
+        }
+
+        FamilyMemberRoleEnum originRole = targetMember.getRole();
+        boolean switchToChild = !FamilyMemberRoleEnum.CHILD.equals(originRole)
+                && FamilyMemberRoleEnum.CHILD.equals(targetRole);
+
+        familyMemberDao.lambdaUpdate()
+                .eq(AuthFamilyMemberEntity::getId, targetMember.getId())
+                .set(AuthFamilyMemberEntity::getRole, targetRole)
+                .set(switchToChild, AuthFamilyMemberEntity::getDefaultShared, BoolEnum.TRUE.getCode())
+                .update();
+    }
+
+    @Override
+    public Integer myDefaultShared(Integer groupId) {
+        Integer userId = UserUtils.getUserId();
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(groupId, userId);
+        if (memberEntity == null) {
+            throw new BusinessException("您不是该家庭组成员");
+        }
+
+        Integer defaultShared = memberEntity.getDefaultShared();
+        if (defaultShared == null) {
+            defaultShared = BoolEnum.FALSE.getCode();
+        }
+
+        // 儿童角色默认开启共享，这里兜底修正历史数据
+        if (FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())
+                && !BoolEnum.TRUE.getCode().equals(defaultShared)) {
+            familyMemberDao.lambdaUpdate()
+                    .eq(AuthFamilyMemberEntity::getId, memberEntity.getId())
+                    .set(AuthFamilyMemberEntity::getDefaultShared, BoolEnum.TRUE.getCode())
+                    .update();
+            return BoolEnum.TRUE.getCode();
+        }
+
+        return defaultShared;
+    }
+
+    @Override
+    @Transactional
+    public void updateMyDefaultShared(FamilyMemberDefaultSharedUpdateDto dto) {
+        Integer userId = UserUtils.getUserId();
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(dto.getGroupId(), userId);
+        if (memberEntity == null) {
+            throw new BusinessException("您不是该家庭组成员");
+        }
+        if (FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())) {
+            throw new BusinessException("儿童角色不能修改默认共享开关");
+        }
+
+        familyMemberDao.lambdaUpdate()
+                .eq(AuthFamilyMemberEntity::getId, memberEntity.getId())
+                .set(AuthFamilyMemberEntity::getDefaultShared, dto.getDefaultShared())
+                .update();
+    }
+
+    @Override
+    public Integer queryDefaultShared(Integer userId) {
+        AuthUserEntity userEntity = authUserDao.getById(userId);
+        if (userEntity == null || userEntity.getFamilyGroupId() == null || userEntity.getFamilyGroupId() == 0) {
+            return BoolEnum.FALSE.getCode();
+        }
+
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(userEntity.getFamilyGroupId(), userId);
+        if (memberEntity == null) {
+            return BoolEnum.FALSE.getCode();
+        }
+
+        if (FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())) {
+            return BoolEnum.TRUE.getCode();
+        }
+
+        Integer defaultShared = memberEntity.getDefaultShared();
+        return defaultShared == null ? BoolEnum.FALSE.getCode() : defaultShared;
+    }
+
     /**
      * 校验群主权限
      *
      * @param groupId 家庭组ID
      */
     private void checkOwnerPermission(Integer groupId) {
-        Integer userId = UserUtils.getUserId();
-        AuthFamilyMemberEntity memberEntity = familyMemberDao.lambdaQuery()
-                .eq(AuthFamilyMemberEntity::getGroupId, groupId)
-                .eq(AuthFamilyMemberEntity::getUserId, userId)
-                .eq(AuthFamilyMemberEntity::getStatus, FamilyMemberStatusEnum.NORMAL)
-                .one();
-
-        if (memberEntity == null) {
-            throw new BusinessException("您不是该家庭组成员");
-        }
-
-        if (!FamilyMemberRoleEnum.OWNER.equals(memberEntity.getRole())) {
-            throw new BusinessException("仅群主可执行此操作");
-        }
+        checkRolePermission(groupId, FamilyMemberRoleEnum.OWNER);
     }
 
     /**
@@ -534,15 +638,53 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
      * @param groupId 家庭组ID
      */
     private void checkMemberPermission(Integer groupId) {
+        checkRolePermission(groupId, FamilyMemberRoleEnum.OWNER, FamilyMemberRoleEnum.PARENT,
+                FamilyMemberRoleEnum.MEMBER, FamilyMemberRoleEnum.CHILD);
+    }
+
+    /**
+     * 校验角色权限
+     *
+     * @param groupId       家庭组ID
+     * @param requiredRoles 允许执行的角色
+     * @return 当前用户成员记录
+     */
+    private AuthFamilyMemberEntity checkRolePermission(Integer groupId, FamilyMemberRoleEnum... requiredRoles) {
         Integer userId = UserUtils.getUserId();
-        Long count = familyMemberDao.lambdaQuery()
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(groupId, userId);
+        if (memberEntity == null) {
+            throw new BusinessException("您不是该家庭组成员");
+        }
+
+        for (FamilyMemberRoleEnum requiredRole : requiredRoles) {
+            if (requiredRole.equals(memberEntity.getRole())) {
+                return memberEntity;
+            }
+        }
+        throw new BusinessException("您暂无此操作权限");
+    }
+
+    /**
+     * 查询用户在指定家庭组中的有效成员记录
+     */
+    private AuthFamilyMemberEntity queryNormalMember(Integer groupId, Integer userId) {
+        return familyMemberDao.lambdaQuery()
                 .eq(AuthFamilyMemberEntity::getGroupId, groupId)
                 .eq(AuthFamilyMemberEntity::getUserId, userId)
                 .eq(AuthFamilyMemberEntity::getStatus, FamilyMemberStatusEnum.NORMAL)
-                .count();
+                .one();
+    }
 
-        if (count == 0) {
-            throw new BusinessException("您不是该家庭组成员");
+    /**
+     * 校验用户当前未加入任何家庭组
+     */
+    private void ensureNoActiveGroup(Integer userId) {
+        Long count = familyMemberDao.lambdaQuery()
+                .eq(AuthFamilyMemberEntity::getUserId, userId)
+                .eq(AuthFamilyMemberEntity::getStatus, FamilyMemberStatusEnum.NORMAL)
+                .count();
+        if (count > 0) {
+            throw new BusinessException("您已加入家庭组，请先退出当前家庭组");
         }
     }
 }

@@ -20,9 +20,19 @@ public enum FamilyMemberRoleEnum implements BusinessConstantEnum {
     OWNER(1, "群主"),
 
     /**
+     * 家长
+     */
+    PARENT(2, "家长"),
+
+    /**
      * 成员
      */
-    MEMBER(2, "成员");
+    MEMBER(3, "成员"),
+
+    /**
+     * 儿童
+     */
+    CHILD(4, "儿童");
 
     private final Integer code;
     private final String name;

@@ -35,7 +35,7 @@ public class FamilyMemberVo {
     @Schema(title = "头像")
     private String avatar;
 
-    @Schema(title = "角色 (1-群主, 2-成员)")
+    @Schema(title = "角色 (1-群主, 2-家长, 3-成员, 4-儿童)")
     private FamilyMemberRoleEnum role;
 
     @Schema(title = "状态 (1-正常, 2-已退出, 3-已移除)")

@@ -82,4 +82,34 @@ public interface AuthFamilyGroupService extends WebService<FamilyGroupAddDto, Fa
      * @param dto 转让群主DTO
      */
     void transferOwner(FamilyGroupTransferDto dto);
+
+    /**
+     * 分配成员角色
+     *
+     * @param dto 角色分配DTO
+     */
+    void assignRole(FamilyMemberRoleAssignDto dto);
+
+    /**
+     * 查询当前用户在指定家庭组下的默认共享开关
+     *
+     * @param groupId 家庭组ID
+     * @return 默认共享开关(0关闭 1开启)
+     */
+    Integer myDefaultShared(Integer groupId);
+
+    /**
+     * 更新当前用户在指定家庭组下的默认共享开关
+     *
+     * @param dto 默认共享开关更新DTO
+     */
+    void updateMyDefaultShared(FamilyMemberDefaultSharedUpdateDto dto);
+
+    /**
+     * 查询指定用户当前家庭组下的默认共享开关
+     *
+     * @param userId 用户ID
+     * @return 默认共享开关(0关闭 1开启)
+     */
+    Integer queryDefaultShared(Integer userId);
 }

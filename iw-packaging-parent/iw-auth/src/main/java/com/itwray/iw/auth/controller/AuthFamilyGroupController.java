@@ -95,4 +95,24 @@ public class AuthFamilyGroupController extends WebController<AuthFamilyGroupServ
     public void transferOwner(@RequestBody @Valid FamilyGroupTransferDto dto) {
         getWebService().transferOwner(dto);
     }
+
+    @PostMapping("/assignRole")
+    @Operation(summary = "分配成员角色")
+    public void assignRole(@RequestBody @Valid FamilyMemberRoleAssignDto dto) {
+        getWebService().assignRole(dto);
+    }
+
+    @GetMapping("/myDefaultShared")
+    @Operation(summary = "查询我的默认共享开关")
+    public Integer myDefaultShared(
+            @Parameter(description = "家庭组ID", required = true)
+            @RequestParam Integer groupId) {
+        return getWebService().myDefaultShared(groupId);
+    }
+
+    @PostMapping("/updateMyDefaultShared")
+    @Operation(summary = "更新我的默认共享开关")
+    public void updateMyDefaultShared(@RequestBody @Valid FamilyMemberDefaultSharedUpdateDto dto) {
+        getWebService().updateMyDefaultShared(dto);
+    }
 }
