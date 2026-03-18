@@ -8,6 +8,7 @@ import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsYearS
 import com.itwray.iw.bookkeeping.model.vo.yearly.income.BookkeepingRecordsYearStatisticsIncomeVo;
 import com.itwray.iw.bookkeeping.model.vo.yearly.overview.BookkeepingRecordsYearStatisticsOverviewVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
+import com.itwray.iw.web.annotation.SharedQueryScope;
 import com.itwray.iw.web.controller.WebController;
 import com.itwray.iw.web.model.vo.PageVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,20 +41,31 @@ public class BookkeepingRecordsController extends WebController<BookkeepingRecor
 
     @PostMapping("/page")
     @Operation(summary = "分页查询记账记录")
+    @SharedQueryScope
     public PageVo<BookkeepingRecordPageVo> page(@RequestBody @Valid BookkeepingRecordPageDto dto) {
         return getWebService().page(dto);
     }
 
     @PostMapping("/list")
     @Operation(summary = "列表查询记账记录")
+    @SharedQueryScope
     public List<BookkeepingRecordPageVo> list(@RequestBody BookkeepingRecordListDto dto) {
         return getWebService().list(dto);
     }
 
     @PostMapping("/statistics")
     @Operation(summary = "查询记账统计信息")
+    @SharedQueryScope
     public BookkeepingRecordsStatisticsVo statistics(@RequestBody BookkeepingRecordsStatisticsDto dto) {
         return getWebService().statistics(dto);
+    }
+
+    @Override
+    @GetMapping("/detail")
+    @Operation(summary = "查询记账记录详情")
+    @SharedQueryScope
+    public BookkeepingRecordDetailVo detail(@RequestParam("id") Integer id) {
+        return super.detail(id);
     }
 
     @PostMapping("/import")
@@ -64,18 +76,21 @@ public class BookkeepingRecordsController extends WebController<BookkeepingRecor
 
     @PostMapping("/yearStatistics/overview")
     @Operation(summary = "年度统计-总览")
+    @SharedQueryScope
     public BookkeepingRecordsYearStatisticsOverviewVo yearStatisticsOverview(@RequestBody BookkeepingRecordsYearStatisticsQueryDto dto) {
         return getWebService().yearStatisticsOverview(dto);
     }
 
     @PostMapping("/yearStatistics/consume")
     @Operation(summary = "年度统计-支出")
+    @SharedQueryScope
     public BookkeepingRecordsYearStatisticsConsumeVo yearStatisticsConsume(@RequestBody BookkeepingRecordsYearStatisticsQueryDto dto) {
         return getWebService().yearStatisticsConsume(dto);
     }
 
     @PostMapping("/yearStatistics/income")
     @Operation(summary = "年度统计-收入")
+    @SharedQueryScope
     public BookkeepingRecordsYearStatisticsIncomeVo yearStatisticsIncome(@RequestBody BookkeepingRecordsYearStatisticsQueryDto dto) {
         return getWebService().yearStatisticsIncome(dto);
     }

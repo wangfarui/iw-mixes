@@ -7,6 +7,7 @@ import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeTagsVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingConsumeService;
+import com.itwray.iw.web.annotation.SharedQueryScope;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/bookkeeping/consume")
+@SharedQueryScope
 @Validated
 @Tag(name = "记账支出接口")
 public class BookkeepingConsumeController {

@@ -1,6 +1,7 @@
 package com.itwray.iw.bookkeeping.model.dto;
 
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
+import com.itwray.iw.web.model.dto.SharedQueryRequest;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import java.util.Set;
  * @since 2025/12/10
  */
 @Data
-public class BookkeepingRecordsYearStatisticsQueryDto {
+public class BookkeepingRecordsYearStatisticsQueryDto implements SharedQueryRequest {
 
     private Integer userId;
 
@@ -37,4 +38,11 @@ public class BookkeepingRecordsYearStatisticsQueryDto {
      * 查询的记录类型
      */
     private Set<RecordCategoryEnum> recordCategories;
+
+    /**
+     * 是否仅查询本人数据
+     * <p>默认为null, 表示查询共享口径</p>
+     * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#TRUE} , 表示仅查询本人数据</p>
+     */
+    private Integer queryOnlyMyself;
 }

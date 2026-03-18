@@ -11,8 +11,7 @@
         FROM (
         SELECT DISTINCT record_date
         FROM bookkeeping_records
-        WHERE user_id = #{userId}
-        AND deleted = 0
+        WHERE deleted = 0
         <if test="ignoreNotStatistics != null and ignoreNotStatistics == 0">
             AND is_statistics = 1
         </if>
@@ -43,8 +42,7 @@
         SELECT
         COUNT(DISTINCT record_date) AS record_days
         FROM bookkeeping_records
-        WHERE user_id = #{userId}
-        AND deleted = 0
+        WHERE deleted = 0
         <if test="ignoreNotStatistics != null and ignoreNotStatistics == 0">
             AND is_statistics = 1
         </if>
@@ -57,8 +55,7 @@
         MONTH(record_date) AS peakMonth,
         COUNT(*) AS peakCount
         FROM bookkeeping_records
-        WHERE user_id = #{userId}
-        AND deleted = 0
+        WHERE deleted = 0
         <if test="ignoreNotStatistics != null and ignoreNotStatistics == 0">
             AND is_statistics = 1
         </if>
@@ -73,8 +70,7 @@
     <select id="statisticsMissingCount" resultType="java.lang.Integer">
         SELECT COUNT(*) AS missing_count
         FROM bookkeeping_records
-        WHERE user_id = #{userId}
-        AND deleted = 0
+        WHERE deleted = 0
         <if test="ignoreNotStatistics != null and ignoreNotStatistics == 0">
             AND is_statistics = 1
         </if>
@@ -99,7 +95,6 @@
         <if test="ignoreNotStatistics != null and ignoreNotStatistics == 0">
             AND b.is_statistics = 1
         </if>
-        AND b.user_id = #{userId}
         AND b.record_date BETWEEN #{startDate} AND #{endDate}
         GROUP BY r.dict_id
         ORDER BY count DESC;
@@ -108,8 +103,7 @@
             resultType="com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeInsightsVo">
         SELECT record_date AS maxDayDate, SUM(amount) AS maxDayAmount
         FROM bookkeeping_records
-        WHERE user_id = #{userId}
-        AND deleted = 0
+        WHERE deleted = 0
         <if test="recordCategories != null and recordCategories.size > 0">
             AND record_category in
             <foreach collection="recordCategories" item="item" open="(" close=")" separator=",">#{item}</foreach>
@@ -126,8 +120,7 @@
             resultType="com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeInsightsVo">
         SELECT MONTH(record_date) AS maxMonthName, SUM(amount) AS maxMonthAmount
         FROM bookkeeping_records
-        WHERE user_id = #{userId}
-        AND deleted = 0
+        WHERE deleted = 0
         <if test="recordCategories != null and recordCategories.size > 0">
             AND record_category in
             <foreach collection="recordCategories" item="item" open="(" close=")" separator=",">#{item}</foreach>

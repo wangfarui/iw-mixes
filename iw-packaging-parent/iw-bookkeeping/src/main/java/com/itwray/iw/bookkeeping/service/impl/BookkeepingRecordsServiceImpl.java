@@ -3,8 +3,10 @@ package com.itwray.iw.bookkeeping.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.idev.excel.FastExcel;
+import com.itwray.iw.auth.client.AuthFamilyGroupClient;
 import com.itwray.iw.auth.client.AuthUserClient;
 import com.itwray.iw.auth.client.BaseDictClient;
+import com.itwray.iw.auth.model.enums.ShareStateEnum;
 import com.itwray.iw.auth.model.vo.DictListVo;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.excel.listener.BookkeepingRecordsImportDataListener;
@@ -90,6 +92,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     private AuthUserClient authUserClient;
 
+    private AuthFamilyGroupClient authFamilyGroupClient;
+
     @Autowired
     public BookkeepingRecordsServiceImpl(BookkeepingRecordsDao baseDao,
                                          BaseDictBusinessRelationDao baseDictBusinessRelationDao,
@@ -119,10 +123,19 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         this.authUserClient = authUserClient;
     }
 
+    @Autowired
+    public void setAuthFamilyGroupClient(AuthFamilyGroupClient authFamilyGroupClient) {
+        this.authFamilyGroupClient = authFamilyGroupClient;
+    }
+
     @Override
     @Transactional
     public Integer add(BookkeepingRecordAddDto dto) {
         BookkeepingRecordsEntity bookkeepingRecords = this.buildBookkeepingRecordAddDto(dto);
+        Integer userId = UserUtils.getUserId();
+        Integer currentGroupId = this.queryCurrentGroupId(userId);
+        bookkeepingRecords.setGroupId(currentGroupId);
+        bookkeepingRecords.setShareState(this.queryDefaultShareState(userId, currentGroupId));
 
         // 生成订单号
         bookkeepingRecords.setOrderNo(OrderNoUtils.getAndIncrement(OrderNoEnum.BOOKKEEPING_RECORDS));
@@ -175,6 +188,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         }
 
         BookkeepingRecordsEntity recordsEntity = this.buildBookkeepingRecordAddDto(dto);
+        recordsEntity.setGroupId(bookkeepingRecordsEntity.getGroupId());
+        recordsEntity.setShareState(bookkeepingRecordsEntity.getShareState());
         getBaseDao().updateById(recordsEntity);
 
         // 同步用户钱包余额
@@ -334,10 +349,13 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     @Transactional
     public void importRecords(MultipartFile file) {
+        Integer userId = UserUtils.getUserId();
+        Integer currentGroupId = this.queryCurrentGroupId(userId);
+        ShareStateEnum defaultShareState = this.queryDefaultShareState(userId, currentGroupId);
         // 查询当前用户的记账-记录分类字典项
         List<BaseDictEntity> dictEntityList = baseDictDao.queryDictEntityList(DictTypeEnum.BOOKKEEPING_RECORD_TYPE);
         Map<String, Integer> dictNameMap = dictEntityList.stream().collect(Collectors.toMap(BaseDictEntity::getDictName, BaseDictEntity::getDictCode));
-        BookkeepingRecordsImportDataListener listener = new BookkeepingRecordsImportDataListener(UserUtils.getUserId(), dictNameMap);
+        BookkeepingRecordsImportDataListener listener = new BookkeepingRecordsImportDataListener(userId, currentGroupId, defaultShareState, dictNameMap);
         try {
             FastExcel.read(file.getInputStream(), BookkeepingRecordsImportBo.class, listener)
                     .sheet()
@@ -388,6 +406,8 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
             recordsEntity.setRemark(bo.getRemark().length() < 255 ? bo.getRemark() : bo.getRemark().substring(0, 255));
         }
         recordsEntity.setUserId(bo.getUserId());
+        recordsEntity.setGroupId(Optional.ofNullable(bo.getGroupId()).orElse(0));
+        recordsEntity.setShareState(Optional.ofNullable(bo.getShareState()).orElse(ShareStateEnum.NOT_SHARED));
         getBaseDao().save(recordsEntity);
     }
 
@@ -414,6 +434,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                     statisticsDto.setRecordStartDate(DateUtils.startDateOfMonth(budgetEntity.getBudgetMonth()));
                     statisticsDto.setRecordEndDate(DateUtils.endDateOfMonth(budgetEntity.getBudgetMonth()));
                     statisticsDto.setRecordType(budgetEntity.getRecordType());
+                    statisticsDto.setQueryOnlyMyself(BoolEnum.TRUE.getCode());
                     // 统计预算所在月份下, 指定记账分类的实际支出情况
                     BookkeepingRecordsStatisticsVo statisticsVo = this.statistics(statisticsDto);
                     // 判断是否满足预算
@@ -441,6 +462,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     public BookkeepingRecordsYearStatisticsOverviewVo yearStatisticsOverview(BookkeepingRecordsYearStatisticsQueryDto dto) {
+        return this.queryYearStatisticsOverview(dto);
+    }
+
+    private BookkeepingRecordsYearStatisticsOverviewVo queryYearStatisticsOverview(BookkeepingRecordsYearStatisticsQueryDto dto) {
         this.computeYearStatisticsParam(dto);
         dto.setRecordCategories(new HashSet<>(Arrays.asList(RecordCategoryEnum.CONSUME, RecordCategoryEnum.INCOME)));
 
@@ -502,6 +527,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     public BookkeepingRecordsYearStatisticsConsumeVo yearStatisticsConsume(BookkeepingRecordsYearStatisticsQueryDto dto) {
+        return this.queryYearStatisticsConsume(dto);
+    }
+
+    private BookkeepingRecordsYearStatisticsConsumeVo queryYearStatisticsConsume(BookkeepingRecordsYearStatisticsQueryDto dto) {
         this.computeYearStatisticsParam(dto);
         dto.setRecordCategories(new HashSet<>(Collections.singleton(RecordCategoryEnum.CONSUME)));
 
@@ -524,6 +553,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         categoryStatisticsDto.setCurrentStartMonth(dto.getStartDate());
         categoryStatisticsDto.setCurrentEndMonth(dto.getEndDate());
         categoryStatisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        categoryStatisticsDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         List<BookkeepingConsumeStatisticsCategoryVo> statisticsCategoryVos = getBaseDao().getBaseMapper().categoryStatistics(categoryStatisticsDto);
         if (CollectionUtils.isNotEmpty(statisticsCategoryVos)) {
             BigDecimal totalAmount = statisticsCategoryVos.stream().map(BookkeepingConsumeStatisticsCategoryVo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -564,6 +594,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         statisticsDto.setCurrentStartMonth(dto.getStartDate());
         statisticsDto.setCurrentEndMonth(dto.getEndDate());
         statisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        statisticsDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         List<BookkeepingStatisticsRankVo> rankVoList = getBaseDao().getBaseMapper().rankStatistics(statisticsDto);
         if (CollectionUtils.isNotEmpty(rankVoList)) {
             // 查询记账分类字典值
@@ -622,6 +653,10 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
 
     @Override
     public BookkeepingRecordsYearStatisticsIncomeVo yearStatisticsIncome(BookkeepingRecordsYearStatisticsQueryDto dto) {
+        return this.queryYearStatisticsIncome(dto);
+    }
+
+    private BookkeepingRecordsYearStatisticsIncomeVo queryYearStatisticsIncome(BookkeepingRecordsYearStatisticsQueryDto dto) {
         this.computeYearStatisticsParam(dto);
         dto.setRecordCategories(new HashSet<>(Collections.singleton(RecordCategoryEnum.INCOME)));
 
@@ -644,6 +679,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         categoryStatisticsDto.setCurrentStartMonth(dto.getStartDate());
         categoryStatisticsDto.setCurrentEndMonth(dto.getEndDate());
         categoryStatisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        categoryStatisticsDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         List<BookkeepingConsumeStatisticsCategoryVo> statisticsCategoryVos = getBaseDao().getBaseMapper().categoryStatistics(categoryStatisticsDto);
         if (CollectionUtils.isNotEmpty(statisticsCategoryVos)) {
             BigDecimal totalAmount = statisticsCategoryVos.stream().map(BookkeepingConsumeStatisticsCategoryVo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -667,6 +703,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         statisticsDto.setCurrentStartMonth(dto.getStartDate());
         statisticsDto.setCurrentEndMonth(dto.getEndDate());
         statisticsDto.setIsSearchAll(dto.getIgnoreNotStatistics());
+        statisticsDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         List<BookkeepingStatisticsRankVo> rankVoList = getBaseDao().getBaseMapper().rankStatistics(statisticsDto);
         if (CollectionUtils.isNotEmpty(rankVoList)) {
             // 查询记账分类字典值
@@ -724,6 +761,29 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         LocalDate endStatisticsDate = DateUtils.endDateOfYear(startStatisticsDate);
         dto.setStartDate(startStatisticsDate);
         dto.setEndDate(endStatisticsDate);
+    }
+
+    private Integer queryCurrentGroupId(Integer userId) {
+        try {
+            Integer groupId = authFamilyGroupClient.queryCurrentGroupId(userId);
+            return groupId == null ? 0 : groupId;
+        } catch (Exception e) {
+            log.error("查询用户当前家庭组ID失败, userId: {}", userId, e);
+            return 0;
+        }
+    }
+
+    private ShareStateEnum queryDefaultShareState(Integer userId, Integer currentGroupId) {
+        if (currentGroupId == null || currentGroupId <= 0) {
+            return ShareStateEnum.NOT_SHARED;
+        }
+        try {
+            Integer defaultShared = authFamilyGroupClient.queryDefaultShared(userId);
+            return BoolEnum.TRUE.getCode().equals(defaultShared) ? ShareStateEnum.SHARED : ShareStateEnum.NOT_SHARED;
+        } catch (Exception e) {
+            log.error("查询用户默认共享开关失败, userId: {}", userId, e);
+            return ShareStateEnum.NOT_SHARED;
+        }
     }
 
     private void addPointsRecordsByExcitation(String orderNo) {

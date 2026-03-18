@@ -2,6 +2,7 @@ package com.itwray.iw.bookkeeping.excel.listener;
 
 import cn.idev.excel.context.AnalysisContext;
 import cn.idev.excel.read.listener.ReadListener;
+import com.itwray.iw.auth.model.enums.ShareStateEnum;
 import com.itwray.iw.bookkeeping.model.bo.BookkeepingRecordsImportBo;
 import com.itwray.iw.bookkeeping.service.BookkeepingRecordsService;
 import com.itwray.iw.web.utils.ApplicationContextHolder;
@@ -28,14 +29,28 @@ public class BookkeepingRecordsImportDataListener implements ReadListener<Bookke
      */
     private final Map<String, Integer> dictNameMap;
 
-    public BookkeepingRecordsImportDataListener(Integer userId, Map<String, Integer> dictNameMap) {
+    /**
+     * 当前操作人所在家庭组ID
+     */
+    private final Integer groupId;
+
+    /**
+     * 当前操作人的默认共享状态
+     */
+    private final ShareStateEnum shareState;
+
+    public BookkeepingRecordsImportDataListener(Integer userId, Integer groupId, ShareStateEnum shareState, Map<String, Integer> dictNameMap) {
         this.userId = userId;
+        this.groupId = groupId;
+        this.shareState = shareState;
         this.dictNameMap = dictNameMap;
     }
 
     @Override
     public void invoke(BookkeepingRecordsImportBo bookkeepingRecordsImportBo, AnalysisContext analysisContext) {
         bookkeepingRecordsImportBo.setUserId(userId);
+        bookkeepingRecordsImportBo.setGroupId(groupId);
+        bookkeepingRecordsImportBo.setShareState(shareState);
         getBookkeepingRecordsService().processImportData(bookkeepingRecordsImportBo, dictNameMap);
     }
 

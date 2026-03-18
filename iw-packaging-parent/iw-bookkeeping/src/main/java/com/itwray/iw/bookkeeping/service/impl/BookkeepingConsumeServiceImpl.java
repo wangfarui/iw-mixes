@@ -152,6 +152,7 @@ public class BookkeepingConsumeServiceImpl implements BookkeepingConsumeService 
         yearStatisticsQueryDto.setIgnoreNotStatistics(dto.getIsSearchAll());
         yearStatisticsQueryDto.setRecordCategories(new HashSet<>(Collections.singleton(RecordCategoryEnum.CONSUME)));
         yearStatisticsQueryDto.setUserId(UserUtils.getUserId());
+        yearStatisticsQueryDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         List<BookkeepingRecordsConsumeTagsVo> consumeTagsVos = bookkeepingRecordsDao.getStatisticsMapper().statisticsTagConsume(yearStatisticsQueryDto);
         if (CollectionUtils.isNotEmpty(consumeTagsVos)) {
             BigDecimal totalAmount = consumeTagsVos.stream().map(BookkeepingRecordsConsumeTagsVo::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);

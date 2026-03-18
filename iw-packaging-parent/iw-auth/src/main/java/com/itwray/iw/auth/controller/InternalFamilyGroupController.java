@@ -34,4 +34,10 @@ public class InternalFamilyGroupController {
     public Integer defaultShared(@RequestParam("userId") Integer userId) {
         return authFamilyGroupService.queryDefaultShared(userId);
     }
+
+    @GetMapping("/currentGroupId")
+    @Operation(summary = "查询用户当前家庭组ID")
+    public Integer currentGroupId(@RequestParam("userId") Integer userId) {
+        return authFamilyGroupService.queryCurrentGroupId(userId);
+    }
 }

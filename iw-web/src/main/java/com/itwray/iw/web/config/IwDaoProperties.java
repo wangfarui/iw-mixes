@@ -61,6 +61,12 @@ public class IwDaoProperties {
         private Set<String> disableTableNames;
 
         /**
+         * 启用共享查询规则的表名
+         * <p>仅对查询语句生效。命中后可按共享查询开关扩展为家庭组共享可见规则。</p>
+         */
+        private Set<String> shareScopeEnableTableNames;
+
+        /**
          * 被禁用数据权限的数据表状态缓存
          * <p>涉及到多线程并发: {@link UserDataPermissionHandler#getSqlSegment}</p>
          * true -> 禁用;
@@ -123,6 +129,16 @@ public class IwDaoProperties {
                 // 启用的数据表
                 return CollUtil.isNotEmpty(enableTableNames) && !enableTableNames.contains(key);
             });
+        }
+
+        /**
+         * 数据表是否启用共享查询规则
+         *
+         * @param tableName 数据表表名
+         * @return true -> 启用
+         */
+        public boolean enableShareScopeTable(String tableName) {
+            return CollUtil.isNotEmpty(shareScopeEnableTableNames) && shareScopeEnableTableNames.contains(tableName);
         }
     }
 }

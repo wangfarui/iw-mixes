@@ -1,5 +1,7 @@
 package com.itwray.iw.web.core.webmvc;
 
+import com.itwray.iw.web.utils.UserCurrentGroupUtils;
+import com.itwray.iw.web.utils.UserSharedQueryUtils;
 import com.itwray.iw.web.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,8 +17,12 @@ public class WebHandlerInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // 清理每次请求中的用户id和token
+        // 清理每次请求中的线程上下文
         UserUtils.removeUserId();
         UserUtils.removeUserToken();
+        UserUtils.removeUserDataPermission();
+        UserSharedQueryUtils.removeUserSharedQuery();
+        UserSharedQueryUtils.removeUserSharedQueryOnlyMyself();
+        UserCurrentGroupUtils.removeCurrentGroupId();
     }
 }

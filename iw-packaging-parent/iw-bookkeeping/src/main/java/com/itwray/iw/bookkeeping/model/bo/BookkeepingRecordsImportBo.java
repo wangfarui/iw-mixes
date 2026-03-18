@@ -3,6 +3,7 @@ package com.itwray.iw.bookkeeping.model.bo;
 import cn.idev.excel.annotation.ExcelIgnore;
 import cn.idev.excel.annotation.ExcelProperty;
 import cn.idev.excel.annotation.format.DateTimeFormat;
+import com.itwray.iw.auth.model.enums.ShareStateEnum;
 import com.itwray.iw.bookkeeping.excel.converter.BookkeepingRecordCategoryConverter;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import lombok.Data;
@@ -38,4 +39,9 @@ public class BookkeepingRecordsImportBo {
     @ExcelIgnore
     private Integer userId;
 
+    @ExcelIgnore
+    private Integer groupId;
+
+    @ExcelIgnore
+    private ShareStateEnum shareState;
 }

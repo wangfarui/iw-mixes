@@ -2,6 +2,7 @@ package com.itwray.iw.bookkeeping.model.dto;
 
 import com.itwray.iw.bookkeeping.model.enums.BookkeepingStatisticsTypeEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
+import com.itwray.iw.web.model.dto.SharedQueryRequest;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
  * @since 2024/10/15
  */
 @Data
-public class BookkeepingStatisticsDto {
+public class BookkeepingStatisticsDto implements SharedQueryRequest {
 
     /**
      * 当前查询的月度
@@ -52,4 +53,11 @@ public class BookkeepingStatisticsDto {
      * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#FALSE} , 表示只查询 is_statistics = 1 的数据</p>
      */
     private Integer isSearchAll;
+
+    /**
+     * 是否仅查询本人数据
+     * <p>默认为null, 表示查询共享口径</p>
+     * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#TRUE} , 表示仅查询本人数据</p>
+     */
+    private Integer queryOnlyMyself;
 }

@@ -17,4 +17,8 @@ public interface AuthFamilyGroupClient {
     @GetMapping("/defaultShared")
     @Operation(summary = "查询用户当前家庭组默认共享开关")
     Integer queryDefaultShared(@RequestParam("userId") Integer userId);
+
+    @GetMapping("/currentGroupId")
+    @Operation(summary = "查询用户当前家庭组ID")
+    Integer queryCurrentGroupId(@RequestParam("userId") Integer userId);
 }

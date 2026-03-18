@@ -119,3 +119,10 @@ create table bookkeeping_membership_subscription
     primary key (id),
     key idx_user_id (user_id)
 ) comment '会员订阅记录表';
+
+alter table bookkeeping_records
+    add column group_id int unsigned default 0 not null comment '家庭组ID (0-个人模式)' after user_id,
+    add column share_state tinyint(1) default 0 not null comment '共享状态(0不共享 1共享中 2已离组)' after group_id;
+
+alter table bookkeeping_records
+    add key idx_group_id (group_id);

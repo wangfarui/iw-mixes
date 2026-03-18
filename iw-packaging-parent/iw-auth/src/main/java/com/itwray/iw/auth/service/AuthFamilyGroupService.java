@@ -112,4 +112,12 @@ public interface AuthFamilyGroupService extends WebService<FamilyGroupAddDto, Fa
      * @return 默认共享开关(0关闭 1开启)
      */
     Integer queryDefaultShared(Integer userId);
+
+    /**
+     * 查询指定用户当前家庭组ID
+     *
+     * @param userId 用户ID
+     * @return 家庭组ID(0表示个人模式)
+     */
+    Integer queryCurrentGroupId(Integer userId);
 }

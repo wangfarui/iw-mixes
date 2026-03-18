@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.bookkeeping.model.enums.BookkeepingRecordsSortTypeEnum;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.model.dto.PageDto;
+import com.itwray.iw.web.model.dto.SharedQueryRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -19,7 +20,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class BookkeepingRecordPageDto extends PageDto {
+public class BookkeepingRecordPageDto extends PageDto implements SharedQueryRequest {
 
     /**
      * 记账记录开始时间
@@ -84,4 +85,11 @@ public class BookkeepingRecordPageDto extends PageDto {
      * 排序方式 1=升序, 其他值=降序
      */
     private Integer sortWay;
+
+    /**
+     * 是否仅查询本人数据
+     * <p>默认为null, 表示查询共享口径</p>
+     * <p>如果为 {@link com.itwray.iw.common.constants.BoolEnum#TRUE} , 表示仅查询本人数据</p>
+     */
+    private Integer queryOnlyMyself;
 }

@@ -6,7 +6,6 @@ import com.itwray.iw.bookkeeping.model.entity.BookkeepingRecordsEntity;
 import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeInsightsVo;
 import com.itwray.iw.bookkeeping.model.vo.yearly.consume.BookkeepingRecordsConsumeTagsVo;
 import com.itwray.iw.bookkeeping.model.vo.yearly.overview.BookkeepingRecordsOverviewHabitsVo;
-import com.itwray.iw.web.annotation.IgnorePermission;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.List;
  * @since 2025/12/11
  */
 @Mapper
-@IgnorePermission
 public interface BookkeepingRecordsYearlyStatisticsMapper extends BaseMapper<BookkeepingRecordsEntity> {
 
     BookkeepingRecordsOverviewHabitsVo statisticsMaxContinuousDays(BookkeepingRecordsYearStatisticsQueryDto dto);

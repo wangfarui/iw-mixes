@@ -2,6 +2,7 @@ package com.itwray.iw.web.config;
 
 import com.itwray.iw.web.core.dingtalk.DingTalkConfiguration;
 import com.itwray.iw.web.core.feign.FeignConfiguration;
+import com.itwray.iw.web.core.aop.SharedQueryScopeAspect;
 import com.itwray.iw.web.core.mybatis.MybatisPlusConfiguration;
 import com.itwray.iw.web.core.webmvc.IwWebMvcConfiguration;
 import com.itwray.iw.web.utils.ApplicationContextHolder;
@@ -35,5 +36,11 @@ public class IwWebAutoConfiguration {
     @ConditionalOnMissingBean(EnvironmentHolder.class)
     public EnvironmentHolder environmentHolder() {
         return new EnvironmentHolder();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(SharedQueryScopeAspect.class)
+    public SharedQueryScopeAspect sharedQueryScopeAspect() {
+        return new SharedQueryScopeAspect();
     }
 }

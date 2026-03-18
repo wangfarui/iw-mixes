@@ -6,6 +6,8 @@ import com.itwray.iw.starter.rocketmq.web.RocketMQDataDaoHolder;
 import com.itwray.iw.starter.rocketmq.web.dao.BaseMqConsumeRecordsDao;
 import com.itwray.iw.starter.rocketmq.web.entity.BaseMqConsumeRecordsEntity;
 import com.itwray.iw.web.model.dto.UserDto;
+import com.itwray.iw.web.utils.UserCurrentGroupUtils;
+import com.itwray.iw.web.utils.UserSharedQueryUtils;
 import com.itwray.iw.web.utils.UserUtils;
 import org.apache.rocketmq.client.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.client.apis.consumer.ConsumeResult;
@@ -73,6 +75,11 @@ public interface RocketMQClientListener<T> extends RocketMQListener {
         } finally {
             updateConsumeStatus(consumeRecordId, consumeResult);
             UserUtils.removeUserId();
+            UserUtils.removeUserToken();
+            UserUtils.removeUserDataPermission();
+            UserSharedQueryUtils.removeUserSharedQuery();
+            UserSharedQueryUtils.removeUserSharedQueryOnlyMyself();
+            UserCurrentGroupUtils.removeCurrentGroupId();
         }
         return consumeResult;
     }

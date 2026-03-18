@@ -4,6 +4,7 @@ import com.itwray.iw.bookkeeping.model.dto.BookkeepingIncomeStatisticsDto;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo;
 import com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsTotalVo;
 import com.itwray.iw.bookkeeping.service.BookkeepingIncomeService;
+import com.itwray.iw.web.annotation.SharedQueryScope;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,6 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/bookkeeping/income")
+@SharedQueryScope
 @Validated
 @Tag(name = "记账收入接口")
 public class BookkeepingIncomeController {

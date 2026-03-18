@@ -14,6 +14,7 @@ import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.enums.FamilyInviteStatusEnum;
 import com.itwray.iw.auth.model.enums.FamilyMemberRoleEnum;
 import com.itwray.iw.auth.model.enums.FamilyMemberStatusEnum;
+import com.itwray.iw.auth.model.mq.FamilyGroupMemberLeaveMqDto;
 import com.itwray.iw.auth.model.vo.FamilyGroupDetailVo;
 import com.itwray.iw.auth.model.vo.FamilyInviteVo;
 import com.itwray.iw.auth.model.vo.FamilyMemberVo;
@@ -21,7 +22,9 @@ import com.itwray.iw.auth.service.AuthFamilyGroupService;
 import com.itwray.iw.auth.utils.FamilyGroupUtils;
 import com.itwray.iw.common.constants.BoolEnum;
 import com.itwray.iw.common.utils.ConstantEnumUtil;
+import com.itwray.iw.starter.rocketmq.MQProducerHelper;
 import com.itwray.iw.web.exception.BusinessException;
+import com.itwray.iw.web.model.enums.mq.FamilyGroupTopicEnum;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.UserUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -132,6 +136,9 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
                     .eq(AuthUserEntity::getFamilyGroupId, id)
                     .set(AuthUserEntity::getFamilyGroupId, 0)
                     .update();
+
+            // 发送离组消息（解散家庭组）
+            this.sendFamilyMemberLeaveMessage(id, userIds);
         }
 
         // 使所有未使用的邀请码失效
@@ -362,6 +369,8 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
                     .set(AuthUserEntity::getFamilyGroupId, 0)
                     .update();
         }
+
+        this.sendFamilyMemberLeaveMessage(groupId, Collections.singletonList(userId));
     }
 
     @Override
@@ -400,6 +409,8 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
                 .eq(AuthUserEntity::getFamilyGroupId, dto.getGroupId())
                 .set(AuthUserEntity::getFamilyGroupId, 0)
                 .update();
+
+        this.sendFamilyMemberLeaveMessage(dto.getGroupId(), Collections.singletonList(dto.getUserId()));
     }
 
     @Override
@@ -623,6 +634,15 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
         return defaultShared == null ? BoolEnum.FALSE.getCode() : defaultShared;
     }
 
+    @Override
+    public Integer queryCurrentGroupId(Integer userId) {
+        AuthUserEntity userEntity = authUserDao.getById(userId);
+        if (userEntity == null || userEntity.getFamilyGroupId() == null) {
+            return 0;
+        }
+        return userEntity.getFamilyGroupId();
+    }
+
     /**
      * 校验群主权限
      *
@@ -686,5 +706,18 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
         if (count > 0) {
             throw new BusinessException("您已加入家庭组，请先退出当前家庭组");
         }
+    }
+
+    /**
+     * 发送家庭组成员离组消息
+     */
+    private void sendFamilyMemberLeaveMessage(Integer groupId, List<Integer> userIdList) {
+        if (groupId == null || groupId <= 0 || userIdList == null || userIdList.isEmpty()) {
+            return;
+        }
+        FamilyGroupMemberLeaveMqDto mqDto = new FamilyGroupMemberLeaveMqDto();
+        mqDto.setGroupId(groupId);
+        mqDto.setUserIdList(userIdList);
+        MQProducerHelper.send(FamilyGroupTopicEnum.MEMBER_LEAVE, mqDto);
     }
 }

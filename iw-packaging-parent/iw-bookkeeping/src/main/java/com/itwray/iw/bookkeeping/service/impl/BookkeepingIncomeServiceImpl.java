@@ -67,9 +67,7 @@ public class BookkeepingIncomeServiceImpl implements BookkeepingIncomeService {
                     startDate = startDate.plusDays(1);
                 }
             }
-            case YEAR -> {
-                result = BookkeepingStatisticsUtils.convertToBarChartYearStatisticsBo(statisticsDto.getCurrentStartMonth(), list);
-            }
+            case YEAR -> result = BookkeepingStatisticsUtils.convertToBarChartYearStatisticsBo(statisticsDto.getCurrentStartMonth(), list);
         }
         return result;
     }
@@ -90,6 +88,7 @@ public class BookkeepingIncomeServiceImpl implements BookkeepingIncomeService {
         }
         statisticsDto.setRecordCategory(RecordCategoryEnum.INCOME);
         statisticsDto.setStatisticsType(dto.getStatisticsType());
+        statisticsDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         return statisticsDto;
     }
 }

@@ -3,6 +3,7 @@ package com.itwray.iw.bookkeeping.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.itwray.iw.auth.model.enums.ShareStateEnum;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.web.model.entity.UserEntity;
 import lombok.Data;
@@ -83,4 +84,14 @@ public class BookkeepingRecordsEntity extends UserEntity<Integer> {
      * 是否计入统计
      */
     private Integer isStatistics;
+
+    /**
+     * 家庭组ID (0-个人模式)
+     */
+    private Integer groupId;
+
+    /**
+     * 共享状态 (0-不共享, 1-共享中, 2-已离组)
+     */
+    private ShareStateEnum shareState;
 }
