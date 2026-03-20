@@ -2,7 +2,9 @@ package com.itwray.iw.bookkeeping.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.common.utils.DateUtils;
+import com.itwray.iw.web.model.vo.AbstractUserOwnerVo;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,7 +17,8 @@ import java.time.LocalDateTime;
  * @since 2024/10/15
  */
 @Data
-public class BookkeepingStatisticsRankVo {
+@EqualsAndHashCode(callSuper = true)
+public class BookkeepingStatisticsRankVo extends AbstractUserOwnerVo {
 
     private Integer id;
 

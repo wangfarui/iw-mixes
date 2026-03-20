@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApplicationContextHolder implements ApplicationContextAware {
 
-    private static ApplicationContext applicationContext;
+    private static volatile ApplicationContext applicationContext;
 
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
@@ -51,6 +51,10 @@ public class ApplicationContextHolder implements ApplicationContextAware {
 
     public static <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
         return applicationContext.getBeanProvider(requiredType);
+    }
+
+    public static boolean hasApplicationContext() {
+        return applicationContext != null;
     }
 
     public static boolean containsBean(String name) {

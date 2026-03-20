@@ -1,7 +1,10 @@
 package com.itwray.iw.auth.service;
 
 import com.itwray.iw.auth.model.dto.*;
+import com.itwray.iw.auth.model.vo.UserSimpleVo;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
+
+import java.util.List;
 
 /**
  * 用户服务接口
@@ -92,6 +95,11 @@ public interface AuthUserService {
      * 生成用户token
      */
     String genericUserToken(Integer userId);
+
+    /**
+     * 查询用户精简信息列表
+     */
+    List<UserSimpleVo> querySimpleUserList(List<Integer> userIdList);
 
     /**
      * 当前用户是否为管理员用户

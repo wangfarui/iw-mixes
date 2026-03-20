@@ -73,7 +73,7 @@
         </if>
     </select>
     <select id="rankStatistics" resultType="com.itwray.iw.bookkeeping.model.vo.BookkeepingStatisticsRankVo">
-        select id, record_type, record_source, record_date, record_time, amount
+        select id, user_id, record_type, record_source, record_date, record_time, amount
         from bookkeeping_records
         WHERE deleted = 0 and record_category = #{dto.recordCategory}
         AND record_date BETWEEN #{dto.currentStartMonth} AND #{dto.currentEndMonth}

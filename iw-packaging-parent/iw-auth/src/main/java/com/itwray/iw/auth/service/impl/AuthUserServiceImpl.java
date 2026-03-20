@@ -1,6 +1,7 @@
 package com.itwray.iw.auth.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.itwray.iw.auth.dao.AuthUserDao;
 import com.itwray.iw.auth.model.AuthRedisKeyEnum;
@@ -8,6 +9,7 @@ import com.itwray.iw.auth.model.bo.UserAddBo;
 import com.itwray.iw.auth.model.dto.*;
 import com.itwray.iw.auth.model.entity.AuthUserEntity;
 import com.itwray.iw.auth.model.enums.VerificationCodeActionEnum;
+import com.itwray.iw.auth.model.vo.UserSimpleVo;
 import com.itwray.iw.auth.model.vo.UserInfoVo;
 import com.itwray.iw.auth.service.AuthUserService;
 import com.itwray.iw.auth.service.AuthVerificationService;
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import static com.itwray.iw.common.constants.RequestHeaderConstants.TOKEN_HEADER;
@@ -323,6 +326,16 @@ public class AuthUserServiceImpl implements AuthUserService {
     @Override
     public String genericUserToken(Integer userId) {
         return authUserDao.genericUserToken(userId);
+    }
+
+    @Override
+    public List<UserSimpleVo> querySimpleUserList(List<Integer> userIdList) {
+        if (CollUtil.isEmpty(userIdList)) {
+            return List.of();
+        }
+        return authUserDao.listByIds(userIdList).stream()
+                .map(entity -> BeanUtil.copyProperties(entity, UserSimpleVo.class))
+                .toList();
     }
 
     @Override

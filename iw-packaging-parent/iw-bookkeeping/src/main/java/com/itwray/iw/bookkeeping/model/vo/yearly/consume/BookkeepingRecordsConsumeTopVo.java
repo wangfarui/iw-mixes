@@ -2,7 +2,9 @@ package com.itwray.iw.bookkeeping.model.vo.yearly.consume;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.common.utils.DateUtils;
+import com.itwray.iw.web.model.vo.AbstractUserOwnerVo;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,7 +16,8 @@ import java.time.LocalDate;
  * @since 2025/12/10
  */
 @Data
-public class BookkeepingRecordsConsumeTopVo {
+@EqualsAndHashCode(callSuper = true)
+public class BookkeepingRecordsConsumeTopVo extends AbstractUserOwnerVo {
 
     /**
      * 分类名称

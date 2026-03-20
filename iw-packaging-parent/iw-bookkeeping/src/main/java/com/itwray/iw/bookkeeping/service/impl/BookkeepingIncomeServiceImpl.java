@@ -11,7 +11,7 @@ import com.itwray.iw.bookkeeping.service.BookkeepingIncomeService;
 import com.itwray.iw.bookkeeping.utils.BookkeepingStatisticsUtils;
 import com.itwray.iw.common.utils.DateUtils;
 import com.itwray.iw.web.exception.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.itwray.iw.web.support.UserOwnerFillSupport;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,7 +30,6 @@ public class BookkeepingIncomeServiceImpl implements BookkeepingIncomeService {
 
     private final BookkeepingRecordsDao bookkeepingRecordsDao;
 
-    @Autowired
     public BookkeepingIncomeServiceImpl(BookkeepingRecordsDao bookkeepingRecordsDao) {
         this.bookkeepingRecordsDao = bookkeepingRecordsDao;
     }
@@ -44,7 +43,9 @@ public class BookkeepingIncomeServiceImpl implements BookkeepingIncomeService {
     @Override
     public List<BookkeepingStatisticsRankVo> rankStatistics(BookkeepingIncomeStatisticsDto dto) {
         BookkeepingStatisticsDto statisticsDto = this.buildStatisticsDto(dto);
-        return bookkeepingRecordsDao.getBaseMapper().rankStatistics(statisticsDto);
+        List<BookkeepingStatisticsRankVo> rankVoList = bookkeepingRecordsDao.getBaseMapper().rankStatistics(statisticsDto);
+        UserOwnerFillSupport.fill(rankVoList);
+        return rankVoList;
     }
 
     @Override

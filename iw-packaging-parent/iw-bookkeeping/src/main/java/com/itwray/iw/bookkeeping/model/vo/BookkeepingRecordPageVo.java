@@ -3,7 +3,9 @@ package com.itwray.iw.bookkeeping.model.vo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itwray.iw.bookkeeping.model.enums.RecordCategoryEnum;
 import com.itwray.iw.common.utils.DateUtils;
+import com.itwray.iw.web.model.vo.UserOwnerPageVo;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,12 +17,8 @@ import java.time.LocalDateTime;
  * @since 2024/7/15
  */
 @Data
-public class BookkeepingRecordPageVo {
-
-    /**
-     * id
-     */
-    private Integer id;
+@EqualsAndHashCode(callSuper = true)
+public class BookkeepingRecordPageVo extends UserOwnerPageVo<Integer> {
 
     /**
      * 记录时间

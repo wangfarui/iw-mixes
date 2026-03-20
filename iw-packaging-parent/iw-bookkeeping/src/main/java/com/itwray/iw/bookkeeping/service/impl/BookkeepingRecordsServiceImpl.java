@@ -48,6 +48,7 @@ import com.itwray.iw.web.model.enums.mq.BookkeepingRecordsTopicEnum;
 import com.itwray.iw.web.model.enums.mq.PointsRecordsTopicEnum;
 import com.itwray.iw.web.model.vo.FileVo;
 import com.itwray.iw.web.model.vo.PageVo;
+import com.itwray.iw.web.support.UserOwnerFillSupport;
 import com.itwray.iw.web.service.impl.WebServiceImpl;
 import com.itwray.iw.web.utils.OrderNoUtils;
 import com.itwray.iw.web.utils.UserUtils;
@@ -164,7 +165,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     @Transactional
     public void update(BookkeepingRecordUpdateDto dto) {
-        BookkeepingRecordsEntity bookkeepingRecordsEntity = getBaseDao().queryById(dto.getId());
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryEditableRecord(dto.getId());
         if (!bookkeepingRecordsEntity.getRecordCategory().equals(dto.getRecordCategory())) {
             throw new BusinessException("不支持修改记账记录类型操作");
         }
@@ -231,7 +232,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     @Transactional
     public void delete(Integer id) {
-        BookkeepingRecordsEntity bookkeepingRecordsEntity = getBaseDao().queryById(id);
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryEditableRecord(id);
         super.delete(id);
 
         // 删除标签
@@ -261,6 +262,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 查询记账附件
         List<FileVo> fileVoList = baseBusinessFileDao.getBusinessFile(id, BusinessFileTypeEnum.BOOKKEEPING_RECORDS);
         vo.setFileList(fileVoList);
+        UserOwnerFillSupport.fill(vo);
 
         return vo;
     }
@@ -290,6 +292,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 t.setRecordTimeStr(t.getRecordTime().format(oldYearFormatter));
             }
         });
+        UserOwnerFillSupport.fill(pageVo);
 
         return pageVo;
     }
@@ -300,13 +303,15 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         if (dto.getRecordDate() == null) {
             dto.setRecordDate(LocalDate.now());
         }
-        return getBaseDao().lambdaQuery()
+        List<BookkeepingRecordPageVo> recordList = getBaseDao().lambdaQuery()
                 .eq(BookkeepingRecordsEntity::getRecordDate, dto.getRecordDate())
                 .orderByDesc(BookkeepingRecordsEntity::getId)
                 .list()
                 .stream()
                 .map(t -> BeanUtil.copyProperties(t, BookkeepingRecordPageVo.class))
                 .collect(Collectors.toList());
+        UserOwnerFillSupport.fill(recordList);
+        return recordList;
     }
 
     private void processBookkeepingRecordPageDto(BookkeepingRecordPageDto dto) {
@@ -597,6 +602,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         statisticsDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         List<BookkeepingStatisticsRankVo> rankVoList = getBaseDao().getBaseMapper().rankStatistics(statisticsDto);
         if (CollectionUtils.isNotEmpty(rankVoList)) {
+            UserOwnerFillSupport.fill(rankVoList);
             // 查询记账分类字典值
             List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
             Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
@@ -607,6 +613,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 topVo.setDescription(rankVo.getRecordSource());
                 topVo.setDate(rankVo.getRecordDate());
                 topVo.setAmount(rankVo.getAmount());
+                topVo.setUserId(rankVo.getUserId());
+                topVo.setUserName(rankVo.getUserName());
+                topVo.setCanEdit(rankVo.getCanEdit());
                 topConsumeList.add(topVo);
             }
             consumeVo.setTopConsumeList(topConsumeList);
@@ -706,6 +715,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         statisticsDto.setQueryOnlyMyself(dto.getQueryOnlyMyself());
         List<BookkeepingStatisticsRankVo> rankVoList = getBaseDao().getBaseMapper().rankStatistics(statisticsDto);
         if (CollectionUtils.isNotEmpty(rankVoList)) {
+            UserOwnerFillSupport.fill(rankVoList);
             // 查询记账分类字典值
             List<DictListVo> dictList = baseDictClient.getDictListByType(DictTypeEnum.BOOKKEEPING_RECORD_TYPE.getCode());
             Map<Integer, String> dictMap = dictList.stream().collect(Collectors.toMap(DictListVo::getDictCode, DictListVo::getDictName));
@@ -716,6 +726,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
                 topVo.setDescription(rankVo.getRecordSource());
                 topVo.setDate(rankVo.getRecordDate());
                 topVo.setAmount(rankVo.getAmount());
+                topVo.setUserId(rankVo.getUserId());
+                topVo.setUserName(rankVo.getUserName());
+                topVo.setCanEdit(rankVo.getCanEdit());
                 topIncomeList.add(topVo);
             }
             incomeVo.setTopIncomeList(topIncomeList);
@@ -783,6 +796,23 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         } catch (Exception e) {
             log.error("查询用户默认共享开关失败, userId: {}", userId, e);
             return ShareStateEnum.NOT_SHARED;
+        }
+    }
+
+    private BookkeepingRecordsEntity queryEditableRecord(Integer id) {
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryRecordByIdIgnorePermission(id);
+        if (!Objects.equals(bookkeepingRecordsEntity.getUserId(), UserUtils.getUserId())) {
+            throw new BusinessException("不能修改他人记账记录");
+        }
+        return bookkeepingRecordsEntity;
+    }
+
+    private BookkeepingRecordsEntity queryRecordByIdIgnorePermission(Integer id) {
+        try {
+            UserUtils.setUserDataPermission(Boolean.FALSE);
+            return getBaseDao().queryById(id);
+        } finally {
+            UserUtils.removeUserDataPermission();
         }
     }
 
