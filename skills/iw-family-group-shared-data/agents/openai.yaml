@@ -1,0 +1,4 @@
+interface:
+  display_name: "IW Family Shared Data"
+  short_description: "Pattern for family-group data sharing"
+  default_prompt: "Use $iw-family-group-shared-data to add family group data sharing to a new iw-mixes business module across backend and app."
