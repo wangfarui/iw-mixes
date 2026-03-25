@@ -115,4 +115,10 @@ public class AuthFamilyGroupController extends WebController<AuthFamilyGroupServ
     public void updateMyDefaultShared(@RequestBody @Valid FamilyMemberDefaultSharedUpdateDto dto) {
         getWebService().updateMyDefaultShared(dto);
     }
+
+    @PostMapping("/updateMyQueryScope")
+    @Operation(summary = "更新我的共享数据查看范围")
+    public void updateMyQueryScope(@RequestBody @Valid FamilyMemberQueryScopeUpdateDto dto) {
+        getWebService().updateMyQueryScope(dto);
+    }
 }

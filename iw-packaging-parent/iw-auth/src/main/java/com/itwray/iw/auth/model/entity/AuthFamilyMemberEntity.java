@@ -52,6 +52,13 @@ public class AuthFamilyMemberEntity extends BaseEntity<Integer> {
     private Integer defaultShared;
 
     /**
+     * 共享数据查看范围
+     *
+     * @see BoolEnum#getCode()
+     */
+    private Integer queryOnlyMyself;
+
+    /**
      * 状态 (1-正常, 2-已退出, 3-已移除)
      */
     private FamilyMemberStatusEnum status;

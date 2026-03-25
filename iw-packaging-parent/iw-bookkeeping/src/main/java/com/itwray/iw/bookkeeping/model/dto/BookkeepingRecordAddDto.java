@@ -83,4 +83,10 @@ public class BookkeepingRecordAddDto implements AddDto {
      * 记账附件
      */
     private List<FileDto> fileList;
+
+    /**
+     * 是否共享给家庭
+     */
+    @Schema(title = "是否共享给家庭(0否 1是)")
+    private Integer shared;
 }

@@ -53,10 +53,10 @@
 - [ ] Preserve existing owner/group/share fields during update unless the business explicitly allows changing them.
 
 ## App Checklist
-- [ ] Add or reuse a module query-scope store.
-- [ ] Persist selected scope in local storage when useful.
+- [ ] Add or reuse a global family-group query-scope store instead of a per-page toggle.
+- [ ] Use the family-group settings page as the visible entry for changing shared-data view scope.
 - [ ] Effective default: has family group => shared; no family group => only-myself.
-- [ ] Show the scope toggle only when `hasGroup` is true.
+- [ ] Child role must be forced to only-myself in both app state and backend enforcement.
 - [ ] Every shared-query request passes `queryOnlyMyself`.
 - [ ] Shared list cards show owner text only for non-own records.
 - [ ] Shared detail page shows owner info when available.

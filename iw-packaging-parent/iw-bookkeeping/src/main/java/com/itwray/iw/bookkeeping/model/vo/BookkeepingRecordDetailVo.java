@@ -89,4 +89,9 @@ public class BookkeepingRecordDetailVo extends UserOwnerDetailVo<Integer> {
      * 记账附件
      */
     private List<FileVo> fileList;
+
+    /**
+     * 是否共享给家庭
+     */
+    private Integer shared;
 }

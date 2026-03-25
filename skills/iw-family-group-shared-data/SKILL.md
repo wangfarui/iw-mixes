@@ -54,9 +54,11 @@ If the work also includes standard CRUD scaffolding, combine this skill with `$i
 - Reject non-owner writes with a clear business exception.
 
 6. Adapt the app
-- Provide a query-scope store for the module or reuse an existing one.
+- Prefer a family-group level global query-scope store over page-level toggles.
+- Use the family-group settings page as the single visible entry for changing shared-data view scope.
+- Shared business pages should consume the global scope and avoid inserting a full query-scope control on every page.
 - Default rule: users with a family group default to shared scope; otherwise default to only-myself.
-- Show the scope toggle only when the user has a family group.
+- Child role rule: child users are forced to `仅自己` on the backend and app, even if the request asks for shared scope.
 - Every shared-query request must pass `queryOnlyMyself: scopeStore.queryOnlyMyself`.
 - In shared view, show owner text only when the record is from another user.
 - Hide or disable edit/delete operations when `canEdit === false`.

@@ -7,6 +7,7 @@ import com.itwray.iw.auth.client.AuthFamilyGroupClient;
 import com.itwray.iw.auth.client.AuthUserClient;
 import com.itwray.iw.auth.client.BaseDictClient;
 import com.itwray.iw.auth.model.enums.ShareStateEnum;
+import com.itwray.iw.auth.model.vo.FamilySharedSavePolicyVo;
 import com.itwray.iw.auth.model.vo.DictListVo;
 import com.itwray.iw.bookkeeping.dao.BookkeepingRecordsDao;
 import com.itwray.iw.bookkeeping.excel.listener.BookkeepingRecordsImportDataListener;
@@ -134,9 +135,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     public Integer add(BookkeepingRecordAddDto dto) {
         BookkeepingRecordsEntity bookkeepingRecords = this.buildBookkeepingRecordAddDto(dto);
         Integer userId = UserUtils.getUserId();
-        Integer currentGroupId = this.queryCurrentGroupId(userId);
-        bookkeepingRecords.setGroupId(currentGroupId);
-        bookkeepingRecords.setShareState(this.queryDefaultShareState(userId, currentGroupId));
+        FamilySharedSavePolicyVo sharedSavePolicy = this.querySharedSavePolicy(userId);
+        bookkeepingRecords.setGroupId(sharedSavePolicy.getCurrentGroupId());
+        bookkeepingRecords.setShareState(this.resolveRecordShareState(sharedSavePolicy.getCurrentGroupId(), sharedSavePolicy, dto.getShared()));
 
         // 生成订单号
         bookkeepingRecords.setOrderNo(OrderNoUtils.getAndIncrement(OrderNoEnum.BOOKKEEPING_RECORDS));
@@ -165,7 +166,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     @Transactional
     public void update(BookkeepingRecordUpdateDto dto) {
-        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryEditableRecord(dto.getId());
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryEditableRecord(dto.getId(), "修改");
         if (!bookkeepingRecordsEntity.getRecordCategory().equals(dto.getRecordCategory())) {
             throw new BusinessException("不支持修改记账记录类型操作");
         }
@@ -189,8 +190,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         }
 
         BookkeepingRecordsEntity recordsEntity = this.buildBookkeepingRecordAddDto(dto);
+        FamilySharedSavePolicyVo sharedSavePolicy = this.querySharedSavePolicy(bookkeepingRecordsEntity.getUserId());
         recordsEntity.setGroupId(bookkeepingRecordsEntity.getGroupId());
-        recordsEntity.setShareState(bookkeepingRecordsEntity.getShareState());
+        recordsEntity.setShareState(this.resolveRecordShareState(bookkeepingRecordsEntity.getGroupId(), sharedSavePolicy, dto.getShared()));
         getBaseDao().updateById(recordsEntity);
 
         // 同步用户钱包余额
@@ -232,7 +234,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     @Transactional
     public void delete(Integer id) {
-        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryEditableRecord(id);
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryEditableRecord(id, "删除");
         super.delete(id);
 
         // 删除标签
@@ -254,6 +256,7 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Override
     public BookkeepingRecordDetailVo detail(Integer id) {
         BookkeepingRecordDetailVo vo = super.detail(id);
+        BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryRecordByIdIgnorePermission(id);
 
         // 查询标签
         List<Integer> tagIdList = baseDictBusinessRelationDao.queryDictIdList(DictBusinessTypeEnum.BOOKKEEPING_RECORD_TAG, id);
@@ -262,6 +265,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         // 查询记账附件
         List<FileVo> fileVoList = baseBusinessFileDao.getBusinessFile(id, BusinessFileTypeEnum.BOOKKEEPING_RECORDS);
         vo.setFileList(fileVoList);
+        if (bookkeepingRecordsEntity != null) {
+            vo.setShared(this.resolveSharedCode(bookkeepingRecordsEntity.getShareState()));
+        }
         UserOwnerFillSupport.fill(vo);
 
         return vo;
@@ -355,8 +361,9 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
     @Transactional
     public void importRecords(MultipartFile file) {
         Integer userId = UserUtils.getUserId();
-        Integer currentGroupId = this.queryCurrentGroupId(userId);
-        ShareStateEnum defaultShareState = this.queryDefaultShareState(userId, currentGroupId);
+        FamilySharedSavePolicyVo sharedSavePolicy = this.querySharedSavePolicy(userId);
+        Integer currentGroupId = sharedSavePolicy.getCurrentGroupId();
+        ShareStateEnum defaultShareState = this.resolveRecordShareState(currentGroupId, sharedSavePolicy, null);
         // 查询当前用户的记账-记录分类字典项
         List<BaseDictEntity> dictEntityList = baseDictDao.queryDictEntityList(DictTypeEnum.BOOKKEEPING_RECORD_TYPE);
         Map<String, Integer> dictNameMap = dictEntityList.stream().collect(Collectors.toMap(BaseDictEntity::getDictName, BaseDictEntity::getDictCode));
@@ -776,33 +783,60 @@ public class BookkeepingRecordsServiceImpl extends WebServiceImpl<BookkeepingRec
         dto.setEndDate(endStatisticsDate);
     }
 
-    private Integer queryCurrentGroupId(Integer userId) {
+    private FamilySharedSavePolicyVo querySharedSavePolicy(Integer userId) {
         try {
-            Integer groupId = authFamilyGroupClient.queryCurrentGroupId(userId);
-            return groupId == null ? 0 : groupId;
+            FamilySharedSavePolicyVo policyVo = authFamilyGroupClient.querySharedSavePolicy(userId);
+            if (policyVo == null) {
+                return this.buildDefaultSharedSavePolicy();
+            }
+            if (policyVo.getCurrentGroupId() == null) {
+                policyVo.setCurrentGroupId(0);
+            }
+            if (policyVo.getDefaultShared() == null) {
+                policyVo.setDefaultShared(BoolEnum.FALSE.getCode());
+            }
+            if (policyVo.getForceShared() == null) {
+                policyVo.setForceShared(BoolEnum.FALSE.getCode());
+            }
+            return policyVo;
         } catch (Exception e) {
-            log.error("查询用户当前家庭组ID失败, userId: {}", userId, e);
-            return 0;
+            log.error("查询用户共享保存策略失败, userId: {}", userId, e);
+            return this.buildDefaultSharedSavePolicy();
         }
     }
 
-    private ShareStateEnum queryDefaultShareState(Integer userId, Integer currentGroupId) {
-        if (currentGroupId == null || currentGroupId <= 0) {
-            return ShareStateEnum.NOT_SHARED;
-        }
-        try {
-            Integer defaultShared = authFamilyGroupClient.queryDefaultShared(userId);
-            return BoolEnum.TRUE.getCode().equals(defaultShared) ? ShareStateEnum.SHARED : ShareStateEnum.NOT_SHARED;
-        } catch (Exception e) {
-            log.error("查询用户默认共享开关失败, userId: {}", userId, e);
-            return ShareStateEnum.NOT_SHARED;
-        }
+    private FamilySharedSavePolicyVo buildDefaultSharedSavePolicy() {
+        FamilySharedSavePolicyVo policyVo = new FamilySharedSavePolicyVo();
+        policyVo.setCurrentGroupId(0);
+        policyVo.setDefaultShared(BoolEnum.FALSE.getCode());
+        policyVo.setForceShared(BoolEnum.FALSE.getCode());
+        return policyVo;
     }
 
-    private BookkeepingRecordsEntity queryEditableRecord(Integer id) {
+    private ShareStateEnum resolveRecordShareState(Integer recordGroupId, FamilySharedSavePolicyVo sharedSavePolicy, Integer requestShared) {
+        if (recordGroupId == null || recordGroupId <= 0 || sharedSavePolicy == null) {
+            return ShareStateEnum.NOT_SHARED;
+        }
+        if (!Objects.equals(recordGroupId, sharedSavePolicy.getCurrentGroupId())) {
+            return ShareStateEnum.NOT_SHARED;
+        }
+        if (BoolEnum.TRUE.getCode().equals(sharedSavePolicy.getForceShared())) {
+            return ShareStateEnum.SHARED;
+        }
+        if (requestShared != null) {
+            return BoolEnum.TRUE.getCode().equals(requestShared) ? ShareStateEnum.SHARED : ShareStateEnum.NOT_SHARED;
+        }
+        return BoolEnum.TRUE.getCode().equals(sharedSavePolicy.getDefaultShared()) ? ShareStateEnum.SHARED : ShareStateEnum.NOT_SHARED;
+    }
+
+    private Integer resolveSharedCode(ShareStateEnum shareState) {
+        return ShareStateEnum.SHARED.equals(shareState) ? BoolEnum.TRUE.getCode() : BoolEnum.FALSE.getCode();
+    }
+
+    private BookkeepingRecordsEntity queryEditableRecord(Integer id, String actionName) {
         BookkeepingRecordsEntity bookkeepingRecordsEntity = this.queryRecordByIdIgnorePermission(id);
         if (!Objects.equals(bookkeepingRecordsEntity.getUserId(), UserUtils.getUserId())) {
-            throw new BusinessException("不能修改他人记账记录");
+            throw new BusinessException("不能" + actionName + "他人记账记录");
         }
         return bookkeepingRecordsEntity;
     }

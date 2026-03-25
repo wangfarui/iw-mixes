@@ -18,6 +18,8 @@ import com.itwray.iw.auth.model.mq.FamilyGroupMemberLeaveMqDto;
 import com.itwray.iw.auth.model.vo.FamilyGroupDetailVo;
 import com.itwray.iw.auth.model.vo.FamilyInviteVo;
 import com.itwray.iw.auth.model.vo.FamilyMemberVo;
+import com.itwray.iw.auth.model.vo.FamilySharedQueryPolicyVo;
+import com.itwray.iw.auth.model.vo.FamilySharedSavePolicyVo;
 import com.itwray.iw.auth.service.AuthFamilyGroupService;
 import com.itwray.iw.auth.utils.FamilyGroupUtils;
 import com.itwray.iw.common.constants.BoolEnum;
@@ -83,6 +85,7 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
         memberEntity.setUserId(userId);
         memberEntity.setRole(FamilyMemberRoleEnum.OWNER);
         memberEntity.setDefaultShared(BoolEnum.FALSE.getCode());
+        memberEntity.setQueryOnlyMyself(BoolEnum.FALSE.getCode());
         memberEntity.setStatus(FamilyMemberStatusEnum.NORMAL);
         memberEntity.setJoinTime(LocalDateTime.now());
         familyMemberDao.save(memberEntity);
@@ -317,6 +320,7 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
         memberEntity.setUserId(userId);
         memberEntity.setRole(FamilyMemberRoleEnum.MEMBER);
         memberEntity.setDefaultShared(BoolEnum.FALSE.getCode());
+        memberEntity.setQueryOnlyMyself(BoolEnum.FALSE.getCode());
         memberEntity.setStatus(FamilyMemberStatusEnum.NORMAL);
         memberEntity.setJoinTime(LocalDateTime.now());
         familyMemberDao.save(memberEntity);
@@ -469,7 +473,14 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
             return null;
         }
 
-        return BeanUtil.copyProperties(group, FamilyGroupDetailVo.class);
+        FamilyGroupDetailVo vo = BeanUtil.copyProperties(group, FamilyGroupDetailVo.class);
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(group.getId(), userId);
+        if (memberEntity != null) {
+            vo.setCurrentUserRole(memberEntity.getRole());
+            vo.setDefaultShared(this.resolveDefaultShared(memberEntity));
+            vo.setQueryOnlyMyself(this.resolveQueryOnlyMyself(memberEntity));
+        }
+        return vo;
     }
 
     @Override
@@ -567,6 +578,7 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
                 .eq(AuthFamilyMemberEntity::getId, targetMember.getId())
                 .set(AuthFamilyMemberEntity::getRole, targetRole)
                 .set(switchToChild, AuthFamilyMemberEntity::getDefaultShared, BoolEnum.TRUE.getCode())
+                .set(switchToChild, AuthFamilyMemberEntity::getQueryOnlyMyself, BoolEnum.TRUE.getCode())
                 .update();
     }
 
@@ -578,22 +590,7 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
             throw new BusinessException("您不是该家庭组成员");
         }
 
-        Integer defaultShared = memberEntity.getDefaultShared();
-        if (defaultShared == null) {
-            defaultShared = BoolEnum.FALSE.getCode();
-        }
-
-        // 儿童角色默认开启共享，这里兜底修正历史数据
-        if (FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())
-                && !BoolEnum.TRUE.getCode().equals(defaultShared)) {
-            familyMemberDao.lambdaUpdate()
-                    .eq(AuthFamilyMemberEntity::getId, memberEntity.getId())
-                    .set(AuthFamilyMemberEntity::getDefaultShared, BoolEnum.TRUE.getCode())
-                    .update();
-            return BoolEnum.TRUE.getCode();
-        }
-
-        return defaultShared;
+        return this.resolveDefaultShared(memberEntity);
     }
 
     @Override
@@ -615,23 +612,26 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
     }
 
     @Override
-    public Integer queryDefaultShared(Integer userId) {
-        AuthUserEntity userEntity = authUserDao.getById(userId);
-        if (userEntity == null || userEntity.getFamilyGroupId() == null || userEntity.getFamilyGroupId() == 0) {
-            return BoolEnum.FALSE.getCode();
-        }
-
-        AuthFamilyMemberEntity memberEntity = queryNormalMember(userEntity.getFamilyGroupId(), userId);
+    @Transactional
+    public void updateMyQueryScope(FamilyMemberQueryScopeUpdateDto dto) {
+        Integer userId = UserUtils.getUserId();
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(dto.getGroupId(), userId);
         if (memberEntity == null) {
-            return BoolEnum.FALSE.getCode();
+            throw new BusinessException("您不是该家庭组成员");
         }
-
         if (FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())) {
-            return BoolEnum.TRUE.getCode();
+            throw new BusinessException("儿童角色只能查看自己的数据");
         }
 
-        Integer defaultShared = memberEntity.getDefaultShared();
-        return defaultShared == null ? BoolEnum.FALSE.getCode() : defaultShared;
+        familyMemberDao.lambdaUpdate()
+                .eq(AuthFamilyMemberEntity::getId, memberEntity.getId())
+                .set(AuthFamilyMemberEntity::getQueryOnlyMyself, dto.getQueryOnlyMyself())
+                .update();
+    }
+
+    @Override
+    public Integer queryDefaultShared(Integer userId) {
+        return this.querySharedSavePolicy(userId).getDefaultShared();
     }
 
     @Override
@@ -641,6 +641,83 @@ public class AuthFamilyGroupServiceImpl extends WebServiceImpl<AuthFamilyGroupDa
             return 0;
         }
         return userEntity.getFamilyGroupId();
+    }
+
+    @Override
+    public FamilySharedSavePolicyVo querySharedSavePolicy(Integer userId) {
+        FamilySharedSavePolicyVo vo = new FamilySharedSavePolicyVo();
+        Integer currentGroupId = this.queryCurrentGroupId(userId);
+        vo.setCurrentGroupId(currentGroupId);
+        vo.setDefaultShared(BoolEnum.FALSE.getCode());
+        vo.setForceShared(BoolEnum.FALSE.getCode());
+        if (currentGroupId == null || currentGroupId <= 0) {
+            return vo;
+        }
+
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(currentGroupId, userId);
+        if (memberEntity == null) {
+            return vo;
+        }
+
+        vo.setDefaultShared(this.resolveDefaultShared(memberEntity));
+        vo.setForceShared(FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())
+                ? BoolEnum.TRUE.getCode()
+                : BoolEnum.FALSE.getCode());
+        return vo;
+    }
+
+    @Override
+    public FamilySharedQueryPolicyVo querySharedQueryPolicy(Integer userId) {
+        FamilySharedQueryPolicyVo vo = new FamilySharedQueryPolicyVo();
+        Integer currentGroupId = this.queryCurrentGroupId(userId);
+        vo.setCurrentGroupId(currentGroupId);
+        vo.setForceQueryOnlyMyself(BoolEnum.FALSE.getCode());
+        if (currentGroupId == null || currentGroupId <= 0) {
+            return vo;
+        }
+
+        AuthFamilyMemberEntity memberEntity = queryNormalMember(currentGroupId, userId);
+        if (memberEntity == null) {
+            return vo;
+        }
+
+        vo.setForceQueryOnlyMyself(FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())
+                ? BoolEnum.TRUE.getCode()
+                : BoolEnum.FALSE.getCode());
+        this.resolveQueryOnlyMyself(memberEntity);
+        return vo;
+    }
+
+    private Integer resolveDefaultShared(AuthFamilyMemberEntity memberEntity) {
+        Integer defaultShared = memberEntity.getDefaultShared();
+        if (defaultShared == null) {
+            defaultShared = BoolEnum.FALSE.getCode();
+        }
+        if (FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())
+                && !BoolEnum.TRUE.getCode().equals(defaultShared)) {
+            familyMemberDao.lambdaUpdate()
+                    .eq(AuthFamilyMemberEntity::getId, memberEntity.getId())
+                    .set(AuthFamilyMemberEntity::getDefaultShared, BoolEnum.TRUE.getCode())
+                    .update();
+            return BoolEnum.TRUE.getCode();
+        }
+        return defaultShared;
+    }
+
+    private Integer resolveQueryOnlyMyself(AuthFamilyMemberEntity memberEntity) {
+        Integer queryOnlyMyself = memberEntity.getQueryOnlyMyself();
+        if (queryOnlyMyself == null) {
+            queryOnlyMyself = BoolEnum.FALSE.getCode();
+        }
+        if (FamilyMemberRoleEnum.CHILD.equals(memberEntity.getRole())
+                && !BoolEnum.TRUE.getCode().equals(queryOnlyMyself)) {
+            familyMemberDao.lambdaUpdate()
+                    .eq(AuthFamilyMemberEntity::getId, memberEntity.getId())
+                    .set(AuthFamilyMemberEntity::getQueryOnlyMyself, BoolEnum.TRUE.getCode())
+                    .update();
+            return BoolEnum.TRUE.getCode();
+        }
+        return queryOnlyMyself;
     }
 
     /**

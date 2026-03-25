@@ -1,5 +1,7 @@
 package com.itwray.iw.auth.controller;
 
+import com.itwray.iw.auth.model.vo.FamilySharedQueryPolicyVo;
+import com.itwray.iw.auth.model.vo.FamilySharedSavePolicyVo;
 import com.itwray.iw.auth.service.AuthFamilyGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,5 +41,17 @@ public class InternalFamilyGroupController {
     @Operation(summary = "查询用户当前家庭组ID")
     public Integer currentGroupId(@RequestParam("userId") Integer userId) {
         return authFamilyGroupService.queryCurrentGroupId(userId);
+    }
+
+    @GetMapping("/sharedSavePolicy")
+    @Operation(summary = "查询用户当前共享保存策略")
+    public FamilySharedSavePolicyVo sharedSavePolicy(@RequestParam("userId") Integer userId) {
+        return authFamilyGroupService.querySharedSavePolicy(userId);
+    }
+
+    @GetMapping("/sharedQueryPolicy")
+    @Operation(summary = "查询用户当前共享查询策略")
+    public FamilySharedQueryPolicyVo sharedQueryPolicy(@RequestParam("userId") Integer userId) {
+        return authFamilyGroupService.querySharedQueryPolicy(userId);
     }
 }

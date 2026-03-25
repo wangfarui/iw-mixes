@@ -93,24 +93,27 @@ Reference:
 ## App Blueprint
 
 ### 1. Query scope store
-- `stores/bookkeeping-query-scope.js` is the source of truth.
-- It persists the scope in local storage.
+- The newer preferred pattern is a family-group level global scope store.
+- Keep `stores/bookkeeping-query-scope.js` only as a compatibility wrapper if the bookkeeping module still imports it.
 - Effective default:
   - has family group => shared
   - no family group => only-myself
+  - child role => forced only-myself
 - Request value rule:
   - only-myself => `1`
   - shared => `null`
 
 Reference:
 - `iw-mixes-app/stores/bookkeeping-query-scope.js`
+- `iw-mixes-app/stores/family-shared-scope.js`
 
 ### 2. Scope switch component
-- `components/bookkeeping-query-scope.vue` shows the switch only when the user has a family group.
-- UI labels are fixed to `家庭共享` and `仅自己`.
+- The earlier bookkeeping-only scope switch component should no longer be inserted on every business page.
+- Preferred entry is the family-group detail/settings page, which exposes a single global `查看范围` setting.
 
 Reference:
 - `iw-mixes-app/components/bookkeeping-query-scope.vue`
+- `iw-mixes-app/pagesBase/family/detail.vue`
 
 ### 3. Query pages
 - Shared bookkeeping pages inject `queryOnlyMyself: scopeStore.queryOnlyMyself` into every request.
