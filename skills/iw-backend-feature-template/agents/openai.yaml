@@ -1,4 +1,0 @@
-interface:
-  display_name: "IW Backend Feature Template"
-  short_description: "Template for IW backend CRUD delivery"
-  default_prompt: "Use $iw-backend-feature-template to implement a new iw-auth CRUD feature from SQL to controller with project standards."

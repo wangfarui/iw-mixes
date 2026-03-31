@@ -18,7 +18,7 @@ Reuse the existing shared-query, owner-fill, and app query-scope infrastructure.
 - Detail/list/page/statistics endpoints should support shared visibility, while writes remain owner-only.
 
 Do not use this skill when the current phase explicitly excludes the module from sharing.
-If the work also includes standard CRUD scaffolding, combine this skill with `$iw-backend-feature-template`.
+If the work also includes base feature delivery, combine this skill with `$iw-mixes-ai-development`.
 
 ## Workflow
 
