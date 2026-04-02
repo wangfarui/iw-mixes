@@ -6,6 +6,7 @@ iw:
       enable-table-names:
         - base_application_account
         - base_website_navigation
+        - base_ai_task
 
 # 服务器配置
 server:
