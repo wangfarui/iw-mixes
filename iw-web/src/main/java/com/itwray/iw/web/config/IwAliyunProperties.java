@@ -30,6 +30,11 @@ public class IwAliyunProperties {
      */
     private Email email;
 
+    /**
+     * 语音识别服务
+     */
+    private Asr asr;
+
     @Data
     public static class SMS {
 
@@ -92,5 +97,94 @@ public class IwAliyunProperties {
          * 发件人别名
          */
         private String fromAlias = "Wray";
+    }
+
+    @Data
+    public static class Asr {
+
+        /**
+         * 阿里云 AccessKey ID
+         */
+        private String accessKeyId;
+
+        /**
+         * 阿里云 AccessKey Secret
+         */
+        private String accessKeySecret;
+
+        /**
+         * 智能语音交互 AppKey
+         */
+        private String appKey;
+
+        /**
+         * 一句话识别网关
+         */
+        private String gatewayUrl = "https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/asr";
+
+        /**
+         * 地域
+         */
+        private String regionId = "cn-shanghai";
+
+        /**
+         * Token 域名
+         */
+        private String tokenDomain = "nls-meta.cn-shanghai.aliyuncs.com";
+
+        /**
+         * Token 版本号
+         */
+        private String tokenVersion = "2019-02-28";
+
+        /**
+         * Token Action
+         */
+        private String tokenAction = "CreateToken";
+
+        /**
+         * 默认音频格式
+         */
+        private String defaultFormat = "mp3";
+
+        /**
+         * 默认采样率
+         */
+        private Integer defaultSampleRate = 16000;
+
+        /**
+         * 是否启用标点预测
+         */
+        private Boolean enablePunctuationPrediction = Boolean.TRUE;
+
+        /**
+         * 是否启用逆文本正规化
+         */
+        private Boolean enableInverseTextNormalization = Boolean.TRUE;
+
+        /**
+         * 是否启用语音端点检测
+         */
+        private Boolean enableVoiceDetection = Boolean.FALSE;
+
+        /**
+         * 是否过滤语气词
+         */
+        private Boolean disfluency = Boolean.FALSE;
+
+        /**
+         * 连接超时时间
+         */
+        private Integer connectTimeoutMillis = 5000;
+
+        /**
+         * 读取超时时间
+         */
+        private Integer readTimeoutMillis = 20000;
+
+        /**
+         * Token 提前刷新秒数
+         */
+        private Integer tokenRefreshBeforeSeconds = 300;
     }
 }

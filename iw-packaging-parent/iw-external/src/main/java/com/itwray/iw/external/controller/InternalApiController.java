@@ -2,11 +2,14 @@ package com.itwray.iw.external.controller;
 
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.model.ExternalClientConstants;
+import com.itwray.iw.external.model.dto.AsrSentenceRecognizeDto;
 import com.itwray.iw.external.model.dto.GetExchangeRateDto;
 import com.itwray.iw.external.model.dto.SendEmailDto;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
+import com.itwray.iw.external.model.vo.AsrSentenceRecognizeVo;
 import com.itwray.iw.external.model.vo.GetExchangeRateVo;
 import com.itwray.iw.external.service.AIService;
+import com.itwray.iw.external.service.AsrService;
 import com.itwray.iw.external.service.EmailService;
 import com.itwray.iw.external.service.InternalApiService;
 import com.itwray.iw.external.service.SmsService;
@@ -37,6 +40,8 @@ public class InternalApiController {
 
     private AIService aiService;
 
+    private AsrService asrService;
+
     @Autowired
     public InternalApiController(InternalApiService internalApiService,
                                  SmsService smsService,
@@ -49,6 +54,11 @@ public class InternalApiController {
     @Autowired
     public void setAiService(AIService aiService) {
         this.aiService = aiService;
+    }
+
+    @Autowired
+    public void setAsrService(AsrService asrService) {
+        this.asrService = asrService;
     }
 
     @PostMapping("/api/getExchangeRate")
@@ -78,5 +88,11 @@ public class InternalApiController {
     public GeneralResponse<String> aiChat(@RequestBody Map<String, String> body) {
         String content = aiService.chat(body.get("content"));
         return GeneralResponse.success(content);
+    }
+
+    @PostMapping("/asr/sentenceRecognition")
+    @Operation(summary = "一句话识别")
+    public GeneralResponse<AsrSentenceRecognizeVo> sentenceRecognition(@RequestBody @Valid AsrSentenceRecognizeDto dto) {
+        return GeneralResponse.success(asrService.sentenceRecognize(dto));
     }
 }

@@ -1,5 +1,6 @@
 package com.itwray.iw.external.model.enums;
 
+import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.starter.redis.RedisKeyManager;
 import lombok.Getter;
 
@@ -36,6 +37,10 @@ public enum ExternalRedisKeyEnum implements RedisKeyManager {
      * AI对话内容
      */
     AI_CHAT_CONTENT("external:ai:chat:content:%s", 60 * 60 * 24L),
+    /**
+     * 阿里云ASR Token
+     */
+    ALIYUN_ASR_TOKEN("external:aliyun:asr:token", 60 * 60L),
     ;
 
     private final String pattern;
@@ -45,5 +50,9 @@ public enum ExternalRedisKeyEnum implements RedisKeyManager {
     ExternalRedisKeyEnum(String pattern, Long expireTime) {
         this.pattern = pattern;
         this.expireTime = expireTime;
+    }
+
+    public void setValue(Object value, long expireSeconds, Object... args) {
+        RedisUtil.set(this.getKey(args), value, expireSeconds);
     }
 }

@@ -54,6 +54,12 @@
             <artifactId>alibabacloud-dm20151123</artifactId>
             <version>1.0.19</version>
         </dependency>
+        <!-- 阿里云公共SDK，获取智能语音交互 Token -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-core</artifactId>
+            <version>3.7.1</version>
+        </dependency>
     </dependencies>
 
     <build>
