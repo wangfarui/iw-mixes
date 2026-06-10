@@ -22,11 +22,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 阿里云一句话识别服务实现
@@ -49,14 +56,15 @@ public class AliyunAsrServiceImpl implements AsrService {
         this.validateConfig();
 
         byte[] audioBytes = this.decodeAudioBase64(dto.getAudioBase64());
-        String requestUrl = this.buildSentenceRecognizeUrl(dto);
+        ResolvedAudioInfo resolvedAudioInfo = this.resolveAudioInfo(audioBytes, dto);
+        String requestUrl = this.buildSentenceRecognizeUrl(resolvedAudioInfo, dto);
         String token = this.queryToken();
 
         try (HttpResponse response = HttpUtil.createPost(requestUrl)
                 .header("Content-Type", "application/octet-stream")
                 .header("Accept", "application/json")
                 .header("X-NLS-Token", token)
-                .body(audioBytes)
+                .body(resolvedAudioInfo.getAudioBytes())
                 .timeout(Math.max(
                         this.aliyunAsrProperties.getConnectTimeoutMillis(),
                         this.aliyunAsrProperties.getReadTimeoutMillis()
@@ -73,11 +81,25 @@ public class AliyunAsrServiceImpl implements AsrService {
             vo.setStatus(jsonObject.getInt("status"));
             vo.setMessage(jsonObject.getStr("message"));
             vo.setResult(jsonObject.getStr("result"));
-            if (vo != null && !vo.isSuccess()) {
-                log.warn("AliyunAsrService#sentenceRecognize 识别失败, status: {}, message: {}, taskId: {}",
-                        vo.getStatus(), vo.getMessage(), vo.getTaskId());
+            if (!vo.isSuccess()) {
+                log.warn("AliyunAsrService#sentenceRecognize 识别失败, status: {}, message: {}, taskId: {}, resolvedFormat: {}, resolvedSampleRate: {}, audioSize: {}",
+                        vo.getStatus(), vo.getMessage(), vo.getTaskId(),
+                        resolvedAudioInfo.getFormat(), resolvedAudioInfo.getSampleRate(), resolvedAudioInfo.getAudioBytes().length);
+                throw new IwWebException("阿里云语音识别失败: " + StringUtils.defaultIfBlank(vo.getMessage(), "UNKNOWN_ERROR"));
+            }
+            if (StringUtils.isBlank(vo.getResult())) {
+                log.warn("AliyunAsrService#sentenceRecognize 识别成功但结果为空, taskId: {}, declaredFormat: {}, declaredSampleRate: {}, resolvedFormat: {}, resolvedSampleRate: {}, audioSize: {}, audioHeaderHex: {}",
+                        vo.getTaskId(),
+                        dto.getFormat(),
+                        dto.getSampleRate(),
+                        resolvedAudioInfo.getFormat(),
+                        resolvedAudioInfo.getSampleRate(),
+                        resolvedAudioInfo.getAudioBytes().length,
+                        this.buildAudioHeaderHex(resolvedAudioInfo.getAudioBytes()));
             }
             return vo;
+        } catch (IwWebException e) {
+            throw e;
         } catch (Exception e) {
             log.error("AliyunAsrService#sentenceRecognize 调用阿里云一句话识别异常", e);
             throw new IwWebException("语音识别异常");
@@ -97,11 +119,11 @@ public class AliyunAsrServiceImpl implements AsrService {
         }
     }
 
-    private String buildSentenceRecognizeUrl(AsrSentenceRecognizeDto dto) {
+    private String buildSentenceRecognizeUrl(ResolvedAudioInfo resolvedAudioInfo, AsrSentenceRecognizeDto dto) {
         Map<String, Object> queryMap = new LinkedHashMap<>();
         queryMap.put("appkey", this.aliyunAsrProperties.getAppKey());
-        queryMap.put("format", this.resolveFormat(dto));
-        queryMap.put("sample_rate", this.resolveSampleRate(dto));
+        queryMap.put("format", resolvedAudioInfo.getFormat());
+        queryMap.put("sample_rate", resolvedAudioInfo.getSampleRate());
         queryMap.put("enable_punctuation_prediction", this.resolveBooleanValue(
                 dto.getEnablePunctuationPrediction(),
                 this.aliyunAsrProperties.getEnablePunctuationPrediction()
@@ -122,11 +144,47 @@ public class AliyunAsrServiceImpl implements AsrService {
     }
 
     private String resolveFormat(AsrSentenceRecognizeDto dto) {
-        return StringUtils.defaultIfBlank(dto.getFormat(), this.aliyunAsrProperties.getDefaultFormat());
+        return StringUtils.lowerCase(StringUtils.defaultIfBlank(dto.getFormat(), this.aliyunAsrProperties.getDefaultFormat()));
     }
 
     private Integer resolveSampleRate(AsrSentenceRecognizeDto dto) {
         return dto.getSampleRate() == null ? this.aliyunAsrProperties.getDefaultSampleRate() : dto.getSampleRate();
+    }
+
+    private ResolvedAudioInfo resolveAudioInfo(byte[] audioBytes, AsrSentenceRecognizeDto dto) {
+        String resolvedFormat = this.resolveFormat(dto);
+        Integer resolvedSampleRate = this.resolveSampleRate(dto);
+        byte[] resolvedAudioBytes = audioBytes;
+
+        if (this.isWebmAudio(audioBytes)) {
+            log.info("AliyunAsrService#sentenceRecognize 检测到WebM音频，准备转码, declaredFormat: {}, declaredSampleRate: {}, audioHeaderHex: {}",
+                    dto.getFormat(), dto.getSampleRate(), this.buildAudioHeaderHex(audioBytes));
+            resolvedAudioBytes = this.transcodeWebmToWave(audioBytes);
+            resolvedFormat = "wav";
+            resolvedSampleRate = 16000;
+        }
+
+        if (this.isWaveAudio(resolvedAudioBytes)) {
+            Integer wavSampleRate = this.parseWaveSampleRate(resolvedAudioBytes);
+            if (!"wav".equals(resolvedFormat) || !Objects.equals(wavSampleRate, resolvedSampleRate)) {
+                log.info("AliyunAsrService#sentenceRecognize 检测到WAV音频头, declaredFormat: {}, declaredSampleRate: {}, resolvedSampleRate: {}",
+                        dto.getFormat(), dto.getSampleRate(), wavSampleRate);
+            }
+            resolvedFormat = "wav";
+            if (wavSampleRate != null) {
+                resolvedSampleRate = wavSampleRate;
+            }
+        } else if (this.isAmrAudio(resolvedAudioBytes)) {
+            resolvedFormat = "amr";
+        } else if (this.isMp3Audio(resolvedAudioBytes)) {
+            resolvedFormat = "mp3";
+        }
+
+        ResolvedAudioInfo resolvedAudioInfo = new ResolvedAudioInfo();
+        resolvedAudioInfo.setAudioBytes(resolvedAudioBytes);
+        resolvedAudioInfo.setFormat(resolvedFormat);
+        resolvedAudioInfo.setSampleRate(resolvedSampleRate);
+        return resolvedAudioInfo;
     }
 
     private String resolveBooleanValue(Boolean requestValue, Boolean defaultValue) {
@@ -144,6 +202,145 @@ public class AliyunAsrServiceImpl implements AsrService {
         } catch (Exception e) {
             throw new IwWebException("音频base64数据非法");
         }
+    }
+
+    private boolean isWaveAudio(byte[] audioBytes) {
+        return audioBytes != null
+                && audioBytes.length >= 12
+                && audioBytes[0] == 'R'
+                && audioBytes[1] == 'I'
+                && audioBytes[2] == 'F'
+                && audioBytes[3] == 'F'
+                && audioBytes[8] == 'W'
+                && audioBytes[9] == 'A'
+                && audioBytes[10] == 'V'
+                && audioBytes[11] == 'E';
+    }
+
+    private boolean isWebmAudio(byte[] audioBytes) {
+        return audioBytes != null
+                && audioBytes.length >= 4
+                && (audioBytes[0] & 0xFF) == 0x1A
+                && (audioBytes[1] & 0xFF) == 0x45
+                && (audioBytes[2] & 0xFF) == 0xDF
+                && (audioBytes[3] & 0xFF) == 0xA3;
+    }
+
+    private boolean isAmrAudio(byte[] audioBytes) {
+        return audioBytes != null
+                && audioBytes.length >= 6
+                && audioBytes[0] == '#'
+                && audioBytes[1] == '!'
+                && audioBytes[2] == 'A'
+                && audioBytes[3] == 'M'
+                && audioBytes[4] == 'R'
+                && audioBytes[5] == '\n';
+    }
+
+    private boolean isMp3Audio(byte[] audioBytes) {
+        return audioBytes != null
+                && audioBytes.length >= 3
+                && ((audioBytes[0] == 'I' && audioBytes[1] == 'D' && audioBytes[2] == '3')
+                || ((audioBytes[0] & 0xFF) == 0xFF && (audioBytes[1] & 0xE0) == 0xE0));
+    }
+
+    private Integer parseWaveSampleRate(byte[] audioBytes) {
+        if (!this.isWaveAudio(audioBytes) || audioBytes.length < 28) {
+            return null;
+        }
+        return (audioBytes[24] & 0xFF)
+                | ((audioBytes[25] & 0xFF) << 8)
+                | ((audioBytes[26] & 0xFF) << 16)
+                | ((audioBytes[27] & 0xFF) << 24);
+    }
+
+    private String buildAudioHeaderHex(byte[] audioBytes) {
+        if (audioBytes == null || audioBytes.length == 0) {
+            return "";
+        }
+        byte[] headerBytes = Arrays.copyOf(audioBytes, Math.min(audioBytes.length, 16));
+        StringBuilder builder = new StringBuilder();
+        for (byte headerByte : headerBytes) {
+            builder.append(String.format("%02X", headerByte));
+        }
+        return builder.toString();
+    }
+
+    private byte[] transcodeWebmToWave(byte[] webmBytes) {
+        Path inputPath = null;
+        Path outputPath = null;
+        try {
+            inputPath = Files.createTempFile("iw-asr-source-", ".webm");
+            outputPath = Files.createTempFile("iw-asr-target-", ".wav");
+            Files.write(inputPath, webmBytes);
+
+            ProcessBuilder processBuilder = new ProcessBuilder(
+                    this.aliyunAsrProperties.getFfmpegCommand(),
+                    "-y",
+                    "-i", inputPath.toString(),
+                    "-vn",
+                    "-acodec", "pcm_s16le",
+                    "-ac", "1",
+                    "-ar", "16000",
+                    outputPath.toString()
+            );
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+
+            String ffmpegOutput;
+            try (InputStream inputStream = process.getInputStream()) {
+                boolean finished = process.waitFor(this.aliyunAsrProperties.getFfmpegTimeoutSeconds(), TimeUnit.SECONDS);
+                ffmpegOutput = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                if (!finished) {
+                    process.destroyForcibly();
+                    log.error("AliyunAsrService#transcodeWebmToWave 转码超时, ffmpegOutput: {}", ffmpegOutput);
+                    throw new IwWebException("WebM音频转码超时，请检查ffmpeg配置");
+                }
+            }
+
+            if (process.exitValue() != 0 || !Files.exists(outputPath) || Files.size(outputPath) <= 0) {
+                log.error("AliyunAsrService#transcodeWebmToWave 转码失败, exitCode: {}, ffmpegOutput: {}",
+                        process.exitValue(), ffmpegOutput);
+                throw new IwWebException("WebM音频转码失败，请检查ffmpeg配置");
+            }
+
+            byte[] wavBytes = Files.readAllBytes(outputPath);
+            log.info("AliyunAsrService#transcodeWebmToWave 转码成功, sourceSize: {}, targetSize: {}, ffmpegCommand: {}",
+                    webmBytes.length, wavBytes.length, this.aliyunAsrProperties.getFfmpegCommand());
+            return wavBytes;
+        } catch (IwWebException e) {
+            throw e;
+        } catch (IOException e) {
+            log.error("AliyunAsrService#transcodeWebmToWave 转码IO异常", e);
+            throw new IwWebException("WebM音频转码失败，请检查ffmpeg配置");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IwWebException("WebM音频转码被中断");
+        } finally {
+            this.deleteTempFile(inputPath);
+            this.deleteTempFile(outputPath);
+        }
+    }
+
+    private void deleteTempFile(Path filePath) {
+        if (filePath == null) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            log.warn("AliyunAsrService#deleteTempFile 删除临时文件失败, filePath: {}", filePath, e);
+        }
+    }
+
+    @lombok.Data
+    private static class ResolvedAudioInfo {
+
+        private byte[] audioBytes;
+
+        private String format;
+
+        private Integer sampleRate;
     }
 
     private String queryToken() {

@@ -2,10 +2,12 @@ package com.itwray.iw.external.controller;
 
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.model.ExternalClientConstants;
+import com.itwray.iw.external.model.dto.AiStructuredChatDto;
 import com.itwray.iw.external.model.dto.AsrSentenceRecognizeDto;
 import com.itwray.iw.external.model.dto.GetExchangeRateDto;
 import com.itwray.iw.external.model.dto.SendEmailDto;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
+import com.itwray.iw.external.model.vo.AiStructuredChatVo;
 import com.itwray.iw.external.model.vo.AsrSentenceRecognizeVo;
 import com.itwray.iw.external.model.vo.GetExchangeRateVo;
 import com.itwray.iw.external.service.AIService;
@@ -88,6 +90,12 @@ public class InternalApiController {
     public GeneralResponse<String> aiChat(@RequestBody Map<String, String> body) {
         String content = aiService.chat(body.get("content"));
         return GeneralResponse.success(content);
+    }
+
+    @PostMapping("/ai/structuredChat")
+    @Operation(summary = "结构化AI对话")
+    public GeneralResponse<AiStructuredChatVo> structuredChat(@RequestBody @Valid AiStructuredChatDto dto) {
+        return GeneralResponse.success(aiService.structuredChat(dto));
     }
 
     @PostMapping("/asr/sentenceRecognition")

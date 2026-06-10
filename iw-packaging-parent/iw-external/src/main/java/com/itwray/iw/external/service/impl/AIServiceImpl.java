@@ -10,7 +10,10 @@ import com.itwray.iw.external.model.bo.AIMessage;
 import com.itwray.iw.external.model.bo.AIRequestBody;
 import com.itwray.iw.external.model.bo.AIResponseBody;
 import com.itwray.iw.external.model.bo.AIResponseFormat;
+import com.itwray.iw.external.model.dto.AiChatMessageDto;
+import com.itwray.iw.external.model.dto.AiStructuredChatDto;
 import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
+import com.itwray.iw.external.model.vo.AiStructuredChatVo;
 import com.itwray.iw.external.service.AIService;
 import com.itwray.iw.starter.redis.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -47,36 +50,7 @@ public class AIServiceImpl implements AIService {
         List<AIMessage> messages = new ArrayList<>();
         messages.add(new AIMessage("你是一个百科助手,针对用户提问,可以精准且简要的回复问题.", "system"));
         messages.add(new AIMessage(content, "user"));
-
-        AIRequestBody requestBody = new AIRequestBody();
-        requestBody.setMessages(messages);
-        requestBody.setModel("deepseek-chat");
-        requestBody.setFrequency_penalty(0);
-        requestBody.setMax_tokens(1024);
-        requestBody.setPresence_penalty(0);
-        requestBody.setResponse_format(new AIResponseFormat("text"));
-        requestBody.setStream(false);
-        requestBody.setTemperature(new BigDecimal("1.3"));
-        requestBody.setTop_p(new BigDecimal("1"));
-        requestBody.setLogprobs(false);
-
-        try (HttpResponse response = HttpUtil.createPost(this.apiUrl)
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .header("Authorization", this.apiKey)
-                .body(JSONUtil.toJsonStr(requestBody))
-                .execute()) {
-            if (!response.isOk()) {
-                return "服务请求失败, 请重试";
-            }
-            AIResponseBody responseBody = JSONUtil.toBean(response.body(), AIResponseBody.class);
-            if (responseBody != null && CollUtil.isNotEmpty(responseBody.getChoices())) {
-                AIResponseBody.Choice choice = responseBody.getChoices().get(0);
-                return choice.getMessage().getContent();
-            }
-        }
-
-        return "服务请求超时, 请重试";
+        return this.requestChatCompletion(messages, "deepseek-chat", 1024, new BigDecimal("1.3"));
     }
 
     @Override
@@ -144,6 +118,25 @@ public class AIServiceImpl implements AIService {
     }
 
     @Override
+    public AiStructuredChatVo structuredChat(AiStructuredChatDto dto) {
+        List<AIMessage> messages = dto.getMessages()
+                .stream()
+                .map(this::convertMessage)
+                .toList();
+
+        String content = this.requestChatCompletion(
+                messages,
+                StringUtils.defaultIfBlank(dto.getModel(), "deepseek-chat"),
+                dto.getMaxTokens() == null ? 1024 : dto.getMaxTokens(),
+                BigDecimal.valueOf(dto.getTemperature() == null ? 0.3D : dto.getTemperature())
+        );
+
+        AiStructuredChatVo vo = new AiStructuredChatVo();
+        vo.setContent(content);
+        return vo;
+    }
+
+    @Override
     public HttpResponse streamChat(@NonNull String chatId, @NonNull String prompt) {
         log.info("收到对话: chatId: {}, prompt: {}", chatId, prompt);
         List<AIMessage> messageList = new ArrayList<>();
@@ -190,5 +183,51 @@ public class AIServiceImpl implements AIService {
                 .body(JSONUtil.toJsonStr(requestBody))
                 .timeout(60 * 1000)
                 .executeAsync();
+    }
+
+    private AIMessage convertMessage(AiChatMessageDto dto) {
+        AIMessage message = new AIMessage();
+        message.setRole(dto.getRole());
+        message.setContent(dto.getContent());
+        message.setName(dto.getName());
+        return message;
+    }
+
+    private String requestChatCompletion(List<AIMessage> messages, String model, Integer maxTokens, BigDecimal temperature) {
+        AIRequestBody requestBody = new AIRequestBody();
+        requestBody.setMessages(messages);
+        requestBody.setModel(model);
+        requestBody.setFrequency_penalty(0);
+        requestBody.setMax_tokens(maxTokens);
+        requestBody.setPresence_penalty(0);
+        requestBody.setResponse_format(new AIResponseFormat("text"));
+        requestBody.setStream(false);
+        requestBody.setTemperature(temperature);
+        requestBody.setTop_p(new BigDecimal("1"));
+        requestBody.setLogprobs(false);
+
+        try (HttpResponse response = HttpUtil.createPost(this.apiUrl)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", this.apiKey)
+                .body(JSONUtil.toJsonStr(requestBody))
+                .execute()) {
+            if (!response.isOk()) {
+                log.error("AIService#requestChatCompletion 请求失败, status: {}, body: {}", response.getStatus(), response.body());
+                return "服务请求失败, 请重试";
+            }
+            AIResponseBody responseBody = JSONUtil.toBean(response.body(), AIResponseBody.class);
+            if (responseBody != null && CollUtil.isNotEmpty(responseBody.getChoices())) {
+                AIResponseBody.Choice choice = responseBody.getChoices().get(0);
+                if (choice != null && choice.getMessage() != null) {
+                    return choice.getMessage().getContent();
+                }
+            }
+        } catch (Exception e) {
+            log.error("AIService#requestChatCompletion 请求异常", e);
+            return "服务请求超时, 请重试";
+        }
+
+        return "服务请求超时, 请重试";
     }
 }

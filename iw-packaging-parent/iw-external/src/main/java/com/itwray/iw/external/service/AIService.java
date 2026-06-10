@@ -1,6 +1,8 @@
 package com.itwray.iw.external.service;
 
 import cn.hutool.http.HttpResponse;
+import com.itwray.iw.external.model.dto.AiStructuredChatDto;
+import com.itwray.iw.external.model.vo.AiStructuredChatVo;
 import org.springframework.lang.NonNull;
 
 import java.io.IOException;
@@ -16,6 +18,8 @@ public interface AIService {
     String answer(String content);
 
     String chat(String content);
+
+    AiStructuredChatVo structuredChat(AiStructuredChatDto dto);
 
     /**
      * 流式对话

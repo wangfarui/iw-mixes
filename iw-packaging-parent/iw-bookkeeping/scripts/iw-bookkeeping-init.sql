@@ -126,3 +126,28 @@ alter table bookkeeping_records
 
 alter table bookkeeping_records
     add key idx_group_id (group_id);
+
+create table bookkeeping_voice_parse_log
+(
+    id               int unsigned auto_increment             not null comment 'id',
+    parse_status     varchar(32)   default ''                not null comment '解析状态',
+    confirm_status   varchar(32)   default 'UNCONFIRMED'     not null comment '确认状态',
+    recognized_text  varchar(1024) default ''                not null comment '原始识别文本',
+    audio_format     varchar(16)   default ''                not null comment '音频格式',
+    audio_duration_ms int         default 0                  not null comment '音频时长(毫秒)',
+    confidence       decimal(5, 2) default 0                 not null comment '解析置信度',
+    matched_action_id int unsigned default null              null comment '匹配的记账行为ID',
+    confirmed_record_id int unsigned default null            null comment '确认生成的记账记录ID',
+    draft_json       text                                   null comment '解析结果草稿JSON',
+    warning_json     text                                   null comment '解析警告JSON',
+    confirmed_data_json text                                null comment '确认提交数据JSON',
+    ai_raw_response  text                                   null comment 'AI原始响应',
+    provider         varchar(64)   default ''                not null comment '服务提供方',
+    deleted          tinyint(1)    default 0                 not null comment '是否删除(true表示已删除, 默认false表示未删除)',
+    create_time      datetime      default CURRENT_TIMESTAMP not null comment '创建时间',
+    confirmed_time   datetime                               null comment '确认时间',
+    update_time      datetime      default CURRENT_TIMESTAMP not null comment '更新时间',
+    user_id          int unsigned  default 0                 not null comment '用户id',
+    primary key (id),
+    key idx_user_id (user_id)
+) comment '语音记账解析日志表';

@@ -186,5 +186,15 @@ public class IwAliyunProperties {
          * Token 提前刷新秒数
          */
         private Integer tokenRefreshBeforeSeconds = 300;
+
+        /**
+         * ffmpeg命令路径
+         */
+        private String ffmpegCommand = "ffmpeg";
+
+        /**
+         * 音频转码超时时间(秒)
+         */
+        private Integer ffmpegTimeoutSeconds = 20;
     }
 }

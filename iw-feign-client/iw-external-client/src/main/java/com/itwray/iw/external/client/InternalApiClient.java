@@ -3,9 +3,13 @@ package com.itwray.iw.external.client;
 import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.core.InternalFeignConfig;
 import com.itwray.iw.external.model.ExternalClientConstants;
+import com.itwray.iw.external.model.dto.AiStructuredChatDto;
+import com.itwray.iw.external.model.dto.AsrSentenceRecognizeDto;
 import com.itwray.iw.external.model.dto.GetExchangeRateDto;
 import com.itwray.iw.external.model.dto.SendEmailDto;
 import com.itwray.iw.external.model.dto.SmsSendVerificationCodeDto;
+import com.itwray.iw.external.model.vo.AiStructuredChatVo;
+import com.itwray.iw.external.model.vo.AsrSentenceRecognizeVo;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -39,4 +43,10 @@ public interface InternalApiClient {
 
     @GetMapping("/ai/answer")
     GeneralResponse<String> aiAnswer(@RequestParam("t") String content);
+
+    @PostMapping("/ai/structuredChat")
+    GeneralResponse<AiStructuredChatVo> structuredChat(@RequestBody @Valid AiStructuredChatDto dto);
+
+    @PostMapping("/asr/sentenceRecognition")
+    GeneralResponse<AsrSentenceRecognizeVo> sentenceRecognition(@RequestBody @Valid AsrSentenceRecognizeDto dto);
 }
