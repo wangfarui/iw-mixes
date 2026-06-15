@@ -45,8 +45,8 @@ public interface InternalApiClient {
     GeneralResponse<String> aiAnswer(@RequestParam("t") String content);
 
     @PostMapping("/ai/structuredChat")
-    GeneralResponse<AiStructuredChatVo> structuredChat(@RequestBody @Valid AiStructuredChatDto dto);
+    AiStructuredChatVo structuredChat(@RequestBody @Valid AiStructuredChatDto dto);
 
     @PostMapping("/asr/sentenceRecognition")
-    GeneralResponse<AsrSentenceRecognizeVo> sentenceRecognition(@RequestBody @Valid AsrSentenceRecognizeDto dto);
+    AsrSentenceRecognizeVo sentenceRecognition(@RequestBody @Valid AsrSentenceRecognizeDto dto);
 }

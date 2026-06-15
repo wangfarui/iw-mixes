@@ -34,8 +34,9 @@ public class BookkeepingAssistantController {
     public BookkeepingAssistantParseExpenseVo parseExpenseAudio(@RequestParam("file") MultipartFile file,
                                                                 @RequestParam(value = "durationMs", required = false) Integer durationMs,
                                                                 @RequestParam(value = "format", required = false) String format,
-                                                                @RequestParam(value = "sampleRate", required = false) Integer sampleRate) {
-        return bookkeepingAssistantService.parseExpenseAudio(file, durationMs, format, sampleRate);
+                                                                @RequestParam(value = "sampleRate", required = false) Integer sampleRate,
+                                                                @RequestParam(value = "autoSave", required = false, defaultValue = "false") Boolean autoSave) {
+        return bookkeepingAssistantService.parseExpenseAudio(file, durationMs, format, sampleRate, autoSave);
     }
 
     @PostMapping("/expense/confirm")

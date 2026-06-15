@@ -1,7 +1,6 @@
 package com.itwray.iw.bookkeeping.service.impl;
 
 import com.itwray.iw.bookkeeping.service.BookkeepingAssistantRemoteService;
-import com.itwray.iw.common.GeneralResponse;
 import com.itwray.iw.external.client.InternalApiClient;
 import com.itwray.iw.external.model.dto.AiStructuredChatDto;
 import com.itwray.iw.external.model.dto.AsrSentenceRecognizeDto;
@@ -27,26 +26,18 @@ public class BookkeepingAssistantRemoteServiceImpl implements BookkeepingAssista
 
     @Override
     public AsrSentenceRecognizeVo sentenceRecognition(AsrSentenceRecognizeDto dto) {
-        GeneralResponse<AsrSentenceRecognizeVo> response = internalApiClient.sentenceRecognition(dto);
-        return this.unwrapResponse(response, "调用语音识别服务失败");
+        return this.requireResponse(internalApiClient.sentenceRecognition(dto), "调用语音识别服务失败");
     }
 
     @Override
     public AiStructuredChatVo structuredChat(AiStructuredChatDto dto) {
-        GeneralResponse<AiStructuredChatVo> response = internalApiClient.structuredChat(dto);
-        return this.unwrapResponse(response, "调用AI解析服务失败");
+        return this.requireResponse(internalApiClient.structuredChat(dto), "调用AI解析服务失败");
     }
 
-    private <T> T unwrapResponse(GeneralResponse<T> response, String defaultMessage) {
+    private <T> T requireResponse(T response, String defaultMessage) {
         if (response == null) {
             throw new IwWebException(defaultMessage);
         }
-        if (!response.isSuccess()) {
-            throw new IwWebException(response.getMessage() == null ? defaultMessage : response.getMessage());
-        }
-        if (response.getData() == null) {
-            throw new IwWebException(defaultMessage);
-        }
-        return response.getData();
+        return response;
     }
 }

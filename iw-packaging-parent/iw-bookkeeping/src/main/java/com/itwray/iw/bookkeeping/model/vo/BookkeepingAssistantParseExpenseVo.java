@@ -37,6 +37,15 @@ public class BookkeepingAssistantParseExpenseVo {
     @Schema(title = "是否支持自动记账")
     private Boolean autoSaveEligible;
 
+    @Schema(title = "是否已自动保存")
+    private Boolean autoSaved;
+
+    @Schema(title = "自动保存生成的记账记录ID")
+    private Integer recordId;
+
+    @Schema(title = "是否复用已确认结果")
+    private Boolean confirmReused;
+
     @Schema(title = "缺失字段")
     private List<String> missingFields;
 

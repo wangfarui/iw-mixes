@@ -55,6 +55,8 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
 
     private static final Pattern AMOUNT_PATTERN = Pattern.compile("(\\d+(?:\\.\\d{1,2})?)");
 
+    private static final BigDecimal AUTO_SAVE_CONFIDENCE_THRESHOLD = new BigDecimal("0.85");
+
     private final BookkeepingAssistantRemoteService bookkeepingAssistantRemoteService;
 
     private final BookkeepingVoiceParseLogDao bookkeepingVoiceParseLogDao;
@@ -83,7 +85,11 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
 
     @Override
     @Transactional
-    public BookkeepingAssistantParseExpenseVo parseExpenseAudio(MultipartFile file, Integer durationMs, String format, Integer sampleRate) {
+    public BookkeepingAssistantParseExpenseVo parseExpenseAudio(MultipartFile file,
+                                                                Integer durationMs,
+                                                                String format,
+                                                                Integer sampleRate,
+                                                                Boolean autoSave) {
         if (file == null || file.isEmpty()) {
             throw new IwWebException("音频文件不能为空");
         }
@@ -116,11 +122,7 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
                 draftVo.setShared(this.resolveDefaultShared());
 
                 BigDecimal amount = this.extractAmount(recognizedText);
-                if (amount == null) {
-                    missingFields.add("amount");
-                    status = BookkeepingAssistantParseStatusEnum.NEED_MORE_INFO;
-                    message = "暂未识别到明确金额";
-                } else {
+                if (amount != null) {
                     draftVo.setAmount(amount.setScale(2, RoundingMode.HALF_UP));
                     confidence = new BigDecimal("0.65");
                 }
@@ -136,6 +138,11 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
                     message = ambiguities.isEmpty() ? "已生成记账草稿" : "已生成记账草稿，请确认分类";
                     confidence = ambiguities.isEmpty() ? new BigDecimal("0.88") : new BigDecimal("0.72");
                 } else {
+                    if (draftVo.getAmount() == null) {
+                        missingFields.add("amount");
+                        status = BookkeepingAssistantParseStatusEnum.NEED_MORE_INFO;
+                        message = "暂未识别到明确金额";
+                    }
                     if (draftVo.getRecordType() == null) {
                         missingFields.add("recordType");
                     }
@@ -170,14 +177,12 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
         logEntity.setConfidence(confidence);
         logEntity.setMatchedActionId(matchedActionId);
         logEntity.setDraftJson(JSONUtil.toJsonStr(draftVo));
-        Map<String, Object> warningMap = new LinkedHashMap<>();
-        warningMap.put("missingFields", missingFields);
-        warningMap.put("ambiguities", ambiguities);
-        logEntity.setWarningJson(JSONUtil.toJsonStr(warningMap));
+        logEntity.setWarningJson(this.buildWarningJson(missingFields, ambiguities));
         logEntity.setAiRawResponse(aiResponse == null ? null : aiResponse.getContent());
         logEntity.setProvider("aliyun-asr+deepseek-chat");
         bookkeepingVoiceParseLogDao.save(logEntity);
 
+        boolean autoSaveEligible = this.isAutoSaveEligible(status, confidence, draftVo, missingFields, ambiguities);
         BookkeepingAssistantParseExpenseVo vo = new BookkeepingAssistantParseExpenseVo();
         vo.setLogId(logEntity.getId());
         vo.setStatus(status.name());
@@ -185,10 +190,34 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
         vo.setConfidence(confidence);
         vo.setMatchedActionId(matchedActionId);
         vo.setMessage(message);
-        vo.setAutoSaveEligible(Boolean.FALSE);
+        vo.setAutoSaveEligible(autoSaveEligible);
+        vo.setAutoSaved(Boolean.FALSE);
+        vo.setConfirmReused(Boolean.FALSE);
         vo.setMissingFields(missingFields);
         vo.setAmbiguities(ambiguities);
         vo.setDraft(draftVo);
+
+        if (Boolean.TRUE.equals(autoSave) && autoSaveEligible) {
+            try {
+                BookkeepingAssistantConfirmExpenseVo confirmVo = this.confirmExpense(this.buildConfirmExpenseDto(logEntity.getId(), draftVo));
+                vo.setAutoSaved(Boolean.TRUE);
+                vo.setRecordId(confirmVo.getRecordId());
+                vo.setConfirmReused(confirmVo.getReused());
+                vo.setMessage("已自动生成记账记录");
+            } catch (Exception e) {
+                log.warn("BookkeepingAssistantService#parseExpenseAudio 自动保存语音支出记账失败, logId: {}, message: {}",
+                        logEntity.getId(), e.getMessage(), e);
+                status = BookkeepingAssistantParseStatusEnum.NEED_CONFIRM;
+                message = "已生成记账草稿，自动保存失败，请确认后保存";
+                ambiguities.add("autoSaveFailed");
+                logEntity.setParseStatus(status.name());
+                logEntity.setWarningJson(this.buildWarningJson(missingFields, ambiguities));
+                bookkeepingVoiceParseLogDao.updateById(logEntity);
+                vo.setStatus(status.name());
+                vo.setMessage(message);
+                vo.setAutoSaveEligible(Boolean.FALSE);
+            }
+        }
         return vo;
     }
 
@@ -231,6 +260,46 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
         return vo;
     }
 
+    private boolean isAutoSaveEligible(BookkeepingAssistantParseStatusEnum status,
+                                       BigDecimal confidence,
+                                       BookkeepingAssistantExpenseDraftVo draftVo,
+                                       List<String> missingFields,
+                                       List<String> ambiguities) {
+        return BookkeepingAssistantParseStatusEnum.READY.equals(status)
+                && confidence != null
+                && confidence.compareTo(AUTO_SAVE_CONFIDENCE_THRESHOLD) >= 0
+                && draftVo != null
+                && Objects.equals(draftVo.getRecordCategory(), RecordCategoryEnum.CONSUME.getCode())
+                && draftVo.getAmount() != null
+                && draftVo.getRecordType() != null
+                && StringUtils.isNotBlank(draftVo.getRecordSource())
+                && missingFields.isEmpty()
+                && ambiguities.isEmpty();
+    }
+
+    private BookkeepingAssistantConfirmExpenseDto buildConfirmExpenseDto(Integer logId, BookkeepingAssistantExpenseDraftVo draftVo) {
+        BookkeepingAssistantConfirmExpenseDto dto = new BookkeepingAssistantConfirmExpenseDto();
+        dto.setLogId(logId);
+        dto.setRecordDate(draftVo.getRecordDate());
+        dto.setRecordCategory(RecordCategoryEnum.CONSUME);
+        dto.setRecordSource(draftVo.getRecordSource());
+        dto.setAmount(draftVo.getAmount());
+        dto.setRecordType(draftVo.getRecordType());
+        dto.setRecordTags(draftVo.getRecordTags());
+        dto.setIsExcitationRecord(BoolEnum.FALSE.getCode());
+        dto.setIsStatistics(draftVo.getIsStatistics());
+        dto.setRecordIcon(draftVo.getRecordIcon());
+        dto.setShared(draftVo.getShared());
+        return dto;
+    }
+
+    private String buildWarningJson(List<String> missingFields, List<String> ambiguities) {
+        Map<String, Object> warningMap = new LinkedHashMap<>();
+        warningMap.put("missingFields", missingFields);
+        warningMap.put("ambiguities", ambiguities);
+        return JSONUtil.toJsonStr(warningMap);
+    }
+
     private String resolveParseFailureMessage(String errorMessage) {
         if (StringUtils.containsIgnoreCase(errorMessage, "WebM") && StringUtils.containsIgnoreCase(errorMessage, "转码")) {
             return "语音转码失败，请检查服务端ffmpeg配置";
@@ -253,13 +322,16 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
                                                        List<DictListVo> recordTypeList) {
         StringBuilder promptBuilder = new StringBuilder();
         promptBuilder.append("你是一个记账助手，只做单笔支出记账解析。");
-        promptBuilder.append("请基于用户文本，从提供的候选行为和候选分类中选择最合适的结果，输出严格JSON。");
+        promptBuilder.append("请基于用户文本，解析金额，并从提供的候选行为和候选分类中选择最合适的结果，输出严格JSON。");
         promptBuilder.append("不要输出markdown，不要补充解释。");
-        promptBuilder.append("JSON字段固定为：recordSource,recordType,matchedActionId,ambiguities。");
-        promptBuilder.append("如果不确定，recordType返回null，matchedActionId返回null，ambiguities写原因数组。");
+        promptBuilder.append("JSON字段固定为：amount,recordSource,recordType,matchedActionId,ambiguities。");
+        promptBuilder.append("amount必须是以元为单位的数字，支持将中文金额转换为数字，最多保留两位小数；如果金额不确定，amount返回null。");
+        promptBuilder.append("如果分类不确定，recordType返回null，matchedActionId返回null，ambiguities写原因数组。");
         promptBuilder.append("用户文本：").append(recognizedText).append("。");
         if (amount != null) {
             promptBuilder.append("已规则提取金额：").append(amount).append("。");
+        } else {
+            promptBuilder.append("规则未提取到阿拉伯数字金额，请重点判断中文金额表达。");
         }
         promptBuilder.append("候选行为：").append(JSONUtil.toJsonStr(actionList.stream().map(t -> {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -305,9 +377,14 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
         try {
             String jsonContent = this.extractJson(aiContent);
             Map<String, Object> map = JSONUtil.toBean(jsonContent, Map.class);
+            BigDecimal aiAmount = this.parseAmount(map.get("amount"));
             Integer matchedActionId = this.parseInteger(map.get("matchedActionId"));
             Integer recordType = this.parseInteger(map.get("recordType"));
             String recordSource = map.get("recordSource") == null ? null : map.get("recordSource").toString();
+
+            if (draftVo.getAmount() == null && aiAmount != null) {
+                draftVo.setAmount(aiAmount.setScale(2, RoundingMode.HALF_UP));
+            }
 
             if (matchedActionId != null) {
                 Optional<BookkeepingActionsEntity> actionOptional = actionList.stream()
@@ -429,5 +506,26 @@ public class BookkeepingAssistantServiceImpl implements BookkeepingAssistantServ
             return null;
         }
         return Integer.parseInt(value.toString());
+    }
+
+    private BigDecimal parseAmount(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            BigDecimal amount;
+            if (value instanceof Number number) {
+                amount = new BigDecimal(number.toString());
+            } else {
+                String amountText = StringUtils.remove(value.toString(), ",");
+                if (StringUtils.isBlank(amountText) || "null".equalsIgnoreCase(amountText)) {
+                    return null;
+                }
+                amount = new BigDecimal(amountText);
+            }
+            return amount.compareTo(BigDecimal.ZERO) > 0 ? amount : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

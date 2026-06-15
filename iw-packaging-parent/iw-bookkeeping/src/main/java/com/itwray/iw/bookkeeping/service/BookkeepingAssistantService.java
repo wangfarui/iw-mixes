@@ -20,9 +20,10 @@ public interface BookkeepingAssistantService {
      * @param durationMs 音频时长
      * @param format 音频格式
      * @param sampleRate 采样率
+     * @param autoSave 解析明确时是否直接保存
      * @return 解析结果
      */
-    BookkeepingAssistantParseExpenseVo parseExpenseAudio(MultipartFile file, Integer durationMs, String format, Integer sampleRate);
+    BookkeepingAssistantParseExpenseVo parseExpenseAudio(MultipartFile file, Integer durationMs, String format, Integer sampleRate, Boolean autoSave);
 
     /**
      * 确认语音支出记账草稿并保存
