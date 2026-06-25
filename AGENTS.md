@@ -37,7 +37,7 @@
 - `iw-bookkeeping`：记账记录、记账动作、收支统计、预算、钱包、会员订阅、语音记账等。
 - `iw-eat`：餐食、菜品、冰箱、菜谱相关接口。当前网关把 `/eat-service/**` 转发到 `iw-bookkeeping-service`，说明部署上可能与记账服务共用。
 - `iw-points`：任务、积分记录、积分统计。当前网关把 `/points-service/**` 转发到 `iw-bookkeeping-service`，说明部署上可能与记账服务共用。
-- `iw-external`：短信、邮件、AI、ASR、天气、热榜、钉钉、汇率等外部能力。
+- `iw-external`：短信、邮件、AI、ASR、天气、热榜、钉钉、汇率等外部能力；无需登录、供第三方系统或静态站点直接调用的公开接口默认也归入该模块。
 - `iw-note`：笔记服务，README 标注为暂不开发。
 
 ## 网关与接口路径
@@ -53,6 +53,8 @@
 - `/external-service/wb/**` -> `iw-external-service`，WebSocket。
 
 因此 Controller 上的 `@RequestMapping("/bookkeeping/records")` 对前端通常表现为 `/bookkeeping-service/bookkeeping/records/...`。新增或调整接口时，要同时确认网关前缀、Controller 路径和前端调用路径。
+
+例外：`/external-service/api/**` 使用 `StripPrefix=0`，所以 `iw-external` 的公开 API Controller 需要保留 `/external-service/api` 前缀。新增无需登录的外部公开接口时，默认使用 `/external-service/api/<domain>/...`；如果需求给的是裸路径或不符合现有网关前缀，先提示应让调用方迎合 IW 路径规范，不要默认新增裸路由或新的网关旁路。
 
 ## 代码分层习惯
 
@@ -90,13 +92,13 @@
 
 ## 新增后端接口流程
 
-1. 定位业务服务：认证/基础资料进 `iw-auth`，记账进 `iw-bookkeeping`，餐食进 `iw-eat`，积分任务进 `iw-points`，外部能力进 `iw-external`。
+1. 定位业务服务：认证/基础资料进 `iw-auth`，记账进 `iw-bookkeeping`，餐食进 `iw-eat`，积分任务进 `iw-points`，外部能力进 `iw-external`；无需登录、供外部系统或静态站点直接调用的公开接口默认进 `iw-external`。
 2. 先看同业务下已有 Controller、Service、Mapper、DTO、VO 的写法，沿用命名和返回风格。
 3. 如是 CRUD 资源，优先复用 `WebController` / `WebService` 体系；如是统计、状态流转、导入导出、组合查询，则新增专用方法。
 4. DTO 做入参校验，VO 做前端所需出参，不直接把内部中间对象暴露给前端。
 5. 涉及数据库新增字段时，同步 Entity、DTO/VO、Mapper XML、统计 SQL、导入导出字段。
 6. 跨服务调用时，优先在 `iw-feign-client` 或 `iw-web/client` 中补充 Feign Client，而不是硬编码 HTTP。
-7. 前端可见接口需确认网关前缀：Controller 路径前要加 `/auth-service`、`/bookkeeping-service`、`/eat-service` 或 `/points-service`。
+7. 前端可见接口需确认网关前缀：Controller 路径前要加 `/auth-service`、`/bookkeeping-service`、`/eat-service` 或 `/points-service`；`iw-external` 公开 API 因网关保留前缀，Controller 路径本身应包含 `/external-service/api`。
 8. 修改完成后至少做相关模块编译或测试，跨端需求还要同步检查两个前端调用。
 
 ## 数据访问规则
@@ -135,5 +137,5 @@ mvn -pl iw-packaging-parent/iw-gateway -am spring-boot:run
 - 需求包含页面或小程序交互时，必须同时检查 `../iw-mixes-app` 或 `../iw-mixes-web-platform` 的 API 调用。
 - 修改公共模块 `iw-common`、`iw-web`、`iw-feign-client` 时，要评估所有业务服务影响。
 - 新增接口时，文档或最终说明中给出前端可调用的完整网关路径。
+- 新增无需登录的公开接口时，默认使用 `iw-external` 的 `/external-service/api/**` 规范路径；若用户给出裸 endpoint，先提示/确认改为规范路径，不要擅自新增裸路由。
 - 遇到已有命名不统一时，局部沿用所在模块风格，不做无关重命名。
-
