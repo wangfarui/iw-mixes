@@ -2,10 +2,12 @@ package com.itwray.iw.external.service.impl;
 
 import com.itwray.iw.external.config.DailyHotProperties;
 import com.itwray.iw.external.model.bo.dailyhot.DailyHotResult;
+import com.itwray.iw.external.model.enums.DailyHotSourceEnum;
 import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
 import com.itwray.iw.external.service.DailyHotService;
 import com.itwray.iw.external.service.dailyhot.DailyHotProvider;
 import com.itwray.iw.external.service.dailyhot.DailyHotProviderRegistry;
+import com.itwray.iw.external.service.dailyhot.impl.BuiltInDailyHotProvider;
 import com.itwray.iw.starter.redis.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,9 +31,14 @@ public class DailyHotServiceImpl implements DailyHotService {
 
     private final DailyHotProperties dailyHotProperties;
 
-    public DailyHotServiceImpl(DailyHotProviderRegistry dailyHotProviderRegistry, DailyHotProperties dailyHotProperties) {
+    private final BuiltInDailyHotProvider builtInDailyHotProvider;
+
+    public DailyHotServiceImpl(DailyHotProviderRegistry dailyHotProviderRegistry,
+                               DailyHotProperties dailyHotProperties,
+                               BuiltInDailyHotProvider builtInDailyHotProvider) {
         this.dailyHotProviderRegistry = dailyHotProviderRegistry;
         this.dailyHotProperties = dailyHotProperties;
+        this.builtInDailyHotProvider = builtInDailyHotProvider;
     }
 
     @Override
@@ -41,8 +48,9 @@ public class DailyHotServiceImpl implements DailyHotService {
         if (StringUtils.isBlank(normalizedSource)) {
             return DailyHotResult.failure(source, "无效的热点来源").toResponseMap();
         }
+        DailyHotSourceEnum sourceEnum = DailyHotSourceEnum.of(normalizedSource);
         DailyHotProvider provider = dailyHotProviderRegistry.getProvider(normalizedSource);
-        if (provider == null) {
+        if (provider == null && !builtInDailyHotProvider.supports(sourceEnum)) {
             return DailyHotResult.failure(normalizedSource, "暂不支持的热点来源").toResponseMap();
         }
         if (!dailyHotProperties.isSourceEnabled(normalizedSource)) {
@@ -61,7 +69,7 @@ public class DailyHotServiceImpl implements DailyHotService {
         }
 
         try {
-            DailyHotResult dailyHotResult = provider.fetch();
+            DailyHotResult dailyHotResult = provider == null ? builtInDailyHotProvider.fetch(sourceEnum) : provider.fetch();
             Map<Object, Object> result = dailyHotResult.setFromCache(false).toResponseMap();
             if (Boolean.TRUE.equals(dailyHotResult.getSuccess()) && cacheSeconds > 0) {
                 RedisUtil.set(cacheKey, result, cacheSeconds);

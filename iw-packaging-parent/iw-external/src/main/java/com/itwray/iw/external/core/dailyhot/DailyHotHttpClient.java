@@ -3,6 +3,7 @@ package com.itwray.iw.external.core.dailyhot;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itwray.iw.external.config.DailyHotProperties;
@@ -50,9 +51,37 @@ public class DailyHotHttpClient {
         }
     }
 
+    public JsonNode postJson(String url, Object body, Map<String, String> headers) {
+        try {
+            DailyHotHttpResponse response = post(url, body, headers);
+            return objectMapper.readTree(response.getBody());
+        } catch (Exception e) {
+            throw new IllegalStateException("每日热点远程响应解析异常", e);
+        }
+    }
+
     public DailyHotHttpResponse get(String url, Map<String, String> headers) {
+        return execute(HttpUtil.createGet(url), url, headers);
+    }
+
+    public DailyHotHttpResponse post(String url, Object body, Map<String, String> headers) {
+        String bodyText;
+        try {
+            bodyText = body instanceof String ? (String) body : objectMapper.writeValueAsString(body);
+        } catch (Exception e) {
+            throw new IllegalStateException("每日热点请求体序列化异常", e);
+        }
+        String contentType = ContentType.JSON.getValue();
+        if (headers != null && headers.get("Content-Type") != null) {
+            contentType = headers.get("Content-Type");
+        }
+        HttpRequest request = HttpUtil.createPost(url).body(bodyText, contentType);
+        return execute(request, url, headers);
+    }
+
+    private DailyHotHttpResponse execute(HttpRequest request, String url, Map<String, String> headers) {
         long start = System.currentTimeMillis();
-        HttpRequest request = HttpUtil.createGet(url).timeout(dailyHotProperties.getSafeTimeoutMs());
+        request.timeout(dailyHotProperties.getSafeTimeoutMs());
         Map<String, String> requestHeaders = new LinkedHashMap<>();
         requestHeaders.put("User-Agent", DEFAULT_USER_AGENT);
         if (headers != null) {
@@ -67,7 +96,7 @@ public class DailyHotHttpClient {
                 throw new IllegalStateException("每日热点远程请求失败, status: " + status);
             }
             Map<String, List<String>> responseHeaders = response.headers();
-            return new DailyHotHttpResponse(status, response.body(), responseHeaders);
+            return new DailyHotHttpResponse(status, response.body(), response.bodyBytes(), responseHeaders);
         }
     }
 }

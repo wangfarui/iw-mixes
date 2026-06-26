@@ -20,5 +20,7 @@ public class DailyHotHttpResponse {
 
     private final String body;
 
+    private final byte[] bodyBytes;
+
     private final Map<String, List<String>> headers;
 }
