@@ -369,8 +369,8 @@ public class BuiltInDailyHotProvider extends AbstractDailyHotProvider {
     }
 
     private DailyHotResult fetchDoubanMovie(DailyHotSourceEnum source) {
-        Document document = Jsoup.parse(dailyHotHttpClient.get("https://movie.douban.com/chart/", defaultHeaders()).getBody(),
-                "https://movie.douban.com/chart/");
+        Document document = Jsoup.parse(dailyHotHttpClient.get("https://movie.douban.com/chart", defaultHeaders()).getBody(),
+                "https://movie.douban.com/chart");
         List<DailyHotItem> items = new ArrayList<>();
         for (Element element : document.select(".article tr.item")) {
             Element link = element.selectFirst("a");
