@@ -2,12 +2,11 @@ package com.itwray.iw.external.service.impl;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itwray.iw.auth.client.BaseWebsiteNavigationClient;
 import com.itwray.iw.auth.model.vo.WebsiteNavigationListVo;
 import com.itwray.iw.external.model.ExternalClientConstants;
 import com.itwray.iw.external.model.enums.ExternalRedisKeyEnum;
+import com.itwray.iw.external.service.DailyHotService;
 import com.itwray.iw.external.service.ExternalApiService;
 import com.itwray.iw.starter.redis.RedisUtil;
 import com.itwray.iw.web.exception.IwServerException;
@@ -39,6 +38,8 @@ public class ExternalApiServiceImpl implements ExternalApiService {
 
     private BaseWebsiteNavigationClient baseWebsiteNavigationClient;
 
+    private DailyHotService dailyHotService;
+
     /**
      * 高德地图API Key
      */
@@ -51,12 +52,6 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     @Value("${iw.external.uptimerobot.key:}")
     private String uptimeRobotKey;
 
-    /**
-     * 每日热点API接口地址
-     */
-    @Value("${iw.external.dailyhot.api:}")
-    private String dailyHotApi;
-
     @Autowired
     public void setDiscoveryClient(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
@@ -65,6 +60,11 @@ public class ExternalApiServiceImpl implements ExternalApiService {
     @Autowired
     public void setBaseWebsiteNavigationClient(BaseWebsiteNavigationClient baseWebsiteNavigationClient) {
         this.baseWebsiteNavigationClient = baseWebsiteNavigationClient;
+    }
+
+    @Autowired
+    public void setDailyHotService(DailyHotService dailyHotService) {
+        this.dailyHotService = dailyHotService;
     }
 
     @Override
@@ -164,21 +164,7 @@ public class ExternalApiServiceImpl implements ExternalApiService {
 
     @Override
     public Map<Object, Object> getDailyHot(String source) {
-        Map<Object, Object> cache = (Map<Object, Object>) RedisUtil.get(ExternalRedisKeyEnum.DAILY_HOT_KEY.getKey(source));
-        if (cache != null) {
-            return cache;
-        }
-
-        String res = HttpUtil.get(dailyHotApi + "/" + source + "?cache=true");
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            Map<Object, Object> resMap = objectMapper.readValue(res, Map.class);
-            // 热点信息缓存30分钟
-            ExternalRedisKeyEnum.DAILY_HOT_KEY.setStringValue(resMap, source);
-            return resMap;
-        } catch (JsonProcessingException e) {
-            throw new IwWebException(e);
-        }
+        return dailyHotService.getDailyHot(source);
     }
 
     @Override

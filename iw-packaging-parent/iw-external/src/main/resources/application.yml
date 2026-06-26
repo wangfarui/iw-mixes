@@ -3,6 +3,10 @@ iw:
   dao:
     dataPermission:
       enabled: false
+  external:
+    dailyhot:
+      timeout-ms: ${IW_EXTERNAL_DAILYHOT_TIMEOUT_MS:3000}
+      cache-seconds: ${IW_EXTERNAL_DAILYHOT_CACHE_SECONDS:1800}
 
 # 服务器配置
 server:
